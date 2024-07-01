@@ -17,7 +17,6 @@ RUN python3 -m pip install huggingface_hub onnx
 RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 WORKDIR /root/Depth-Anything-for-Jetson-Orin
-COPY depth_anything*.pth ./
 COPY *.py ./
 RUN mkdir weights/
 COPY weights/ ./
