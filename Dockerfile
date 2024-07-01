@@ -21,6 +21,5 @@ COPY *.py ./
 RUN mkdir weights/
 COPY weights/ ./
 COPY weights/* ./weights/
-COPY host_location.txt ./
 COPY copyto_host.sh ./
 RUN cd  /root/Depth-Anything-for-Jetson-Orin

@@ -1,3 +1,2 @@
 #!/bin/sh
-echo $(logname)@$(hostname).local:$(pwd)　> host_location.txt
-
+echo scp -r weights $(logname)@$(hostname).local:$(pwd)/ > copyto_host.sh
