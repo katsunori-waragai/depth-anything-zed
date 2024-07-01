@@ -1,3 +1,3 @@
 #!/bin/sh
-echo $(logname)@$(hostname).local:$(pwd)　> host_location.txt
+echo $(logname)@$(hostname).local:$(pwd)/　> host_location.txt
 
