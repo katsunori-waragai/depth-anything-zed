@@ -1,3 +1,3 @@
 #/bin/bash
-sudo docker build -t depth-anything:100 .
+sudo docker build -t depth-anything-zed:100 .
   
