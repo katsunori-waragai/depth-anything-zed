@@ -174,7 +174,6 @@ def depth_run(args):
     cap = cv2.VideoCapture(0)
     try:
         while True:
-            print("going to camera.cap[0].read()")
             _, frame = cap.read()
             frame = cv2.resize(frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
