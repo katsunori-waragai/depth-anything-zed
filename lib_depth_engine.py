@@ -16,7 +16,6 @@ import pycuda.autoinit # Don't remove this line
 import pycuda.driver as cuda
 from torchvision.transforms import Compose
 
-from camera import Camera
 from depth_anything import transform
 
 
@@ -37,7 +36,6 @@ class DepthEngine:
         grayscale: bool = False,
     ):
         """
-        sensor_id: int | Sequence[int] -> Camera sensor id
         input_size: int -> Width and height of the input tensor(e.g. 308, 364, 406, 518)
         frame_rate: int -> Frame rate of the camera(depending on inference time)
         trt_engine_path: str -> Path to the TensorRT engine
@@ -48,7 +46,6 @@ class DepthEngine:
         save: bool -> Save the results
         grayscale: bool -> Convert the depth map to grayscale
         """
-        # Initialize the camera
         self.width = input_size # width of the input tensor
         self.height = input_size # height of the input tensor
         self.save_path = Path(save_path) if isinstance(save_path, str) else Path("results")
@@ -177,7 +174,6 @@ def depth_run(args):
     cap = cv2.VideoCapture(0)
     try:
         while True:
-            # frame = depth.camera.frame # This causes bad performance
             print("going to camera.cap[0].read()")
             _, frame = cap.read()
             frame = cv2.resize(frame, (960, 540))
