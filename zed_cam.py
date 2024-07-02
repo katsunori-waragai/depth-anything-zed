@@ -114,6 +114,8 @@ def main(opt):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
+            cv_image = cv_image[:, :, :3].copy()
+            assert cv_image.shape[2] == 3
             frame = cv2.resize(cv_image, (960, 540))
             depth_any = depth_engine.infer(frame)
             results = np.concatenate((frame, depth_any), axis=1)
