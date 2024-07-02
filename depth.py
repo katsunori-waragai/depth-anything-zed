@@ -168,46 +168,51 @@ class DepthEngine:
         print(f"Inference time: {time.time() - t0:.4f}s")
         
         return self.postprocess(self.h_output) # Postprocess the depth map
-    
-    def run(self):
-        """
-        Real-time depth estimation
-        """
-        try:
-            while True:
-                # frame = self.camera.frame # This causes bad performance
-                print("going to camera.cap[0].read()")
-                _, frame = self.camera.cap[0].read()
-                frame = cv2.resize(frame, (960, 540))
-                print(f"{frame.shape=} {frame.dtype=}")
-                depth = self.infer(frame)
-                print(f"{depth.shape=} {depth.dtype=}")
-                
-                if self.raw:
-                    self.raw_depth = depth
-                else:
-                    results = np.concatenate((frame, depth), axis=1)
-                    
-                    if self.record:
-                        self.video.write(results)
-                        
-                    if self.save:
-                        cv2.imwrite(str(self.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
 
-                    if self.stream:
-                        cv2.imshow('Depth', results) # This causes bad performance
-                        
-                        if cv2.waitKey(1) == ord('q'):
-                            break
-        except Exception as e:
-            print(e)
-        finally:
-            if self.record:
-                self.video.release()
-                
-            if self.stream:
-                cv2.destroyAllWindows()
-            
+def depth_run(args):
+    depth_engine = DepthEngine(
+        frame_rate=args.frame_rate,
+        raw=args.raw,
+        stream=args.stream,
+        record=args.record,
+        save=args.save,
+        grayscale=args.grayscale
+    )
+    try:
+        while True:
+            # frame = depth.camera.frame # This causes bad performance
+            print("going to camera.cap[0].read()")
+            _, frame = depth_engine.camera.cap[0].read()
+            frame = cv2.resize(frame, (960, 540))
+            print(f"{frame.shape=} {frame.dtype=}")
+            depth = depth_engine.infer(frame)
+            print(f"{depth.shape=} {depth.dtype=}")
+
+            if depth_engine.raw:
+                depth_engine.raw_depth = depth
+            else:
+                results = np.concatenate((frame, depth), axis=1)
+
+                if depth_engine.record:
+                    depth.video.write(results)
+
+                if depth_engine.save:
+                    cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
+
+                if depth_engine.stream:
+                    cv2.imshow('Depth', results)  # This causes bad performance
+
+                    if cv2.waitKey(1) == ord('q'):
+                        break
+    except Exception as e:
+        print(e)
+    finally:
+        if depth_engine.record:
+            depth_engine.video.release()
+
+        if depth_engine.stream:
+            cv2.destroyAllWindows()
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument('--frame_rate', type=int, default=15, help='Frame rate of the camera')
@@ -218,12 +223,4 @@ if __name__ == '__main__':
     args.add_argument('--grayscale', action='store_true', help='Convert the depth map to grayscale')
     args = args.parse_args()
     
-    depth = DepthEngine(
-        frame_rate=args.frame_rate,
-        raw=args.raw,
-        stream=args.stream, 
-        record=args.record,
-        save=args.save, 
-        grayscale=args.grayscale
-    )
-    depth.run()
+    depth_run(args)
