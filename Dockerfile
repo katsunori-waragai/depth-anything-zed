@@ -1,21 +1,5 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# Arguments to build Docker Image using CUDA
-ARG USE_CUDA=1
-
-ENV AM_I_DOCKER True
-ENV BUILD_WITH_CUDA "${USE_CUDA}"
-ENV TORCH_CUDA_ARCH_LIST "8.7+PTX"
-ENV CUDA_HOME /usr/local/cuda-11.4/
-RUN cd /root && git clone https://github.com/IDEA-Research/Grounded-Segment-Anything.git
-
-WORKDIR /root
-RUN apt update && apt install -y --no-install-recommends wget ffmpeg=7:* \
-    libsm6=2:* libxext6=2:* git=1:* \
-    vim=2:* \
-    zstd
-RUN apt install -y python3-tk
-RUN apt clean -y && apt autoremove -y && rm -rf /var/lib/apt/lists/*
 # for depth anything
 RUN apt update
 RUN apt install sudo
