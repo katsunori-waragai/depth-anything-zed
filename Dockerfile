@@ -12,6 +12,7 @@ RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN apt install zstd
 RUN python3 -m pip install matplotlib numpy 
 RUN python3 -m pip install opencv-python 
+RUN python3 -m pip install huggingface_hub onnxruntime onnx
 # only for development
 RUN apt update && apt install -y eog nano
 
