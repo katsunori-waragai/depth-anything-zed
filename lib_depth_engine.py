@@ -165,11 +165,11 @@ class DepthEngine:
 def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate,
-        raw=args.raw,
-        stream=args.stream,
-        record=args.record,
-        save=args.save,
-        grayscale=args.grayscale
+        raw=False,
+        stream=True,
+        record=False,
+        save=False,
+        grayscale=False
     )
     cap = cv2.VideoCapture(0)
     try:
