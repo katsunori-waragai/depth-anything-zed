@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 
 import inspect
 
+import lib_depth_engine
+
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 
 def parse_args(init):
@@ -69,6 +71,16 @@ def as_matrix(chw_array):
 
 
 def main(opt):
+    depth_engine = lib_depth_engine.DepthEngine(
+        frame_rate=15,
+        raw=False,
+        stream=True,
+        record=False,
+        save=False,
+        grayscale=False
+    )
+
+
     prompt = "bottle . person . box"
     prompt = "bottle"
     watching_obj = "bottle"
@@ -102,6 +114,10 @@ def main(opt):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
+            frame = cv2.resize(cv_image, (960, 540))
+            depth_any = depth_engine.infer(frame)
+            results = np.concatenate((frame, depth_any), axis=1)
+            cv2.imshow('Depth', results)
 
             zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth
             depth_map_data = depth_map.get_data()
