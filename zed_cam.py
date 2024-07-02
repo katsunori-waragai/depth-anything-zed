@@ -9,12 +9,8 @@ import argparse
 import cv2
 import numpy as np
 
-import skimage
 import matplotlib.pyplot as plt
 
-import zedhelper.handmark
-import zedhelper.util
-from zedhelper import predefined
 
 import inspect
 
@@ -80,7 +76,7 @@ def main(opt):
 
     zed = sl.Camera()
 
-    init_params = predefined.InitParameters()
+    init_params = sl.InitParameters()
 
     parse_args(init_params)
 
@@ -91,18 +87,14 @@ def main(opt):
         print(err)
         exit(1)
 
-    zedhelper.util.show_params(init_params)
-
     depth_map = sl.Mat()
     point_cloud = sl.Mat()
 
-    runtime_parameters = predefined.RuntimeParameters()
+    runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
     # runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.CAMERA
     runtime_parameters.confidence_threshold = opt.confidence_threshold
     print(f"### {runtime_parameters.confidence_threshold=}")
-    zedhelper.util.show_params(runtime_parameters)
-
     condition_str = f"mode: {init_params.depth_mode} conf: {runtime_parameters.confidence_threshold}"
 
     while True:
