@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import Sequence
 
-import argparse
-
 import logging
 
 import os
@@ -194,7 +192,7 @@ def depth_run(args):
                 results = np.concatenate((frame, depth), axis=1)
 
                 if depth_engine.record:
-                    depth.video.write(results)
+                    depth_engine.video.write(results)
 
                 if depth_engine.save:
                     cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
@@ -212,15 +210,3 @@ def depth_run(args):
 
         if depth_engine.stream:
             cv2.destroyAllWindows()
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser()
-    args.add_argument('--frame_rate', type=int, default=15, help='Frame rate of the camera')
-    args.add_argument('--raw', action='store_true', help='Use only the raw depth map')
-    args.add_argument('--stream', action='store_true', help='Stream the results')
-    args.add_argument('--record', action='store_true', help='Record the results')
-    args.add_argument('--save', action='store_true', help='Save the results')
-    args.add_argument('--grayscale', action='store_true', help='Convert the depth map to grayscale')
-    args = args.parse_args()
-    
-    depth_run(args)
