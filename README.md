@@ -12,11 +12,11 @@ https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 
 ## docker 環境の外で
 ```commandline
-bash gen_host_location.sh
+bash gen_copy_script.sh
 ```
 を実行しておく。
-guest環境内からhost環境のディレクトリを知るためのファイル
-host_location.txt を生成させておく。
+guest環境内weights/からhost環境のディレクトリをコピーするスクリプト
+copyto_host.sh を生成させておく。
 ### 予め host 環境で `xhost +` を実行しておく
 
 ## docker_build.sh
@@ -24,7 +24,6 @@ host_location.txt を生成させておく。
 ## docker_run.sh
 
 ### モデルの変換(Docker環境内)
-- python3 export.py
 - ls weights
 - モデルの変換を自動化する（onnx -> trt）
 - export_all_size.py を追加した。
@@ -46,12 +45,6 @@ python3 depth.py --stream
 ```
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 ```commandline
- cat copyto_host.sh 
-#!/bin/sh
-# Edit here for your environment
-dst=$(cat host_location.txt)
-scp -r weights ${dst}
-
 bash copyto_host.sh
 ```
 
