@@ -120,6 +120,7 @@ def main(opt):
             depth_any = depth_engine.infer(frame)
             results = np.concatenate((frame, depth_any), axis=1)
             cv2.imshow('Depth', results)
+            cv2.wiatKey(1)
 
             zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth
             depth_map_data = depth_map.get_data()
