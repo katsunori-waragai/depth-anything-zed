@@ -28,4 +28,5 @@ COPY *.py ./
 RUN mkdir -p weights/
 COPY weights/* ./weights/
 COPY copyto_host.sh ./
+COPY reinstall-opencv.sh ./
 RUN cd  /root/Depth-Anything-for-Jetson-Orin
