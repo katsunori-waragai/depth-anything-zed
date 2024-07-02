@@ -26,7 +26,6 @@ class DepthEngine:
     """
     def __init__(
         self,
-        sensor_id: int | Sequence[int] = 0,
         input_size: int = 308,
         frame_rate: int = 15,
         trt_engine_path: str = 'weights/depth_anything_vits14_308.trt', # Must match with the input_size
@@ -50,11 +49,8 @@ class DepthEngine:
         grayscale: bool -> Convert the depth map to grayscale
         """
         # Initialize the camera
-        self.camera = Camera(sensor_id=sensor_id, frame_rate=frame_rate)
         self.width = input_size # width of the input tensor
         self.height = input_size # height of the input tensor
-        self._width = self.camera._width # width of the camera frame
-        self._height = self.camera._height # height of the camera frame
         self.save_path = Path(save_path) if isinstance(save_path, str) else Path("results")
         self.raw = raw
         self.stream = stream
@@ -130,6 +126,7 @@ class DepthEngine:
         Postprocess the depth map
         """
         depth = np.reshape(depth, (self.width, self.height))
+        # to input image size
         depth = cv2.resize(depth, (self._width, self._height))
         
         if self.raw:
@@ -150,6 +147,7 @@ class DepthEngine:
         Infer depth from an image using TensorRT
         """
         # Preprocess the image
+        self._height, self._width = image.shape[:2] # by Me
         image = self.preprocess(image)
         
         t0 = time.time()
@@ -176,11 +174,12 @@ def depth_run(args):
         save=args.save,
         grayscale=args.grayscale
     )
+    cap = cv2.VideoCapture(0)
     try:
         while True:
             # frame = depth.camera.frame # This causes bad performance
             print("going to camera.cap[0].read()")
-            _, frame = depth_engine.camera.cap[0].read()
+            _, frame = cap.read()
             frame = cv2.resize(frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
             depth = depth_engine.infer(frame)
