@@ -10,6 +10,8 @@ RUN apt install -y libv4l-dev v4l-utils qv4l2
 RUN apt install -y curl
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN apt install zstd
+RUN python3 -m pip install matplotlib numpy 
+RUN python3 -m pip install opencv-python 
 # only for development
 RUN apt update && apt install -y eog nano
 

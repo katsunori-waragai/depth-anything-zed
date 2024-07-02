@@ -89,6 +89,7 @@ def main(opt):
 
     depth_map = sl.Mat()
     point_cloud = sl.Mat()
+    image = sl.Mat()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
@@ -99,6 +100,9 @@ def main(opt):
 
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+            zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
+            cv_image = image.get_data()
+
             zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth
             depth_map_data = depth_map.get_data()
 
