@@ -9,6 +9,7 @@ RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev lib
 RUN apt-get install -y libv4l-dev v4l-utils qv4l2
 RUN apt-get install -y curl
 RUN apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+RUN apt install zstd
 # only for development
 RUN apt update && apt install -y eog nano
 
