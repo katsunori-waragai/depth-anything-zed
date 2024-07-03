@@ -9,10 +9,7 @@ import argparse
 import cv2
 import numpy as np
 
-import matplotlib.pyplot as plt
-
-
-import inspect
+import lib_depth_engine
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 
@@ -69,60 +66,74 @@ def as_matrix(chw_array):
 
 
 def main(opt):
-    prompt = "bottle . person . box"
-    prompt = "bottle"
-    watching_obj = "bottle"
-    assert prompt.find(watching_obj) > -1
+    depth_engine = lib_depth_engine.DepthEngine(
+        frame_rate=15,
+        raw=False,
+        stream=True,
+        record=False,
+        save=False,
+        grayscale=False
+    )
 
-    zed = sl.Camera()
+    use_zed_sdk = opt.use_zed_sdk
+    if use_zed_sdk:
+        zed = sl.Camera()
+        init_params = sl.InitParameters()
+        parse_args(init_params)
+        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+        init_params.camera_resolution = sl.RESOLUTION.HD2K
 
-    init_params = sl.InitParameters()
+        err = zed.open(init_params)
+        if err != sl.ERROR_CODE.SUCCESS:
+            print(err)
+            exit(1)
 
-    parse_args(init_params)
+        image = sl.Mat()
 
-    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-
-    err = zed.open(init_params)
-    if err != sl.ERROR_CODE.SUCCESS:
-        print(err)
-        exit(1)
-
-    depth_map = sl.Mat()
-    point_cloud = sl.Mat()
-    image = sl.Mat()
-
-    runtime_parameters = sl.RuntimeParameters()
-    runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
-    # runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.CAMERA
-    runtime_parameters.confidence_threshold = opt.confidence_threshold
-    print(f"### {runtime_parameters.confidence_threshold=}")
-    condition_str = f"mode: {init_params.depth_mode} conf: {runtime_parameters.confidence_threshold}"
+        runtime_parameters = sl.RuntimeParameters()
+        runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
+        runtime_parameters.confidence_threshold = opt.confidence_threshold
+        print(f"### {runtime_parameters.confidence_threshold=}")
+        cap = cv2.VideoCapture(0)
+    else:
+        cap = cv2.VideoCapture(0)
 
     while True:
-        if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+        if not use_zed_sdk:
+            _, cv_image = cap.read()
+            H_, w_ = cv_image.shape[:2]
+            cv_image = cv_image[:, :w_ //2, :]
+            assert cv_image.shape[2] == 3
+            cv2.imwrite("tmp.jpg", cv_image)
+        elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            assert cv_image.shape[2] == 4  # ZED SDK dependent.
+            cv_image = cv_image[:, :, :3].copy()
+            cv_image = np.ascontiguousarray(cv_image)
+            # cv_image = cv2.imread("tmp.jpg")
+        else:
+            continue
+        print(f"{cv_image.shape=} {cv_image.dtype=}")
+        print(f"{cv_image.flags['C_CONTIGUOUS']=}")
+        assert cv_image.shape[2] == 3
+        assert cv_image.dtype == np.uint8
+        # assert cv_image.flags['C_CONTIGUOUS']
+        frame = cv2.resize(cv_image, (960, 540)).copy()
+        print(f"{frame.shape=} {frame.dtype=}")
+        print(f"{np.max(frame.flatten())=}")
+        print(f"{frame.flags['C_CONTIGUOUS']=}")
+        depth_any = depth_engine.infer(frame)
+        assert frame.dtype ==  depth_any.dtype
+        assert frame.shape[0] == depth_any.shape[0]
+        print(f"{depth_any.shape=} {depth_any.dtype=}")
+        print(f"{np.max(depth_any.flatten())=}")
+        results = np.concatenate((frame, depth_any), axis=1)
+        cv2.imshow("Depth", results)
+        cv2.imshow("depth only", depth_any)
+        cv2.waitKey(1)
 
-            zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth
-            depth_map_data = depth_map.get_data()
-
-            # 空間座標を得ることが必要。
-            zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
-            points = point_cloud.get_data()
-            print(f"{points.shape=}")
-
-            # 点群の色情報が有効な領域をvalid_points_maskとして取得する。
-            points_color = points[:, :, 3]
-            valid_points_mask = np.isfinite(points_color)
-            print(f"{valid_points_mask.shape=} {valid_points_mask.dtype=}")
-            # points[y, x]で、元画像上の点と対応がつくのかどうか？
-
-            depth_map_data_modified = depth_map_data.copy()
-            print(f"{depth_map_data_modified.shape=} {depth_map_data_modified.dtype=}")
-            depth_map_data_modified[np.logical_not(valid_points_mask)] = np.nan
-
-    depth_map.free(memory_type=sl.MEM.CPU)
-    point_cloud.free(memory_type=sl.MEM.CPU)
     zed.close()
 
 
@@ -152,6 +163,7 @@ if __name__ == "__main__":
         help="depth confidence_threshold(0 ~ 100)",
         default=100,
     )
+    parser.add_argument("--use_zed_sdk", action="store_true", help="use zed sdk")
     opt = parser.parse_args()
     if len(opt.input_svo_file) > 0 and len(opt.ip_address) > 0:
         print("Specify only input_svo_file or ip_address, or none to use wired camera, not both. Exit program")
