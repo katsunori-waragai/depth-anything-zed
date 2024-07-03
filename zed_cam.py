@@ -75,28 +75,43 @@ def main(opt):
         grayscale=False
     )
 
-    zed = sl.Camera()
+    use_zed_sdk = True
+    if use_zed_sdk:
+        zed = sl.Camera()
+        init_params = sl.InitParameters()
+        parse_args(init_params)
+        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
 
-    init_params = sl.InitParameters()
+        err = zed.open(init_params)
+        if err != sl.ERROR_CODE.SUCCESS:
+            print(err)
+            exit(1)
 
-    parse_args(init_params)
+        image = sl.Mat()
 
-    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-
-    err = zed.open(init_params)
-    if err != sl.ERROR_CODE.SUCCESS:
-        print(err)
-        exit(1)
-
-    image = sl.Mat()
-
-    runtime_parameters = sl.RuntimeParameters()
-    runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
-    runtime_parameters.confidence_threshold = opt.confidence_threshold
-    print(f"### {runtime_parameters.confidence_threshold=}")
+        runtime_parameters = sl.RuntimeParameters()
+        runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
+        runtime_parameters.confidence_threshold = opt.confidence_threshold
+        print(f"### {runtime_parameters.confidence_threshold=}")
+    else:
+        cap = cv2.VideoCapture(0)
 
     while True:
-        if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+        if not use_zed_sdk:
+            _, cv_image = cap.read()
+            frame = cv2.resize(cv_image, (960, 540)).copy()
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            depth_any = depth_engine.infer(frame)
+            assert frame.dtype ==  depth_any.dtype
+            assert frame.shape[0] == depth_any.shape[0]
+            print(f"{depth_any.shape=} {depth_any.dtype=}")
+            print(f"{np.max(depth_any.flatten())=}")
+            results = np.concatenate((frame, depth_any), axis=1)
+            cv2.imshow("Depth", results)
+            cv2.imshow("depth only", depth_any)
+            cv2.waitKey(1)
+
+        elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
             print(f"{cv_image.shape=} {cv_image.dtype=}")
@@ -110,7 +125,7 @@ def main(opt):
             print(f"{depth_any.shape=} {depth_any.dtype=}")
             print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
-            cv2.imshow('Depth', results)
+            cv2.imshow("Depth", results)
             cv2.imshow("depth only", depth_any)
             cv2.waitKey(1)
 
