@@ -81,7 +81,7 @@ def main(opt):
         init_params = sl.InitParameters()
         parse_args(init_params)
         init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-        init_params.camera_resolution = sl.RESOLUTION.HD2K
+        init_params.camera_resolution = sl.RESOLUTION.HD1200
 
         err = zed.open(init_params)
         if err != sl.ERROR_CODE.SUCCESS:
@@ -116,7 +116,7 @@ def main(opt):
             else:
                 cv_image = cv2.imread("tmp.jpg")
         else:
-            continue
+            cv_image = cv2.imread("tmp.jpg")
         print(f"{cv_image.shape=} {cv_image.dtype=}")
         print(f"{cv_image.flags['C_CONTIGUOUS']=}")
         assert cv_image.shape[2] == 3
@@ -126,6 +126,8 @@ def main(opt):
         print(f"{frame.shape=} {frame.dtype=}")
         print(f"{np.min(frame.flatten())=} {np.max(frame.flatten())=}")
         print(f"{frame.flags['C_CONTIGUOUS']=}")
+        assert frame.shape[0] == 540
+        assert frame.shape[1] == 960
         depth_any = depth_engine.infer(frame)
         assert frame.dtype ==  depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
