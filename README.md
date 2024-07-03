@@ -64,10 +64,18 @@ bash copyto_host.sh
 - 他の方式でのDepthの推定と比較できるようにすること。
 
 # troubleshooting
+## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
 ```commandline
 [2024-07-03 07:30:13 UTC][ZED][INFO] Logging level INFO
 INVALID RESOLUTION
 [2024-07-03 07:30:14 UTC][ZED][WARNING] INVALID RESOLUTION in sl::ERROR_CODE sl::Camera::open(sl::InitParameters)
 [2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
 [2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
+```
+
+
+## depth_anythingでの推論が実行できなかったときのエラー
+エラーを表示しても、スクリプトは継続する。
+```commandline
+[07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
 ```
