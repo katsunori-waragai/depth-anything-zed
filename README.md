@@ -62,3 +62,12 @@ bash copyto_host.sh
 
 # TODO
 - 他の方式でのDepthの推定と比較できるようにすること。
+
+# troubleshooting
+```commandline
+[2024-07-03 07:30:13 UTC][ZED][INFO] Logging level INFO
+INVALID RESOLUTION
+[2024-07-03 07:30:14 UTC][ZED][WARNING] INVALID RESOLUTION in sl::ERROR_CODE sl::Camera::open(sl::InitParameters)
+[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
+[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
+```
