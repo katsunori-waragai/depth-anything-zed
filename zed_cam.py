@@ -75,7 +75,7 @@ def main(opt):
         grayscale=False
     )
 
-    use_zed_sdk = False
+    use_zed_sdk = True
     if use_zed_sdk:
         zed = sl.Camera()
         init_params = sl.InitParameters()
@@ -112,13 +112,13 @@ def main(opt):
         else:
             continue
         print(f"{cv_image.shape=} {cv_image.dtype=}")
-        print(f"{cv_image.flags['C_CONTGUOUS']=}")
+        print(f"{cv_image.flags['C_CONTIGUOUS']=}")
         assert cv_image.shape[2] == 3
         assert cv_image.dtype == np.uint8
         frame = cv2.resize(cv_image, (960, 540)).copy()
         print(f"{frame.shape=} {frame.dtype=}")
         print(f"{np.max(frame.flatten)=}")
-        print(f"{frame.flags['C_CONTGUOUS']=}")
+        print(f"{frame.flags['C_CONTIGUOUS']=}")
         depth_any = depth_engine.infer(frame)
         assert frame.dtype ==  depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
