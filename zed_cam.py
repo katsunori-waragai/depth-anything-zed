@@ -75,7 +75,7 @@ def main(opt):
         grayscale=False
     )
 
-    use_zed_sdk = True
+    use_zed_sdk = False
     if use_zed_sdk:
         zed = sl.Camera()
         init_params = sl.InitParameters()
@@ -94,6 +94,7 @@ def main(opt):
         runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
         runtime_parameters.confidence_threshold = opt.confidence_threshold
         print(f"### {runtime_parameters.confidence_threshold=}")
+        cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(0)
 
@@ -107,12 +108,17 @@ def main(opt):
             cv_image = image.get_data()
             print(f"{cv_image.shape=} {cv_image.dtype=}")
             cv_image = cv_image[:, :, :3].copy()
+            cv_image = np.ascontiguousarray(cv_image)
         else:
             continue
-
+        print(f"{cv_image.shape=} {cv_image.dtype=}")
+        print(f"{cv_image.flags['C_CONTGUOUS']=}")
         assert cv_image.shape[2] == 3
+        assert cv_image.dtype == np.uint8
         frame = cv2.resize(cv_image, (960, 540)).copy()
         print(f"{frame.shape=} {frame.dtype=}")
+        print(f"{np.max(frame.flatten)=}")
+        print(f"{frame.flags['C_CONTGUOUS']=}")
         depth_any = depth_engine.infer(frame)
         assert frame.dtype ==  depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
