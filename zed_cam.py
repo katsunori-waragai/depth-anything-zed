@@ -117,7 +117,7 @@ def main(opt):
         assert cv_image.dtype == np.uint8
         frame = cv2.resize(cv_image, (960, 540)).copy()
         print(f"{frame.shape=} {frame.dtype=}")
-        print(f"{np.max(frame.flatten)=}")
+        print(f"{np.max(frame.flatten())=}")
         print(f"{frame.flags['C_CONTIGUOUS']=}")
         depth_any = depth_engine.infer(frame)
         assert frame.dtype ==  depth_any.dtype
