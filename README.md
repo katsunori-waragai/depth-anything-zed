@@ -9,6 +9,10 @@ https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
+## わかっていること
+- Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
+- 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
+
 
 ## docker 環境の外で
 ```commandline
