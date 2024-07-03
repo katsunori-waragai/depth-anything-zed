@@ -9,11 +9,6 @@ import argparse
 import cv2
 import numpy as np
 
-import matplotlib.pyplot as plt
-
-
-import inspect
-
 import lib_depth_engine
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
