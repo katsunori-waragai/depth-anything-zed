@@ -114,12 +114,18 @@ def main(opt):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
             cv_image = cv_image[:, :, :3].copy()
             assert cv_image.shape[2] == 3
-            frame = cv2.resize(cv_image, (960, 540))
+            frame = cv2.resize(cv_image, (960, 540)).copy()
             depth_any = depth_engine.infer(frame)
+            assert frame.dtype ==  depth_any.dtype
+            assert frame.shape[0] == depth_any.shape[0]
+            print(f"{depth_any.shape=} {depth_any.dtype=}")
+            print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
             cv2.imshow('Depth', results)
+            cv2.imshow("depth only", depth_any)
             cv2.waitKey(1)
 
             zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth

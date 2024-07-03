@@ -179,6 +179,7 @@ def depth_run(args):
             print(f"{frame.shape=} {frame.dtype=}")
             depth = depth_engine.infer(frame)
             print(f"{depth.shape=} {depth.dtype=}")
+            print(f"{np.max(depth.flatten())=}")
 
             if depth_engine.raw:
                 depth_engine.raw_depth = depth
