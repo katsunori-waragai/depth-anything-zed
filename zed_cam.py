@@ -97,49 +97,53 @@ def main(opt):
         cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(0)
-
-    while True:
-        if not use_zed_sdk:
-            _, cv_image = cap.read()
-            H_, w_ = cv_image.shape[:2]
-            cv_image = cv_image[:, :w_ //2, :]
-            assert cv_image.shape[2] == 3
-            cv2.imwrite("tmp.jpg", cv_image)
-        elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
-            if 1:
-                zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
-                cv_image = image.get_data()
-                print(f"{cv_image.shape=} {cv_image.dtype=}")
-                assert cv_image.shape[2] == 4  # ZED SDK dependent.
-                cv_image = cv_image[:, :, :3].copy()
-                cv_image = np.ascontiguousarray(cv_image)
+    try:
+        while True:
+            if not use_zed_sdk:
+                _, cv_image = cap.read()
+                H_, w_ = cv_image.shape[:2]
+                cv_image = cv_image[:, :w_ //2, :]
+                assert cv_image.shape[2] == 3
+                cv2.imwrite("tmp.jpg", cv_image)
+            elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+                if 1:
+                    zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
+                    cv_image = image.get_data()
+                    print(f"{cv_image.shape=} {cv_image.dtype=}")
+                    assert cv_image.shape[2] == 4  # ZED SDK dependent.
+                    cv_image = cv_image[:, :, :3].copy()
+                    cv_image = np.ascontiguousarray(cv_image)
+                else:
+                    cv_image = cv2.imread("tmp.jpg")
             else:
                 cv_image = cv2.imread("tmp.jpg")
-        else:
-            cv_image = cv2.imread("tmp.jpg")
-        print(f"{cv_image.shape=} {cv_image.dtype=}")
-        print(f"{cv_image.flags['C_CONTIGUOUS']=}")
-        assert cv_image.shape[2] == 3
-        assert cv_image.dtype == np.uint8
-        # assert cv_image.flags['C_CONTIGUOUS']
-        frame = cv2.resize(cv_image, (960, 540)).copy()
-        print(f"{frame.shape=} {frame.dtype=}")
-        print(f"{np.min(frame.flatten())=} {np.max(frame.flatten())=}")
-        print(f"{frame.flags['C_CONTIGUOUS']=}")
-        assert frame.shape[0] == 540
-        assert frame.shape[1] == 960
-        depth_any = depth_engine.infer(frame)
-        assert frame.dtype ==  depth_any.dtype
-        assert frame.shape[0] == depth_any.shape[0]
-        print(f"{depth_any.shape=} {depth_any.dtype=}")
-        print(f"{np.max(depth_any.flatten())=}")
-        results = np.concatenate((frame, depth_any), axis=1)
-        cv2.imshow("Depth", results)
-        cv2.imshow("depth only", depth_any)
-        cv2.waitKey(1)
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            print(f"{cv_image.flags['C_CONTIGUOUS']=}")
+            assert cv_image.shape[2] == 3
+            assert cv_image.dtype == np.uint8
+            # assert cv_image.flags['C_CONTIGUOUS']
+            frame = cv2.resize(cv_image, (960, 540)).copy()
+            print(f"{frame.shape=} {frame.dtype=}")
+            print(f"{np.min(frame.flatten())=} {np.max(frame.flatten())=}")
+            print(f"{frame.flags['C_CONTIGUOUS']=}")
+            assert frame.shape[0] == 540
+            assert frame.shape[1] == 960
+            depth_any = depth_engine.infer(frame)
+            assert frame.dtype ==  depth_any.dtype
+            assert frame.shape[0] == depth_any.shape[0]
+            print(f"{depth_any.shape=} {depth_any.dtype=}")
+            print(f"{np.max(depth_any.flatten())=}")
+            results = np.concatenate((frame, depth_any), axis=1)
+            cv2.imshow("Depth", results)
+            cv2.imshow("depth only", depth_any)
+            cv2.waitKey(1)
 
-    zed.close()
+    except Exception as e:
+        print(e.args)
 
+    finally:
+        if "zed" in locals():
+            zed.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
