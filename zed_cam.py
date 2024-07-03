@@ -81,6 +81,7 @@ def main(opt):
         init_params = sl.InitParameters()
         parse_args(init_params)
         init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+        init_params.camera_resolution = sl.RESOLUTION.HD2K
 
         err = zed.open(init_params)
         if err != sl.ERROR_CODE.SUCCESS:
@@ -99,8 +100,10 @@ def main(opt):
     while True:
         if not use_zed_sdk:
             _, cv_image = cap.read()
+            H_, w_ = cv_image.shape[:2]
+            cv_image = cv_image[:, :w_ //2, :]
             frame = cv2.resize(cv_image, (960, 540)).copy()
-            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            print(f"{frame.shape=} {frame.dtype=}")
 
         elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
@@ -109,7 +112,7 @@ def main(opt):
             cv_image = cv_image[:, :, :3].copy()
             assert cv_image.shape[2] == 3
             frame = cv2.resize(cv_image, (960, 540)).copy()
-            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            print(f"{frame.shape=} {frame.dtype=}")
         else:
             continue
 
