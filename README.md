@@ -41,7 +41,13 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
 
 ```commandline
-python3 depth.py --stream
+python3 depth_main.py --stream
+
+# as USB camera
+python3 python3 zed_cam.py 
+
+# use ZED SDK (not working)
+python3 python3 zed_cam.py --use_zed_sdk
 ```
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 ```commandline
