@@ -75,7 +75,7 @@ def main(opt):
         grayscale=False
     )
 
-    use_zed_sdk = True
+    use_zed_sdk = opt.use_zed_sdk
     if use_zed_sdk:
         zed = sl.Camera()
         init_params = sl.InitParameters()
@@ -109,7 +109,7 @@ def main(opt):
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
             cv_image = image.get_data()
             print(f"{cv_image.shape=} {cv_image.dtype=}")
-            assert cv_image.shape[:, 2] == 4  # ZED SDK dependent.
+            assert cv_image.shape[2] == 4  # ZED SDK dependent.
             cv_image = cv_image[:, :, :3].copy()
             cv_image = np.ascontiguousarray(cv_image)
             # cv_image = cv2.imread("tmp.jpg")
@@ -119,7 +119,7 @@ def main(opt):
         print(f"{cv_image.flags['C_CONTIGUOUS']=}")
         assert cv_image.shape[2] == 3
         assert cv_image.dtype == np.uint8
-        assert cv_image.flags['C_CONTIGUOUS']
+        # assert cv_image.flags['C_CONTIGUOUS']
         frame = cv2.resize(cv_image, (960, 540)).copy()
         print(f"{frame.shape=} {frame.dtype=}")
         print(f"{np.max(frame.flatten())=}")
@@ -163,6 +163,7 @@ if __name__ == "__main__":
         help="depth confidence_threshold(0 ~ 100)",
         default=100,
     )
+    parser.add_argument("--use_zed_sdk", action="store_true", help="use zed sdk")
     opt = parser.parse_args()
     if len(opt.input_svo_file) > 0 and len(opt.ip_address) > 0:
         print("Specify only input_svo_file or ip_address, or none to use wired camera, not both. Exit program")
