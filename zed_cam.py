@@ -81,7 +81,7 @@ def main(opt):
         init_params = sl.InitParameters()
         parse_args(init_params)
         init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-        init_params.camera_resolution = sl.RESOLUTION.HD1200
+        init_params.camera_resolution = sl.RESOLUTION.HD2K
 
         err = zed.open(init_params)
         if err != sl.ERROR_CODE.SUCCESS:

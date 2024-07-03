@@ -9,6 +9,10 @@ https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
+## わかっていること
+- Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
+- 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
+
 
 ## docker 環境の外で
 ```commandline
@@ -41,7 +45,13 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
 
 ```commandline
-python3 depth.py --stream
+python3 depth_main.py --stream
+
+# as USB camera
+python3 python3 zed_cam.py 
+
+# use ZED SDK (not working)
+python3 python3 zed_cam.py --use_zed_sdk
 ```
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 ```commandline
@@ -52,3 +62,20 @@ bash copyto_host.sh
 
 # TODO
 - 他の方式でのDepthの推定と比較できるようにすること。
+
+# troubleshooting
+## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
+```commandline
+[2024-07-03 07:30:13 UTC][ZED][INFO] Logging level INFO
+INVALID RESOLUTION
+[2024-07-03 07:30:14 UTC][ZED][WARNING] INVALID RESOLUTION in sl::ERROR_CODE sl::Camera::open(sl::InitParameters)
+[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
+[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
+```
+
+
+## depth_anythingでの推論が実行できなかったときのエラー
+エラーを表示しても、スクリプトは継続する。
+```commandline
+[07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
+```
