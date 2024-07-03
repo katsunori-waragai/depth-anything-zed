@@ -80,12 +80,6 @@ def main(opt):
         grayscale=False
     )
 
-
-    prompt = "bottle . person . box"
-    prompt = "bottle"
-    watching_obj = "bottle"
-    assert prompt.find(watching_obj) > -1
-
     zed = sl.Camera()
 
     init_params = sl.InitParameters()
@@ -99,16 +93,12 @@ def main(opt):
         print(err)
         exit(1)
 
-    depth_map = sl.Mat()
-    point_cloud = sl.Mat()
     image = sl.Mat()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
-    # runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.CAMERA
     runtime_parameters.confidence_threshold = opt.confidence_threshold
     print(f"### {runtime_parameters.confidence_threshold=}")
-    condition_str = f"mode: {init_params.depth_mode} conf: {runtime_parameters.confidence_threshold}"
 
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -118,6 +108,7 @@ def main(opt):
             cv_image = cv_image[:, :, :3].copy()
             assert cv_image.shape[2] == 3
             frame = cv2.resize(cv_image, (960, 540)).copy()
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
             depth_any = depth_engine.infer(frame)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
@@ -128,26 +119,6 @@ def main(opt):
             cv2.imshow("depth only", depth_any)
             cv2.waitKey(1)
 
-            zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH)  # Retrieve depth
-            depth_map_data = depth_map.get_data()
-
-            # 空間座標を得ることが必要。
-            zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
-            points = point_cloud.get_data()
-            print(f"{points.shape=}")
-
-            # 点群の色情報が有効な領域をvalid_points_maskとして取得する。
-            points_color = points[:, :, 3]
-            valid_points_mask = np.isfinite(points_color)
-            print(f"{valid_points_mask.shape=} {valid_points_mask.dtype=}")
-            # points[y, x]で、元画像上の点と対応がつくのかどうか？
-
-            depth_map_data_modified = depth_map_data.copy()
-            print(f"{depth_map_data_modified.shape=} {depth_map_data_modified.dtype=}")
-            depth_map_data_modified[np.logical_not(valid_points_mask)] = np.nan
-
-    depth_map.free(memory_type=sl.MEM.CPU)
-    point_cloud.free(memory_type=sl.MEM.CPU)
     zed.close()
 
 
