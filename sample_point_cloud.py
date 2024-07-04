@@ -1,3 +1,8 @@
+"""
+copied from
+https://github.com/LiheYoung/Depth-Anything/issues/36
+"""
+
 # infer.py
 # Code by @1ssb
 import argparse
@@ -47,11 +52,14 @@ def process_images(model):
             resized_pred = Image.fromarray(pred).resize((FINAL_WIDTH, FINAL_HEIGHT), Image.NEAREST)
 
             focal_length_x, focal_length_y = (FX, FY) if not NYU_DATA else (FL, FL)
-            x, y = np.meshgrid(np.arange(FINAL_WIDTH), np.arange(FINAL_HEIGHT))
-            x = (x - P_x) / focal_length_x
-            y = (y - P_y) / focal_length_y
-            z = np.array(resized_pred)
-            points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+            def to_point_cloud(resized_pred, P_x, P_y, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT):
+                x, y = np.meshgrid(np.arange(FINAL_WIDTH), np.arange(FINAL_HEIGHT))
+                x = (x - P_x) / focal_length_x
+                y = (y - P_y) / focal_length_y
+                z = np.array(resized_pred)
+                points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+                return points
+            points = to_point_cloud(resized_pred, P_x, P_y, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT)
             colors = np.array(resized_color_image).reshape(-1, 3) / 255.0
 
             pcd = o3d.geometry.PointCloud()
