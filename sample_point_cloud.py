@@ -22,12 +22,21 @@ FL = 715.0873
 FY = 256 * 0.6
 FX = 256 * 0.6
 NYU_DATA = False
-FINAL_HEIGHT = 256
-FINAL_WIDTH = 256
-P_x, P_y = 128, 128
+FINAL_HEIGHT = 256  # image height
+FINAL_WIDTH = 256  # image shape
+P_x, P_y = 128, 128  # center of the image
 INPUT_DIR = './my_test/input'
 OUTPUT_DIR = './my_test/output'
 DATASET = 'nyu' # Lets not pick a fight with the model's dataloader
+
+
+def to_point_cloud(resized_pred, P_x, P_y, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT):
+    x, y = np.meshgrid(np.arange(FINAL_WIDTH), np.arange(FINAL_HEIGHT))
+    x = (x - P_x) / focal_length_x
+    y = (y - P_y) / focal_length_y
+    z = np.array(resized_pred)
+    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    return points
 
 def process_images(model):
     if not os.path.exists(OUTPUT_DIR):
@@ -52,13 +61,6 @@ def process_images(model):
             resized_pred = Image.fromarray(pred).resize((FINAL_WIDTH, FINAL_HEIGHT), Image.NEAREST)
 
             focal_length_x, focal_length_y = (FX, FY) if not NYU_DATA else (FL, FL)
-            def to_point_cloud(resized_pred, P_x, P_y, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT):
-                x, y = np.meshgrid(np.arange(FINAL_WIDTH), np.arange(FINAL_HEIGHT))
-                x = (x - P_x) / focal_length_x
-                y = (y - P_y) / focal_length_y
-                z = np.array(resized_pred)
-                points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
-                return points
             points = to_point_cloud(resized_pred, P_x, P_y, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT)
             colors = np.array(resized_color_image).reshape(-1, 3) / 255.0
 
