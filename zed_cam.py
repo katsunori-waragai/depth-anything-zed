@@ -94,7 +94,6 @@ def main(opt):
         runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
         runtime_parameters.confidence_threshold = opt.confidence_threshold
         print(f"### {runtime_parameters.confidence_threshold=}")
-        cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(0)
     try:
