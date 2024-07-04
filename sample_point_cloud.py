@@ -30,14 +30,14 @@ OUTPUT_DIR = './my_test/output'
 DATASET = 'nyu' # Lets not pick a fight with the model's dataloader
 
 
-def to_point_cloud(resized_pred, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT):
+def to_point_cloud(resized_pred, focal_length_x, focal_length_y):
     """
     resized_pred は(FINAL_WIDTH, FINAL_HEIGHT)の大きさに既になっている。
     そのため、resized_predの中には既に画像サイズが入っている。
     """
-    P_x = FINAL_WIDTH // 2 # center of the image
-    P_y = FINAL_HEIGHT // 2
-    x, y = np.meshgrid(np.arange(FINAL_WIDTH), np.arange(FINAL_HEIGHT))
+    P_x = resized_pred.width // 2 # center of the image
+    P_y = resized_pred.height // 2
+    x, y = np.meshgrid(np.arange(resized_pred.width), np.arange(resized_pred.height))
     x = (x - P_x) / focal_length_x
     y = (y - P_y) / focal_length_y
     z = np.array(resized_pred)
@@ -67,7 +67,7 @@ def process_images(model):
             resized_pred = Image.fromarray(pred).resize((FINAL_WIDTH, FINAL_HEIGHT), Image.NEAREST)
 
             focal_length_x, focal_length_y = (FX, FY) if not NYU_DATA else (FL, FL)
-            points = to_point_cloud(resized_pred, focal_length_x, focal_length_y, FINAL_WIDTH, FINAL_HEIGHT)
+            points = to_point_cloud(resized_pred, focal_length_x, focal_length_y)
             colors = np.array(resized_color_image).reshape(-1, 3) / 255.0
 
             pcd = o3d.geometry.PointCloud()
