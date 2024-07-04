@@ -133,6 +133,8 @@ def main(opt):
             depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
+            print(f"{depth_any_raw.shape=} {depth_any_raw.dtype=}")
+            print(f"{np.min(depth_any_raw.flatten())=} {np.max(depth_any_raw.flatten())=}")
             print(f"{depth_any.shape=} {depth_any.dtype=}")
             print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
