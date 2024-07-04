@@ -1,6 +1,7 @@
 """
 depth画像を見るサンプルスクリプト
 
+This is developing code for depth-anything with zed sdk.
 """
 
 import pyzed.sl as sl
@@ -68,7 +69,7 @@ def as_matrix(chw_array):
 def main(opt):
     depth_engine = lib_depth_engine.DepthEngine(
         frame_rate=15,
-        raw=False,
+        raw=True,
         stream=True,
         record=False,
         save=False,
@@ -94,9 +95,9 @@ def main(opt):
         runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
         runtime_parameters.confidence_threshold = opt.confidence_threshold
         print(f"### {runtime_parameters.confidence_threshold=}")
-        cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(0)
+
     try:
         while True:
             if not use_zed_sdk:
@@ -128,9 +129,12 @@ def main(opt):
             print(f"{frame.flags['C_CONTIGUOUS']=}")
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
-            depth_any = depth_engine.infer(frame)
+            depth_any_raw = depth_engine.infer(frame)
+            depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
+            print(f"{depth_any_raw.shape=} {depth_any_raw.dtype=}")
+            print(f"{np.min(depth_any_raw.flatten())=} {np.max(depth_any_raw.flatten())=}")
             print(f"{depth_any.shape=} {depth_any.dtype=}")
             print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
