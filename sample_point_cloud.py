@@ -30,14 +30,29 @@ OUTPUT_DIR = './my_test/output'
 DATASET = 'nyu' # Lets not pick a fight with the model's dataloader
 
 
-def to_point_cloud(resized_pred, focal_length_x, focal_length_y):
+def to_point_cloud(resized_pred, focal_length_x: float, focal_length_y: float) -> np.ndarray:
     """
+    resized_pred: PIL.Image 型
+
     resized_pred は(FINAL_WIDTH, FINAL_HEIGHT)の大きさに既になっている。
     そのため、resized_predの中には既に画像サイズが入っている。
     """
     P_x = resized_pred.width // 2 # center of the image
     P_y = resized_pred.height // 2
     x, y = np.meshgrid(np.arange(resized_pred.width), np.arange(resized_pred.height))
+    x = (x - P_x) / focal_length_x
+    y = (y - P_y) / focal_length_y
+    z = np.array(resized_pred)
+    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    return points
+
+def to_point_cloud_np(resized_pred: np.ndarray, focal_length_x: float, focal_length_y: float) -> np.ndarray:
+    """
+    """
+    height, width = resized_pred.shape[:2]
+    P_x = width // 2 # center of the image
+    P_y = height // 2
+    x, y = np.meshgrid(np.arange(width), np.arange(height))
     x = (x - P_x) / focal_length_x
     y = (y - P_y) / focal_length_y
     z = np.array(resized_pred)
