@@ -170,6 +170,19 @@ class DepthEngine:
         
         return self.postprocess(self.h_output) # Postprocess the depth map
 
+def to_point_cloud_np(resized_pred: np.ndarray, focal_length_x: float, focal_length_y: float) -> np.ndarray:
+    """
+    """
+    height, width = resized_pred.shape[:2]
+    P_x = width // 2 # center of the image
+    P_y = height // 2
+    x, y = np.meshgrid(np.arange(width), np.arange(height))
+    x = (x - P_x) / focal_length_x
+    y = (y - P_y) / focal_length_y
+    z = np.array(resized_pred)
+    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    return points
+
 def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate,
@@ -194,6 +207,13 @@ def depth_run(args):
 
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
+
+            points = to_point_cloud_np(depth_raw, focal_length_x=1.0, focal_length_y=1.0)
+            if 1:
+                pcd = o3d.geometry.PointCloud()
+                pcd.points = o3d.utility.Vector3dVector(points)
+                pcd.colors = o3d.utility.Vector3dVector(colors)
+                o3d.io.write_point_cloud("sample.ply", pcd)
 
             if depth_engine.record:
                 depth_engine.video.write(results)
