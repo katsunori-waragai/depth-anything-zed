@@ -195,11 +195,11 @@ def depth_run(args):
     cap = cv2.VideoCapture(0)
     try:
         while True:
-            _, frame = cap.read()
+            _, orig_frame = cap.read()
             if 1:  # stereo camera left part
-                H_, w_ = frame.shape[:2]
-                frame = frame[:, :w_ // 2, :]
-            frame = cv2.resize(frame, (960, 540))
+                H_, w_ = orig_frame.shape[:2]
+                orig_frame = orig_frame[:, :w_ // 2, :]
+            frame = cv2.resize(orig_frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
             depth_raw = depth_engine.infer(frame)
             print(f"{depth_raw.shape=} {depth_raw.dtype=}")
@@ -213,7 +213,7 @@ def depth_run(args):
                 import open3d as o3d
                 pcd = o3d.geometry.PointCloud()
                 pcd.points = o3d.utility.Vector3dVector(points)
-                pcd.colors = o3d.utility.Vector3dVector(colors)
+                pcd.colors = o3d.utility.Vector3dVector(orig_frame)
                 o3d.io.write_point_cloud("sample.ply", pcd)
 
             if depth_engine.record:
