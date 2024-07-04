@@ -13,6 +13,7 @@ RUN apt install zstd
 RUN python3 -m pip install matplotlib numpy 
 RUN python3 -m pip install opencv-python 
 RUN python3 -m pip install huggingface_hub onnxruntime onnx
+RUN python3 -m pip install open3d
 # only for development
 RUN apt update && apt install -y eog nano
 
