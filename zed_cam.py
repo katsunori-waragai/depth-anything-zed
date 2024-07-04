@@ -96,6 +96,7 @@ def main(opt):
         print(f"### {runtime_parameters.confidence_threshold=}")
     else:
         cap = cv2.VideoCapture(0)
+
     try:
         while True:
             if not use_zed_sdk:

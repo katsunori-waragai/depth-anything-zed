@@ -167,7 +167,7 @@ class DepthEngine:
 def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate,
-        raw=False,
+        raw=True,
         stream=True,
         record=False,
         save=False,
@@ -179,26 +179,27 @@ def depth_run(args):
             _, frame = cap.read()
             frame = cv2.resize(frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
-            depth = depth_engine.infer(frame)
-            print(f"{depth.shape=} {depth.dtype=}")
-            print(f"{np.max(depth.flatten())=}")
+            depth_raw = depth_engine.infer(frame)
+            print(f"{depth_raw.shape=} {depth_raw.dtype=}")
+            print(f"{np.max(depth_raw.flatten())=}")
 
-            if depth_engine.raw:
-                depth_engine.raw_depth = depth
-            else:
-                results = np.concatenate((frame, depth), axis=1)
+            depth_raw = (depth_raw - depth_raw.min()) / (depth_raw.max() - depth_raw.min()) * 255.0
+            depth_raw = depth_raw.astype(np.uint8)
+            depth = cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
 
-                if depth_engine.record:
-                    depth_engine.video.write(results)
+            results = np.concatenate((frame, depth), axis=1)
 
-                if depth_engine.save:
-                    cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
+            if depth_engine.record:
+                depth_engine.video.write(results)
 
-                if depth_engine.stream:
-                    cv2.imshow('Depth', results)  # This causes bad performance
+            if depth_engine.save:
+                cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
 
-                    if cv2.waitKey(1) == ord('q'):
-                        break
+            if depth_engine.stream:
+                cv2.imshow('Depth', results)  # This causes bad performance
+
+                if cv2.waitKey(1) == ord('q'):
+                    break
     except Exception as e:
         print(e)
     finally:
