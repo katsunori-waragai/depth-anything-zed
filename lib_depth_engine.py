@@ -210,6 +210,7 @@ def depth_run(args):
 
             points = to_point_cloud_np(depth_raw, focal_length_x=1.0, focal_length_y=1.0)
             if 1:
+                import open3d as o3d
                 pcd = o3d.geometry.PointCloud()
                 pcd.points = o3d.utility.Vector3dVector(points)
                 pcd.colors = o3d.utility.Vector3dVector(colors)
