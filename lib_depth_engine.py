@@ -19,6 +19,12 @@ from torchvision.transforms import Compose
 from depth_anything import transform
 
 
+def depth_as_colorimage(depth_raw):
+    depth_raw = (depth_raw - depth_raw.min()) / (depth_raw.max() - depth_raw.min()) * 255.0
+    depth_raw = depth_raw.astype(np.uint8)
+    return cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
+
+
 class DepthEngine:
     """
     Real-time depth estimation using Depth Anything with TensorRT
@@ -177,16 +183,16 @@ def depth_run(args):
     try:
         while True:
             _, frame = cap.read()
+            if 1:  # stereo camera left part
+                H_, w_ = frame.shape[:2]
+                frame = frame[:, :w_ // 2, :]
             frame = cv2.resize(frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
             depth_raw = depth_engine.infer(frame)
             print(f"{depth_raw.shape=} {depth_raw.dtype=}")
             print(f"{np.max(depth_raw.flatten())=}")
 
-            depth_raw = (depth_raw - depth_raw.min()) / (depth_raw.max() - depth_raw.min()) * 255.0
-            depth_raw = depth_raw.astype(np.uint8)
-            depth = cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
-
+            depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
 
             if depth_engine.record:
