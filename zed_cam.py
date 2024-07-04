@@ -69,7 +69,7 @@ def as_matrix(chw_array):
 def main(opt):
     depth_engine = lib_depth_engine.DepthEngine(
         frame_rate=15,
-        raw=False,
+        raw=True,
         stream=True,
         record=False,
         save=False,
@@ -129,7 +129,8 @@ def main(opt):
             print(f"{frame.flags['C_CONTIGUOUS']=}")
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
-            depth_any = depth_engine.infer(frame)
+            depth_any_raw = depth_engine.infer(frame)
+            depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
             print(f"{depth_any.shape=} {depth_any.dtype=}")
