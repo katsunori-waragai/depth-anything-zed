@@ -1,3 +1,6 @@
+"""
+This code is only to check available cuda device
+"""
 import torch
 
 if torch.cuda.is_available():

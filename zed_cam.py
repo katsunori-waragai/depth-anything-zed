@@ -1,6 +1,7 @@
 """
 depth画像を見るサンプルスクリプト
 
+This is developing code for depth-anything with zed sdk.
 """
 
 import pyzed.sl as sl

@@ -1,3 +1,6 @@
+"""
+This is main script using lib_depth_engine.py without zed-sdk
+"""
 import argparse
 
 import lib_depth_engine
