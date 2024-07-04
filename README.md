@@ -5,6 +5,9 @@ docker environment for depth-anything
 Jetson 用のDepth-Anything のリポジトリ
 https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 
+#### original
+https://github.com/LiheYoung/Depth-Anything
+
 ## もくろみ
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
@@ -72,6 +75,12 @@ INVALID RESOLUTION
 [2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
 [2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
 ```
+
+## SEE ALSO
+### depth-anything v2
+https://github.com/DepthAnything/Depth-Anything-V2
+[pdf](https://arxiv.org/abs/2406.09414)
+[深度推定モデル Deep Anything v2を試してみる](https://qiita.com/d_sato_/items/2f6c553e771f1d05192e)
 
 
 ## depth_anythingでの推論が実行できなかったときのエラー
