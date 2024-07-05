@@ -226,7 +226,9 @@ def depth_run(args):
 
             points = to_point_cloud_np(depth_raw)
 
-            simpleply.write_point_cloud(Path("tmp.ply"), points, frame)
+            plyname = Path("tmp.ply")
+            simpleply.write_point_cloud(plyname, points, frame)
+            print(f"saved {plyname}")
             input("hit return key")
             if 0:
                 import open3d as o3d
