@@ -17,13 +17,6 @@ https://github.com/LiheYoung/Depth-Anything
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
 
 
-## docker 環境の外で
-```commandline
-bash gen_copy_script.sh
-```
-を実行しておく。
-guest環境内weights/からhost環境のディレクトリをコピーするスクリプト
-copyto_host.sh を生成させておく。
 ### 予め host 環境で `xhost +` を実行しておく
 
 ## docker_build.sh
@@ -57,11 +50,8 @@ python3 python3 zed_cam.py
 python3 python3 zed_cam.py --use_zed_sdk
 ```
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
-```commandline
-bash copyto_host.sh
-```
-
-このようにして、weights/ ディレクトリの中身をhost環境に保存できる。
+weights ファイルがhost環境のディスク領域のmount にした。
+そのため、なにもしなくても、次回のguest環境に引き継がれる。
 
 # TODO
 - 他の方式でのDepthの推定と比較できるようにすること。
