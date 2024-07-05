@@ -171,17 +171,26 @@ class DepthEngine:
         
         return self.postprocess(self.h_output) # Postprocess the depth map
 
-def to_point_cloud_np(resized_pred: np.ndarray, focal_length_x: float, focal_length_y: float) -> np.ndarray:
+def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
     """
     """
     height, width = resized_pred.shape[:2]
     P_x = width // 2 # center of the image
     P_y = height // 2
+
+    # focal_length_x = 2.1e-3 # [m] ZED2i
+    # focal_length_y = 2.1e-3 # [m]
+    focal_length_x = 2.1e-3 / 2e-6 #  ZED2i
+    focal_length_y = 2.1e-3 / 2e-6 # [m]
+
     x, y = np.meshgrid(np.arange(width), np.arange(height))
     x = (x - P_x) / focal_length_x
     y = (y - P_y) / focal_length_y
     z = np.array(resized_pred)
     points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    print(f"{np.max(points[:, 0])=}")
+    print(f"{np.max(points[:, 1])=}")
+    print(f"{np.max(points[:, 2])=}")
     return points
 
 def depth_run(args):
@@ -209,9 +218,9 @@ def depth_run(args):
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
 
-            points = to_point_cloud_np(depth_raw, focal_length_x=1.0, focal_length_y=1.0)
+            points = to_point_cloud_np(depth_raw)
 
-            simpleply.write_point_cloud(Pasth("tmp.ply"), points, orig_frame)
+            simpleply.write_point_cloud(Path("tmp.ply"), points, frame)
             input("hit return key")
             if 0:
                 import open3d as o3d
