@@ -18,6 +18,7 @@ from torchvision.transforms import Compose
 
 from depth_anything import transform
 
+import simpleply
 
 def depth_as_colorimage(depth_raw):
     depth_raw = (depth_raw - depth_raw.min()) / (depth_raw.max() - depth_raw.min()) * 255.0
@@ -209,6 +210,8 @@ def depth_run(args):
             results = np.concatenate((frame, depth), axis=1)
 
             points = to_point_cloud_np(depth_raw, focal_length_x=1.0, focal_length_y=1.0)
+
+            simpleply.write_point_cloud(Pasth("tmp.ply"), points, orig_frame)
             if 0:
                 import open3d as o3d
                 pcd = o3d.geometry.PointCloud()
