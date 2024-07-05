@@ -2,11 +2,10 @@ from pathlib import Path
 
 import numpy as np
 
-from zedhelper.util import points_isfinite
-
 
 def write_point_cloud(p: Path, xyzs: np.ndarray, colors: np.ndarray):
     candidate_points = xyzs.shape[0]
+    print(f"{xyzs.shape=} {colors.shape=}")
     indexes = [i for i in range(candidate_points) if np.isfinite(xyzs[i, :]).all()]
 
     with open(p, "wt") as f:
