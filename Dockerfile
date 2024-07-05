@@ -26,8 +26,5 @@ RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-O
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 WORKDIR /root/Depth-Anything-for-Jetson-Orin
 COPY *.py ./
-RUN mkdir -p weights/
-COPY weights/* ./weights/
-COPY copyto_host.sh ./
 COPY reinstall-opencv.sh ./
 RUN cd  /root/Depth-Anything-for-Jetson-Orin
