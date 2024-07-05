@@ -105,41 +105,25 @@ def main(opt):
                 H_, w_ = cv_image.shape[:2]
                 cv_image = cv_image[:, :w_ //2, :]
                 assert cv_image.shape[2] == 3
-                cv2.imwrite("tmp.jpg", cv_image)
             elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
-                if 1:
-                    zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
-                    cv_image = image.get_data()
-                    print(f"{cv_image.shape=} {cv_image.dtype=}")
-                    assert cv_image.shape[2] == 4  # ZED SDK dependent.
-                    cv_image = cv_image[:, :, :3].copy()
-                    cv_image = np.ascontiguousarray(cv_image)
-                else:
-                    cv_image = cv2.imread("tmp.jpg")
+                zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
+                cv_image = image.get_data()
+                assert cv_image.shape[2] == 4  # ZED SDK dependent.
+                cv_image = cv_image[:, :, :3].copy()
+                cv_image = np.ascontiguousarray(cv_image)
             else:
-                cv_image = cv2.imread("tmp.jpg")
-            print(f"{cv_image.shape=} {cv_image.dtype=}")
-            print(f"{cv_image.flags['C_CONTIGUOUS']=}")
+                continue
             assert cv_image.shape[2] == 3
             assert cv_image.dtype == np.uint8
-            # assert cv_image.flags['C_CONTIGUOUS']
             frame = cv2.resize(cv_image, (960, 540)).copy()
-            print(f"{frame.shape=} {frame.dtype=}")
-            print(f"{np.min(frame.flatten())=} {np.max(frame.flatten())=}")
-            print(f"{frame.flags['C_CONTIGUOUS']=}")
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
             depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            print(f"{depth_any_raw.shape=} {depth_any_raw.dtype=}")
-            print(f"{np.min(depth_any_raw.flatten())=} {np.max(depth_any_raw.flatten())=}")
-            print(f"{depth_any.shape=} {depth_any.dtype=}")
-            print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
             cv2.imshow("Depth", results)
-            cv2.imshow("depth only", depth_any)
             cv2.waitKey(1)
 
     except Exception as e:
