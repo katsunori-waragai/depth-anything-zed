@@ -60,6 +60,7 @@ class DepthEngine:
         self.record = record
         self.save = save
         self.grayscale = grayscale
+        self.cfx =cuda.Device(0).make_context()
         
         # Initialize the raw data
         # Depth map without any postprocessing -> float32
@@ -161,10 +162,14 @@ class DepthEngine:
         np.copyto(self.h_input, image.ravel())
         
         # Copy the input to the GPU, execute the inference, and copy the output back to the CPU
+        self.cfx.push()
+
         cuda.memcpy_htod_async(self.d_input, self.h_input, self.cuda_stream)
         self.context.execute_async_v2(bindings=[int(self.d_input), int(self.d_output)], stream_handle=self.cuda_stream.handle)
         cuda.memcpy_dtoh_async(self.h_output, self.d_output, self.cuda_stream)
         self.cuda_stream.synchronize()
+        
+        self.cfx.pop()
         
         print(f"Inference time: {time.time() - t0:.4f}s")
         
