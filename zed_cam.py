@@ -76,36 +76,27 @@ def main(opt):
         grayscale=False
     )
 
-    use_zed_sdk = opt.use_zed_sdk
-    if use_zed_sdk:
-        zed = sl.Camera()
-        init_params = sl.InitParameters()
-        parse_args(init_params)
-        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-        init_params.camera_resolution = sl.RESOLUTION.HD2K
+    zed = sl.Camera()
+    init_params = sl.InitParameters()
+    parse_args(init_params)
+    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+    init_params.camera_resolution = sl.RESOLUTION.HD2K
 
-        err = zed.open(init_params)
-        if err != sl.ERROR_CODE.SUCCESS:
-            print(err)
-            exit(1)
+    err = zed.open(init_params)
+    if err != sl.ERROR_CODE.SUCCESS:
+        print(err)
+        exit(1)
 
-        image = sl.Mat()
+    image = sl.Mat()
 
-        runtime_parameters = sl.RuntimeParameters()
-        runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
-        runtime_parameters.confidence_threshold = opt.confidence_threshold
-        print(f"### {runtime_parameters.confidence_threshold=}")
-    else:
-        cap = cv2.VideoCapture(0)
+    runtime_parameters = sl.RuntimeParameters()
+    runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
+    runtime_parameters.confidence_threshold = opt.confidence_threshold
+    print(f"### {runtime_parameters.confidence_threshold=}")
 
     try:
         while True:
-            if not use_zed_sdk:
-                _, cv_image = cap.read()
-                H_, w_ = cv_image.shape[:2]
-                cv_image = cv_image[:, :w_ //2, :]
-                assert cv_image.shape[2] == 3
-            elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+            if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
                 zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
                 cv_image = image.get_data()
                 assert cv_image.shape[2] == 4  # ZED SDK dependent.
@@ -159,7 +150,6 @@ if __name__ == "__main__":
         help="depth confidence_threshold(0 ~ 100)",
         default=100,
     )
-    parser.add_argument("--use_zed_sdk", action="store_true", help="use zed sdk")
     opt = parser.parse_args()
     if len(opt.input_svo_file) > 0 and len(opt.ip_address) > 0:
         print("Specify only input_svo_file or ip_address, or none to use wired camera, not both. Exit program")
