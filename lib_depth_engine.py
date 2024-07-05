@@ -67,8 +67,6 @@ class DepthEngine:
         # For visualization, change raw to False
         if raw: self.raw_depth = None 
 
-        device_id = 0
-        pycuda.driver.Device(device_id).make_context() # by waragai
         # Load the TensorRT engine
         self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING)) 
         self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
