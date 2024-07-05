@@ -5,6 +5,8 @@ import numpy as np
 
 def write_point_cloud(p: Path, xyzs: np.ndarray, colors: np.ndarray):
     candidate_points = xyzs.shape[0]
+    h, w, c = colors.shape
+    colors = colors.reshape((h * w, c))
     print(f"{xyzs.shape=} {colors.shape=}")
     indexes = [i for i in range(candidate_points) if np.isfinite(xyzs[i, :]).all()]
 
