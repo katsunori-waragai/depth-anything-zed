@@ -1,7 +1,7 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
 # for depth anything
-RUN apt update
+RUN apt-get update
 RUN apt install sudo
 RUN apt install -y zip
 RUN apt install -y build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev

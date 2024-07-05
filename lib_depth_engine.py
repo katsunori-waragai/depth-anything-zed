@@ -60,14 +60,13 @@ class DepthEngine:
         self.record = record
         self.save = save
         self.grayscale = grayscale
+        self.cfx =cuda.Device(0).make_context()
         
         # Initialize the raw data
         # Depth map without any postprocessing -> float32
         # For visualization, change raw to False
         if raw: self.raw_depth = None 
 
-        device_id = 0
-        pycuda.driver.Device(device_id).make_context() # by waragai
         # Load the TensorRT engine
         self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING)) 
         self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
@@ -161,10 +160,14 @@ class DepthEngine:
         np.copyto(self.h_input, image.ravel())
         
         # Copy the input to the GPU, execute the inference, and copy the output back to the CPU
+        self.cfx.push()
+
         cuda.memcpy_htod_async(self.d_input, self.h_input, self.cuda_stream)
         self.context.execute_async_v2(bindings=[int(self.d_input), int(self.d_output)], stream_handle=self.cuda_stream.handle)
         cuda.memcpy_dtoh_async(self.h_output, self.d_output, self.cuda_stream)
         self.cuda_stream.synchronize()
+        
+        self.cfx.pop()
         
         print(f"Inference time: {time.time() - t0:.4f}s")
         
@@ -187,10 +190,7 @@ def depth_run(args):
                 H_, w_ = frame.shape[:2]
                 frame = frame[:, :w_ // 2, :]
             frame = cv2.resize(frame, (960, 540))
-            print(f"{frame.shape=} {frame.dtype=}")
             depth_raw = depth_engine.infer(frame)
-            print(f"{depth_raw.shape=} {depth_raw.dtype=}")
-            print(f"{np.max(depth_raw.flatten())=}")
 
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
