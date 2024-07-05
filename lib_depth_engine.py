@@ -232,12 +232,6 @@ def depth_run(args):
             simpleply.write_point_cloud(plyname, points, orig_frame)
             print(f"saved {plyname}")
             input("hit return key")
-            if 0:
-                import open3d as o3d
-                pcd = o3d.geometry.PointCloud()
-                pcd.points = o3d.utility.Vector3dVector(points)
-                pcd.colors = o3d.utility.Vector3dVector(orig_frame)
-                o3d.io.write_point_cloud("sample.ply", pcd)
 
             if depth_engine.record:
                 depth_engine.video.write(results)
