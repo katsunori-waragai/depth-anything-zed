@@ -212,6 +212,7 @@ def depth_run(args):
             points = to_point_cloud_np(depth_raw, focal_length_x=1.0, focal_length_y=1.0)
 
             simpleply.write_point_cloud(Pasth("tmp.ply"), points, orig_frame)
+            input("hit return key")
             if 0:
                 import open3d as o3d
                 pcd = o3d.geometry.PointCloud()
