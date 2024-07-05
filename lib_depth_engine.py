@@ -173,13 +173,19 @@ class DepthEngine:
 
 def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
     """
+    resized_pred のdepthデータをpoint cloud に変換する
+
+    問題点：
+    focal_length_x, focal_length_y の値の妥当性
+    resized_predの計測値の妥当性
+
     """
     height, width = resized_pred.shape[:2]
     P_x = width // 2 # center of the image
     P_y = height // 2
 
-    # focal_length_x = 2.1e-3 # [m] ZED2i
-    # focal_length_y = 2.1e-3 # [m]
+    # 以下のfocal_length は、画素単位のもの
+    # [m]での焦点距離 / 画素のピッチ [m] をZED2iのmanual から参照した値を用いている。
     focal_length_x = 2.1e-3 / 2e-6 #  ZED2i
     focal_length_y = 2.1e-3 / 2e-6 # [m]
 
@@ -188,9 +194,9 @@ def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
     y = (y - P_y) / focal_length_y
     z = np.array(resized_pred)
     points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
-    print(f"{np.max(points[:, 0])=}")
-    print(f"{np.max(points[:, 1])=}")
-    print(f"{np.max(points[:, 2])=}")
+    print(f"{np.min(points[:, 0])=} {np.max(points[:, 0])=}")
+    print(f"{np.min(points[:, 1])=} {np.max(points[:, 1])=}")
+    print(f"{np.min(points[:, 2])=} {np.max(points[:, 2])=}")
     return points
 
 def depth_run(args):
