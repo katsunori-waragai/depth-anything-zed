@@ -190,10 +190,7 @@ def depth_run(args):
                 H_, w_ = frame.shape[:2]
                 frame = frame[:, :w_ // 2, :]
             frame = cv2.resize(frame, (960, 540))
-            print(f"{frame.shape=} {frame.dtype=}")
             depth_raw = depth_engine.infer(frame)
-            print(f"{depth_raw.shape=} {depth_raw.dtype=}")
-            print(f"{np.max(depth_raw.flatten())=}")
 
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
