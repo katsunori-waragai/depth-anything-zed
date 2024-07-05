@@ -225,7 +225,7 @@ def depth_run(args):
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
 
-            depth_raw_orignal_size = np.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+            depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
             points = to_point_cloud_np(depth_raw_orignal_size)
 
             plyname = Path("tmp.ply")
