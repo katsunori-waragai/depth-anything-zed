@@ -215,9 +215,9 @@ def depth_run(args):
     try:
         while True:
             _, orig_frame = cap.read()
-            if 1:  # stereo camera left part
-                H_, w_ = orig_frame.shape[:2]
-                orig_frame = orig_frame[:, :w_ // 2, :]
+            # stereo camera left part
+            H_, w_ = orig_frame.shape[:2]
+            orig_frame = orig_frame[:, :w_ // 2, :]
             original_height, original_width = orig_frame[:2]
             frame = cv2.resize(orig_frame, (960, 540))
             print(f"{frame.shape=} {frame.dtype=}")
@@ -243,8 +243,18 @@ def depth_run(args):
             if depth_engine.stream:
                 cv2.imshow('Depth', results)  # This causes bad performance
 
-                if cv2.waitKey(1) == ord('q'):
+                key = cv2.waitKey(100)
+                if key == ord('q'):
                     break
+                elif key == ord("s"):
+                    depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height),
+                                                        interpolation=cv2.INTER_NEAREST)
+                    points = to_point_cloud_np(depth_raw_orignal_size)
+
+                    plyname = Path("tmp.ply")
+                    simpleply.write_point_cloud(plyname, points, orig_frame)
+                    print(f"saved {plyname}")
+
     except Exception as e:
         print(e)
     finally:
