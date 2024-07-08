@@ -1,5 +1,5 @@
-# depth-anything-docker
-docker environment for depth-anything
+# depth-anything-zed
+docker environment for depth-anything　with ZED SDK
 
 ## 参照元
 Jetson 用のDepth-Anything のリポジトリ
@@ -12,6 +12,7 @@ https://github.com/LiheYoung/Depth-Anything
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
+- ZED SDK 環境でデータを取得できるので、depth_anything の結果とZED SDK でのdepthとを直接比較できる。
 ## わかっていること
 - Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
@@ -21,7 +22,8 @@ https://github.com/LiheYoung/Depth-Anything
 ## docker_build.sh
 
 ## docker_run.sh
-
+- host 環境のweights/ をguest環境の weights/ としてマウントするようにした。
+- そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 ### モデルの変換(Docker環境内)
 - ls weights
 - モデルの変換を自動化する（onnx -> trt）
@@ -74,3 +76,6 @@ https://github.com/DepthAnything/Depth-Anything-V2
 ```commandline
 [07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
 ```
+TRT を利用しているコード側の以下の改変で解決した。
+https://github.com/katsunori-waragai/depth-anything-zed/pull/16
+
