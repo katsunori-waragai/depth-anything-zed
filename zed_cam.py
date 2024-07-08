@@ -76,70 +76,45 @@ def main(opt):
         grayscale=False
     )
 
-    use_zed_sdk = opt.use_zed_sdk
-    if use_zed_sdk:
-        zed = sl.Camera()
-        init_params = sl.InitParameters()
-        parse_args(init_params)
-        init_params.depth_mode = sl.DEPTH_MODE.ULTRA
-        init_params.camera_resolution = sl.RESOLUTION.HD2K
+    zed = sl.Camera()
+    init_params = sl.InitParameters()
+    parse_args(init_params)
+    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+    init_params.camera_resolution = sl.RESOLUTION.HD2K
 
-        err = zed.open(init_params)
-        if err != sl.ERROR_CODE.SUCCESS:
-            print(err)
-            exit(1)
+    err = zed.open(init_params)
+    if err != sl.ERROR_CODE.SUCCESS:
+        print(err)
+        exit(1)
 
-        image = sl.Mat()
+    image = sl.Mat()
 
-        runtime_parameters = sl.RuntimeParameters()
-        runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
-        runtime_parameters.confidence_threshold = opt.confidence_threshold
-        print(f"### {runtime_parameters.confidence_threshold=}")
-    else:
-        cap = cv2.VideoCapture(0)
+    runtime_parameters = sl.RuntimeParameters()
+    runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
+    runtime_parameters.confidence_threshold = opt.confidence_threshold
+    print(f"### {runtime_parameters.confidence_threshold=}")
 
     try:
         while True:
-            if not use_zed_sdk:
-                _, cv_image = cap.read()
-                H_, w_ = cv_image.shape[:2]
-                cv_image = cv_image[:, :w_ //2, :]
-                assert cv_image.shape[2] == 3
-                cv2.imwrite("tmp.jpg", cv_image)
-            elif zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
-                if 1:
-                    zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
-                    cv_image = image.get_data()
-                    print(f"{cv_image.shape=} {cv_image.dtype=}")
-                    assert cv_image.shape[2] == 4  # ZED SDK dependent.
-                    cv_image = cv_image[:, :, :3].copy()
-                    cv_image = np.ascontiguousarray(cv_image)
-                else:
-                    cv_image = cv2.imread("tmp.jpg")
+            if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+                zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
+                cv_image = image.get_data()
+                assert cv_image.shape[2] == 4  # ZED SDK dependent.
+                cv_image = cv_image[:, :, :3].copy()
+                cv_image = np.ascontiguousarray(cv_image)
             else:
-                cv_image = cv2.imread("tmp.jpg")
-            print(f"{cv_image.shape=} {cv_image.dtype=}")
-            print(f"{cv_image.flags['C_CONTIGUOUS']=}")
+                continue
             assert cv_image.shape[2] == 3
             assert cv_image.dtype == np.uint8
-            # assert cv_image.flags['C_CONTIGUOUS']
             frame = cv2.resize(cv_image, (960, 540)).copy()
-            print(f"{frame.shape=} {frame.dtype=}")
-            print(f"{np.min(frame.flatten())=} {np.max(frame.flatten())=}")
-            print(f"{frame.flags['C_CONTIGUOUS']=}")
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
             depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
             assert frame.dtype ==  depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            print(f"{depth_any_raw.shape=} {depth_any_raw.dtype=}")
-            print(f"{np.min(depth_any_raw.flatten())=} {np.max(depth_any_raw.flatten())=}")
-            print(f"{depth_any.shape=} {depth_any.dtype=}")
-            print(f"{np.max(depth_any.flatten())=}")
             results = np.concatenate((frame, depth_any), axis=1)
             cv2.imshow("Depth", results)
-            cv2.imshow("depth only", depth_any)
             cv2.waitKey(1)
 
     except Exception as e:
@@ -175,7 +150,6 @@ if __name__ == "__main__":
         help="depth confidence_threshold(0 ~ 100)",
         default=100,
     )
-    parser.add_argument("--use_zed_sdk", action="store_true", help="use zed sdk")
     opt = parser.parse_args()
     if len(opt.input_svo_file) > 0 and len(opt.ip_address) > 0:
         print("Specify only input_svo_file or ip_address, or none to use wired camera, not both. Exit program")

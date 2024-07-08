@@ -1,5 +1,5 @@
-# depth-anything-docker
-docker environment for depth-anything
+# depth-anything-zed
+docker environment for depth-anything　with ZED SDK
 
 ## 参照元
 Jetson 用のDepth-Anything のリポジトリ
@@ -12,24 +12,18 @@ https://github.com/LiheYoung/Depth-Anything
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
+- ZED SDK 環境でデータを取得できるので、depth_anything の結果とZED SDK でのdepthとを直接比較できる。
 ## わかっていること
 - Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
 
-
-## docker 環境の外で
-```commandline
-bash gen_copy_script.sh
-```
-を実行しておく。
-guest環境内weights/からhost環境のディレクトリをコピーするスクリプト
-copyto_host.sh を生成させておく。
 ### 予め host 環境で `xhost +` を実行しておく
 
 ## docker_build.sh
 
 ## docker_run.sh
-
+- host 環境のweights/ をguest環境の weights/ としてマウントするようにした。
+- そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 ### モデルの変換(Docker環境内)
 - ls weights
 - モデルの変換を自動化する（onnx -> trt）
@@ -48,20 +42,14 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
 
 ```commandline
-python3 depth_main.py --stream
+python3 depth_main.py 
 
-# as USB camera
-python3 python3 zed_cam.py 
-
-# use ZED SDK (not working)
-python3 python3 zed_cam.py --use_zed_sdk
+# use ZED SDK
+python3 python3 zed_cam.py
 ```
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
-```commandline
-bash copyto_host.sh
-```
-
-このようにして、weights/ ディレクトリの中身をhost環境に保存できる。
+weights ファイルがhost環境のディスク領域のmount にした。
+そのため、なにもしなくても、次回のguest環境に引き継がれる。
 
 # TODO
 - 他の方式でのDepthの推定と比較できるようにすること。
@@ -88,3 +76,6 @@ https://github.com/DepthAnything/Depth-Anything-V2
 ```commandline
 [07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
 ```
+TRT を利用しているコード側の以下の改変で解決した。
+https://github.com/katsunori-waragai/depth-anything-zed/pull/16
+

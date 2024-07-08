@@ -1,7 +1,7 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
 # for depth anything
-RUN apt update
+RUN apt-get update
 RUN apt install sudo
 RUN apt install -y zip
 RUN apt install -y build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
@@ -27,8 +27,5 @@ RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-O
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 WORKDIR /root/Depth-Anything-for-Jetson-Orin
 COPY *.py ./
-RUN mkdir -p weights/
-COPY weights/* ./weights/
-COPY copyto_host.sh ./
 COPY reinstall-opencv.sh ./
 RUN cd  /root/Depth-Anything-for-Jetson-Orin
