@@ -226,19 +226,13 @@ def depth_run(args):
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
 
-            depth_raw_orignal_size = np.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+            depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
             points = to_point_cloud_np(depth_raw_orignal_size)
 
             plyname = Path("tmp.ply")
             simpleply.write_point_cloud(plyname, points, orig_frame)
             print(f"saved {plyname}")
             input("hit return key")
-            if 0:
-                import open3d as o3d
-                pcd = o3d.geometry.PointCloud()
-                pcd.points = o3d.utility.Vector3dVector(points)
-                pcd.colors = o3d.utility.Vector3dVector(orig_frame)
-                o3d.io.write_point_cloud("sample.ply", pcd)
 
             if depth_engine.record:
                 depth_engine.video.write(results)
