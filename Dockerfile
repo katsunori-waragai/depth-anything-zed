@@ -10,7 +10,8 @@ RUN apt install -y libv4l-dev v4l-utils qv4l2
 RUN apt install -y curl
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN apt install zstd
-RUN python3 -m pip install matplotlib numpy 
+RUN python3 -m pip install matplotlib 
+RUN python3 -m pip install 'numpy<2' 
 RUN python3 -m pip install opencv-python 
 RUN python3 -m pip install huggingface_hub onnxruntime onnx
 # only for development
