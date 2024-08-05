@@ -85,10 +85,17 @@ def main():
             print(f"{np.max(effective_inferred)=}")
             X = np.asarray(1.0 / effective_zed_depth)
             Y = np.asarray(effective_inferred)
-            logX = np.log(X)
-            logY = np.log(Y)
+            assert np.alltrue(X.isfinite())
+            assert np.alltrue(Y.isfinite())
+
+            EPS = 1e-6
+            logX = np.log(X + EPS)
+            logY = np.log(Y + EPS)
+            assert np.alltrue(logX.isfinite())
+            assert np.alltrue(logY.isfinite())
             logX = logX.reshape(-1, 1)
             logY = logY.reshape(-1, 1)
+
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
