@@ -80,7 +80,7 @@ def main():
             h, w = cv_image.shape[:2]
             depth_color = cv2.resize(depth_color, (w, h))
 
-            assert depth_color.shape[:2] == image.shape[:2]
+            assert depth_color.shape[:2] == cv_image.shape[:2]
 
             # Get and print distance value in mm at the center of the image
             # We measure the distance camera - object using Euclidean distance
