@@ -1,4 +1,5 @@
 #!/bin/bash
+xhost +
 export GIT_ROOT=$(cd $(dirname $0)/.. ; pwd)
 sudo docker run -it --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
 	-v ${GIT_ROOT}/depth-anything-zed/weights:/root/Depth-Anything-for-Jetson-Orin/weights \
