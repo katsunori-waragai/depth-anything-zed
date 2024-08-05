@@ -68,7 +68,8 @@ class DepthEngine:
         if raw: self.raw_depth = None 
 
         # Load the TensorRT engine
-        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING)) 
+        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
+        assert Path(trt_engine_path).is_file()
         self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
         self.context = self.engine.create_execution_context()
         print(f"Engine loaded from {trt_engine_path}")
