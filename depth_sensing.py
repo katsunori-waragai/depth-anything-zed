@@ -53,6 +53,7 @@ def main():
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
             cv_image = image.get_data()
+            cv_image = cv_image[:, :, :3] # as RGB
             # Retrieve depth map. Depth is aligned on the left image
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
