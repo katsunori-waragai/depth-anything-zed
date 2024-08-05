@@ -87,6 +87,8 @@ def main():
             Y = np.asarray(effective_inferred)
             logX = np.log(X)
             logY = np.log(Y)
+            logX = logX.reshape(-1, 1)
+            logY = logY.reshape(-1, 1)
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
