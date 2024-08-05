@@ -5,7 +5,8 @@ import sys
 import math
 
 import cv2
-
+# from sklearn.linear_model import LinearRegression
+import matplotlib.pylab as plt
 
 from lib_depth_engine import depth_as_colorimage
 from lib_depth_engine import DepthEngine
@@ -58,14 +59,13 @@ def main():
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
+            effective_zed_depth = depth_data[np.isfinite(depth_data)]
+
+            # assert np.alltrue(np.isfinite(depth_data))  # fails
             depth_data_color = depth_as_colorimage(depth_data)
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
             cv2.imshow("cv_depth_img", cv_depth_img)
-            # key = cv2.waitKey(1)
-            # if key == ord("q"):
-            #     exit
-            # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
 
@@ -74,13 +74,32 @@ def main():
             print(f"{cv_image.shape=} {cv_image.dtype=}")
             print(f"{frame.shape=} {frame.dtype=}")
             assert frame.dtype == np.uint8
-            depth_raw = depth_engine.infer(frame)
+            disparity_raw = depth_engine.infer(frame)
             h, w = cv_image.shape[:2]
-            depth_raw = cv2.resize(depth_raw, (w, h))
-            depth_color = depth_as_colorimage(depth_raw)
+            disparity_raw = cv2.resize(disparity_raw, (w, h))
+            disparity_color = depth_as_colorimage(disparity_raw)
 
-            assert depth_color.shape[:2] == cv_image.shape[:2]
-            cv2.imshow("depth_anything_color", depth_color)
+            effective_inferred = disparity_raw[np.isfinite(depth_data)]
+
+            print(f"{np.max(effective_zed_depth)=}")
+            print(f"{np.max(effective_inferred)=}")
+            X = 1.0 / effective_zed_depth
+            Y = effective_inferred
+            print(f"{X.shape=} {X.dtype=}")
+            print(f"{Y.shape=} {Y.dtype=}")
+            plt.clf()
+            plt.loglog(X, Y, ".")
+            plt.xlabel("ZED SDK disparity")
+            plt.ylabel("Depth-Anything disparity")
+            plt.grid(True)
+            plt.savefig("depth_cmp.png")
+            # lr = LinearRegression()
+            # lr.fit(X, Y)
+            # print(f"{lr.coef_[0]=}")
+            # print(f"{lr.intercept=}")
+
+            assert disparity_color.shape[:2] == cv_image.shape[:2]
+            cv2.imshow("depth_anything_color", disparity_color)
             key = cv2.waitKey(1)
             if key == ord("q"):
                 exit
