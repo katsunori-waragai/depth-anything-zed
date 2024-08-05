@@ -70,6 +70,9 @@ def main():
 
             # depth-anything からもdepthの推測値を得ること
             frame = cv2.resize(cv_image, (960, 540))
+            print(f"{cv_image.shape=} {cv_image.dtype=}")
+            print(f"{frame.shape=} {frame.dtype=}")
+            assert frame.dtype == np.uint8
             depth_raw = depth_engine.infer(frame)
 
             depth_color = depth_as_colorimage(depth_raw)
