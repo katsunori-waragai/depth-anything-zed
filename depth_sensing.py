@@ -80,20 +80,25 @@ def main():
             disparity_color = depth_as_colorimage(disparity_raw)
 
             effective_inferred = disparity_raw[np.isfinite(depth_data)]
+            uneffective_inferred = disparity_raw[np.logical_not(np.isfinite(depth_data))]
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
+            print(f"{np.max(uneffective_inferred)=}")
             X = np.asarray(effective_inferred)
+            X2 = np.asarray(uneffective_inferred)
             Y = np.asarray(1.0 / effective_zed_depth)
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
             EPS = 1e-6
             logX = np.log(X + EPS)
+            logX2 = np.log(X2 + EPS)
             logY = np.log(Y + EPS)
             assert np.alltrue(np.isfinite(logX))
             assert np.alltrue(np.isfinite(logY))
             logX = logX.reshape(-1, 1)
+            logX2 = logX2.reshape(-1, 1)
             logY = logY.reshape(-1, 1)
 
             print(f"{X.shape=} {X.dtype=}")
@@ -103,9 +108,11 @@ def main():
                 ransac = sklearn.linear_model.RANSACRegressor()
                 ransac.fit(logX, logY)
                 predicted_logY = ransac.predict(logX)
+                predicted_logY2 = ransac.predict(logX2)
                 print(f"{ransac.estimator_.coef_=}")
                 plt.plot(logX, logY, ".")
                 plt.plot(logX, predicted_logY, ".")
+                plt.plot(logX2, predicted_logY2, ".")
                 plt.xlabel("Depth-Anything disparity (log)")
                 plt.ylabel("ZED SDK disparity (log)")
                 plt.grid(True)
