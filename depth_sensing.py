@@ -5,7 +5,7 @@ import sys
 import math
 
 import cv2
-# from sklearn.linear_model import LinearRegression
+import sklearn.linear_model
 import matplotlib.pylab as plt
 
 from lib_depth_engine import depth_as_colorimage
@@ -83,8 +83,10 @@ def main():
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
-            X = 1.0 / effective_zed_depth
-            Y = effective_inferred
+            X = np.asarray(1.0 / effective_zed_depth)
+            Y = np.asarray(effective_inferred)
+            logX = np.log(X)
+            logY = np.log(Y)
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
@@ -93,6 +95,8 @@ def main():
             plt.ylabel("Depth-Anything disparity")
             plt.grid(True)
             plt.savefig("depth_cmp.png")
+            ransac = sklearn.linear_model.RANSACRegressor()
+            ransac.fit(logX, logY)
             # lr = LinearRegression()
             # lr.fit(X, Y)
             # print(f"{lr.coef_[0]=}")
