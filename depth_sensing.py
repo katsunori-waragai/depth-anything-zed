@@ -52,6 +52,7 @@ def main():
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
+            cv_image = image.get_data()
             # Retrieve depth map. Depth is aligned on the left image
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
@@ -68,11 +69,11 @@ def main():
 
 
             # depth-anything からもdepthの推測値を得ること
-            frame = cv2.resize(image, (960, 540))
+            frame = cv2.resize(cv_image, (960, 540))
             depth_raw = depth_engine.infer(frame)
 
             depth_color = depth_as_colorimage(depth_raw)
-            h, w = image.shep[:2]
+            h, w = cv_image.shape[:2]
             depth_color = cv2.resize(depth_color, (w, h))
 
             assert depth_color.shape[:2] == image.shape[:2]
