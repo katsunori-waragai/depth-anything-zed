@@ -74,12 +74,12 @@ def main():
             print(f"{cv_image.shape=} {cv_image.dtype=}")
             print(f"{frame.shape=} {frame.dtype=}")
             assert frame.dtype == np.uint8
-            depth_raw = depth_engine.infer(frame)
+            disparity_raw = depth_engine.infer(frame)
             h, w = cv_image.shape[:2]
-            depth_raw = cv2.resize(depth_raw, (w, h))
-            depth_color = depth_as_colorimage(depth_raw)
+            disparity_raw = cv2.resize(disparity_raw, (w, h))
+            disparity_color = depth_as_colorimage(disparity_raw)
 
-            effective_inferred = depth_raw[np.isfinite(depth_data)]
+            effective_inferred = disparity_raw[np.isfinite(depth_data)]
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
@@ -88,9 +88,9 @@ def main():
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
-            plt.loglog(X, 1.0 / Y, ".")
-            plt.xlabel("ZED SDK")
-            plt.ylabel("Depth-Anything")
+            plt.loglog(1.0 / X, Y, ".")
+            plt.xlabel("ZED SDK disparity")
+            plt.ylabel("Depth-Anything disparity")
             plt.grid(True)
             plt.savefig("depth_cmp.png")
             # lr = LinearRegression()
@@ -98,8 +98,8 @@ def main():
             # print(f"{lr.coef_[0]=}")
             # print(f"{lr.intercept=}")
 
-            assert depth_color.shape[:2] == cv_image.shape[:2]
-            cv2.imshow("depth_anything_color", depth_color)
+            assert disparity_color.shape[:2] == cv_image.shape[:2]
+            cv2.imshow("depth_anything_color", disparity_color)
             key = cv2.waitKey(1)
             if key == ord("q"):
                 exit
