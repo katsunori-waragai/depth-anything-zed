@@ -54,6 +54,17 @@ python3 depth_main.py
 # use ZED SDK
 python3 python3 zed_cam.py
 ```
+
+# ZED-SDK でのdepthとdepth-anythingとの比較
+```commandline
+python3 depth_sensing.py
+```
+
+### 表示の改善のするべきこと
+- zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
+- 期待すること：　１次式の関係にあること。
+
+
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 weights ファイルがhost環境のディスク領域のmount にした。
 そのため、なにもしなくても、次回のguest環境に引き継がれる。

@@ -80,7 +80,7 @@ def main():
             depth_color = depth_as_colorimage(depth_raw)
 
             assert depth_color.shape[:2] == cv_image.shape[:2]
-            cv2.imshow("depth_color", depth_color)
+            cv2.imshow("depth_anything_color", depth_color)
             key = cv2.waitKey(1)
             if key == ord("q"):
                 exit
