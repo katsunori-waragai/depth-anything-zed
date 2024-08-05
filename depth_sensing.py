@@ -83,12 +83,12 @@ def main():
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
-            X = effective_zed_depth
+            X = 1.0 / effective_zed_depth
             Y = effective_inferred
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
-            plt.loglog(1.0 / X, Y, ".")
+            plt.loglog(X, Y, ".")
             plt.xlabel("ZED SDK disparity")
             plt.ylabel("Depth-Anything disparity")
             plt.grid(True)
