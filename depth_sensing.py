@@ -85,14 +85,14 @@ def main():
             print(f"{np.max(effective_inferred)=}")
             X = np.asarray(1.0 / effective_zed_depth)
             Y = np.asarray(effective_inferred)
-            assert np.alltrue(X.isfinite())
-            assert np.alltrue(Y.isfinite())
+            assert np.alltrue(np.isfinite(X))
+            assert np.alltrue(np.isfinite(Y))
 
             EPS = 1e-6
             logX = np.log(X + EPS)
             logY = np.log(Y + EPS)
-            assert np.alltrue(logX.isfinite())
-            assert np.alltrue(logY.isfinite())
+            assert np.alltrue(np.isfinite(logX))
+            assert np.alltrue(np.isfinite(logY))
             logX = logX.reshape(-1, 1)
             logY = logY.reshape(-1, 1)
 
