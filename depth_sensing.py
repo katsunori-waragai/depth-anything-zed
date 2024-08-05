@@ -5,7 +5,7 @@ import sys
 import math
 
 import cv2
-# from sklearn.linear_model import LinearRegression
+import sklearn.linear_model
 import matplotlib.pylab as plt
 
 from lib_depth_engine import depth_as_colorimage
@@ -83,16 +83,39 @@ def main():
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
-            X = 1.0 / effective_zed_depth
-            Y = effective_inferred
+            X = np.asarray(1.0 / effective_zed_depth)
+            Y = np.asarray(effective_inferred)
+            assert np.alltrue(np.isfinite(X))
+            assert np.alltrue(np.isfinite(Y))
+
+            EPS = 1e-6
+            logX = np.log(X + EPS)
+            logY = np.log(Y + EPS)
+            assert np.alltrue(np.isfinite(logX))
+            assert np.alltrue(np.isfinite(logY))
+            logX = logX.reshape(-1, 1)
+            logY = logY.reshape(-1, 1)
+
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
-            plt.loglog(X, Y, ".")
-            plt.xlabel("ZED SDK disparity")
-            plt.ylabel("Depth-Anything disparity")
-            plt.grid(True)
-            plt.savefig("depth_cmp.png")
+            if 1:
+                ransac = sklearn.linear_model.RANSACRegressor()
+                ransac.fit(logX, logY)
+                predicted_logY = ransac.predict(logX)
+                print(f"{ransac.estimator_.coef_=}")
+                plt.plot(logX, logY, ".")
+                plt.plot(logX, predicted_logY, ".")
+                plt.xlabel("ZED SDK disparity (log)")
+                plt.ylabel("Depth-Anything disparity (log)")
+                plt.grid(True)
+                plt.savefig("depth_cmp_log.png")
+            else:
+                plt.loglog(X, Y, ".")
+                plt.xlabel("ZED SDK disparity")
+                plt.ylabel("Depth-Anything disparity")
+                plt.grid(True)
+                plt.savefig("depth_cmp.png")
             # lr = LinearRegression()
             # lr.fit(X, Y)
             # print(f"{lr.coef_[0]=}")
