@@ -1,23 +1,3 @@
-########################################################################
-#
-# Copyright (c) 2022, STEREOLABS.
-#
-# All rights reserved.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-########################################################################
-
 import pyzed.sl as sl
 import math
 import numpy as np
@@ -26,7 +6,21 @@ import math
 
 import cv2
 
+
+from lib_depth_engine import depth_as_colorimage
+from lib_depth_engine import DepthEngine
+
 def main():
+    # depth_anything の準備をする。
+    depth_engine = DepthEngine(
+        frame_rate=30,
+        raw=True,
+        stream=True,
+        record=False,
+        save=False,
+        grayscale=False
+    )
+
     # Create a Camera object
     zed = sl.Camera()
 
@@ -59,16 +53,29 @@ def main():
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
             # Retrieve depth map. Depth is aligned on the left image
-            zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+            zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
+            depth_data = depth.get_data()  # cv_image 型
+            print(f"{depth_data.shape=} {depth_data.dtype=}")
+            depth_data_color = depth_as_colorimage(depth_data)
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
-
             cv2.imshow("cv_depth_img", cv_depth_img)
             key = cv2.waitKey(1)
             if key == ord("q"):
                 exit
             # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
+
+
+            # depth-anything からもdepthの推測値を得ること
+            frame = cv2.resize(image, (960, 540))
+            depth_raw = depth_engine.infer(frame)
+
+            depth_color = depth_as_colorimage(depth_raw)
+            h, w = image.shep[:2]
+            depth_color = cv2.resize(depth_color, (w, h))
+
+            assert depth_color.shape[:2] == image.shape[:2]
 
             # Get and print distance value in mm at the center of the image
             # We measure the distance camera - object using Euclidean distance
