@@ -62,9 +62,9 @@ def main():
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
             cv2.imshow("cv_depth_img", cv_depth_img)
-            key = cv2.waitKey(1)
-            if key == ord("q"):
-                exit
+            # key = cv2.waitKey(1)
+            # if key == ord("q"):
+            #     exit
             # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
@@ -75,12 +75,15 @@ def main():
             print(f"{frame.shape=} {frame.dtype=}")
             assert frame.dtype == np.uint8
             depth_raw = depth_engine.infer(frame)
-
-            depth_color = depth_as_colorimage(depth_raw)
             h, w = cv_image.shape[:2]
-            depth_color = cv2.resize(depth_color, (w, h))
+            depth_raw = cv2.resize(depth_raw, (w, h))
+            depth_color = depth_as_colorimage(depth_raw)
 
             assert depth_color.shape[:2] == cv_image.shape[:2]
+            cv2.imshow("depth_color", depth_color)
+            key = cv2.waitKey(1)
+            if key == ord("q"):
+                exit
 
             # Get and print distance value in mm at the center of the image
             # We measure the distance camera - object using Euclidean distance
