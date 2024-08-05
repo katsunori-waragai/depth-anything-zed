@@ -5,7 +5,8 @@ import sys
 import math
 
 import cv2
-
+# from sklearn.linear_model import LinearRegression
+import matplotlib.pylab as plt
 
 from lib_depth_engine import depth_as_colorimage
 from lib_depth_engine import DepthEngine
@@ -82,6 +83,20 @@ def main():
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
+            X = effective_zed_depth
+            Y = effective_inferred
+            print(f"{X.shape=} {X.dtype=}")
+            print(f"{Y.shape=} {Y.dtype=}")
+            plt.clf()
+            plt.loglog(X, 1.0 / Y, ".")
+            plt.xlabel("ZED SDK")
+            plt.ylabel("Depth-Anything")
+            plt.grid(True)
+            plt.savefig("depth_cmp.png")
+            # lr = LinearRegression()
+            # lr.fit(X, Y)
+            # print(f"{lr.coef_[0]=}")
+            # print(f"{lr.intercept=}")
 
             assert depth_color.shape[:2] == cv_image.shape[:2]
             cv2.imshow("depth_anything_color", depth_color)
