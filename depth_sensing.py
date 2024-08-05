@@ -58,14 +58,13 @@ def main():
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
+            effective_zed_depth = depth_data[np.isfinite(depth_data)]
+
+            # assert np.alltrue(np.isfinite(depth_data))  # fails
             depth_data_color = depth_as_colorimage(depth_data)
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
             cv2.imshow("cv_depth_img", cv_depth_img)
-            # key = cv2.waitKey(1)
-            # if key == ord("q"):
-            #     exit
-            # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
 
@@ -78,6 +77,11 @@ def main():
             h, w = cv_image.shape[:2]
             depth_raw = cv2.resize(depth_raw, (w, h))
             depth_color = depth_as_colorimage(depth_raw)
+
+            effective_inferred = depth_raw[np.isfinite(depth_data)]
+
+            print(f"{np.max(effective_zed_depth)=}")
+            print(f"{np.max(effective_inferred)=}")
 
             assert depth_color.shape[:2] == cv_image.shape[:2]
             cv2.imshow("depth_anything_color", depth_color)
