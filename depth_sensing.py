@@ -24,6 +24,8 @@ import numpy as np
 import sys
 import math
 
+import cv2
+
 def main():
     # Create a Camera object
     zed = sl.Camera()
@@ -46,17 +48,25 @@ def main():
     image = sl.Mat()
     depth = sl.Mat()
     point_cloud = sl.Mat()
+    depth_image = sl.Mat()
 
     mirror_ref = sl.Transform()
     mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
 
-    while i < 50:
+    while True:
         # A new image is available if grab() returns SUCCESS
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
             # Retrieve depth map. Depth is aligned on the left image
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
+            cv_depth_img = depth_image.get_data()
+
+            cv2.imshow("cv_depth_img", cv_depth_img)
+            key = cv2.waitKey(1)
+            if key == ord("q"):
+                exit
             # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
