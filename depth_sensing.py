@@ -48,6 +48,8 @@ def main():
     mirror_ref = sl.Transform()
     mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
 
+    EPS = 1e-6
+
     while True:
         # A new image is available if grab() returns SUCCESS
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -88,45 +90,56 @@ def main():
             X = np.asarray(effective_inferred)
             X2 = np.asarray(uneffective_inferred)
             Y = np.asarray(1.0 / effective_zed_depth)
+            Y_full = np.asarray(1.0 / (frame + EPS))
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
-            EPS = 1e-6
+            X_full = disparity_raw.flatten()
+
             logX = np.log(X + EPS)
             logX2 = np.log(X2 + EPS)
             logY = np.log(Y + EPS)
+
+            logX_full = np.log(X_full + EPS)
+
             assert np.alltrue(np.isfinite(logX))
             assert np.alltrue(np.isfinite(logY))
             logX = logX.reshape(-1, 1)
             logX2 = logX2.reshape(-1, 1)
             logY = logY.reshape(-1, 1)
+            logX_full = logX_full.reshape(-1, 1)
 
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
             plt.clf()
-            if 1:
-                ransac = sklearn.linear_model.RANSACRegressor()
-                ransac.fit(logX, logY)
-                predicted_logY = ransac.predict(logX)
-                predicted_logY2 = ransac.predict(logX2)
-                print(f"{ransac.estimator_.coef_=}")
-                plt.plot(logX, logY, ".")
-                plt.plot(logX, predicted_logY, ".")
-                plt.plot(logX2, predicted_logY2, ".")
-                plt.xlabel("Depth-Anything disparity (log)")
-                plt.ylabel("ZED SDK disparity (log)")
-                plt.grid(True)
-                plt.savefig("depth_cmp_log.png")
-            else:
-                plt.loglog(X, Y, ".")
-                plt.xlabel("Depth-Anything disparity")
-                plt.ylabel("ZED SDK disparity")
-                plt.grid(True)
-                plt.savefig("depth_cmp.png")
-            # lr = LinearRegression()
-            # lr.fit(X, Y)
-            # print(f"{lr.coef_[0]=}")
-            # print(f"{lr.intercept=}")
+
+            ransac = sklearn.linear_model.RANSACRegressor()
+            ransac.fit(logX, logY)
+            predicted_logY = ransac.predict(logX)
+            predicted_logY2 = ransac.predict(logX2)
+
+            predicted_logY_full = ransac.predict(logX_full)
+            predicted_Y_full = np.exp(predicted_logY_full)
+            predicted_depth = 1.0 / predicted_Y_full
+            predicted_depth = predicted_depth.reshape((h, w))
+            plt.figure(1)
+            print(f"{ransac.estimator_.coef_=}")
+            plt.plot(logX, logY, ".")
+            plt.plot(logX, predicted_logY, ".")
+            plt.plot(logX2, predicted_logY2, ".")
+            plt.xlabel("Depth-Anything disparity (log)")
+            plt.ylabel("ZED SDK disparity (log)")
+            plt.grid(True)
+            plt.savefig("depth_cmp_log.png")
+            plt.figure(2, figsize=(16, 12))
+            plt.subplot(1, 2, 1)
+            plt.imshow(cv_depth_img)
+            plt.colorbar()
+            plt.subplot(1, 2, 2)
+            # plt.imshow(predicted_depth)
+            plt.imshow(predicted_Y_full.reshape(h, w))
+            plt.colorbar()
+            plt.savefig("full_depth.png")
 
             assert disparity_color.shape[:2] == cv_image.shape[:2]
             cv2.imshow("depth_anything_color", disparity_color)
@@ -134,20 +147,7 @@ def main():
             if key == ord("q"):
                 exit
 
-            # Get and print distance value in mm at the center of the image
-            # We measure the distance camera - object using Euclidean distance
-            x = round(image.get_width() / 2)
-            y = round(image.get_height() / 2)
-            err, point_cloud_value = point_cloud.get_value(x, y)
-
-            if math.isfinite(point_cloud_value[2]):
-                distance = math.sqrt(point_cloud_value[0] * point_cloud_value[0] +
-                                    point_cloud_value[1] * point_cloud_value[1] +
-                                    point_cloud_value[2] * point_cloud_value[2])
-                print(f"Distance to Camera at {{{x};{y}}}: {distance}")
-            else : 
-                print(f"The distance can not be computed at {{{x};{y}}}")
-            i += 1    
+            i += 1
            
 
     # Close the camera
