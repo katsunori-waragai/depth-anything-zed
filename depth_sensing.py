@@ -157,8 +157,6 @@ def main():
             plt.title("ZED SDK + depth anything")
             plt.savefig("full_depth.png")
 
-            assert disparity_color.shape[:2] == cv_image.shape[:2]
-
             i += 1
            
 
