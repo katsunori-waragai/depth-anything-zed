@@ -66,7 +66,7 @@ def main():
 
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
-            cv2.imshow("cv_depth_img", cv_depth_img)
+            # cv2.imshow("cv_depth_img", cv_depth_img)
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
             # depth-anything からもdepthの推測値を得ること
@@ -156,10 +156,10 @@ def main():
             plt.savefig("full_depth.png")
 
             assert disparity_color.shape[:2] == cv_image.shape[:2]
-            cv2.imshow("depth_anything_color", disparity_color)
-            key = cv2.waitKey(1)
-            if key == ord("q"):
-                exit
+            # cv2.imshow("depth_anything_color", disparity_color)
+            # key = cv2.waitKey(1)
+            # if key == ord("q"):
+            #     exit
 
             i += 1
            
