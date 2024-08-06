@@ -91,15 +91,22 @@ def main():
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
+            X_full = disparity_raw.flatten()
+
             EPS = 1e-6
             logX = np.log(X + EPS)
             logX2 = np.log(X2 + EPS)
             logY = np.log(Y + EPS)
+
+            logX_full = np.log(X_full + EPS)
+
             assert np.alltrue(np.isfinite(logX))
             assert np.alltrue(np.isfinite(logY))
             logX = logX.reshape(-1, 1)
             logX2 = logX2.reshape(-1, 1)
             logY = logY.reshape(-1, 1)
+
+            logX_full = logX_full.reshape(-1, 1)
 
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
@@ -109,6 +116,12 @@ def main():
                 ransac.fit(logX, logY)
                 predicted_logY = ransac.predict(logX)
                 predicted_logY2 = ransac.predict(logX2)
+
+                predicted_logY_full = ransac.predict(logX_full)
+                predicted_Y_full = np.exp(predicted_logY_full)
+                predicted_depth = 1.0 / predicted_Y_full
+                predicted_depth = predicted_depth.reshape((h, w))
+                plt.figure(1)
                 print(f"{ransac.estimator_.coef_=}")
                 plt.plot(logX, logY, ".")
                 plt.plot(logX, predicted_logY, ".")
@@ -117,6 +130,11 @@ def main():
                 plt.ylabel("ZED SDK disparity (log)")
                 plt.grid(True)
                 plt.savefig("depth_cmp_log.png")
+                plt.figure(2)
+                # plt.imshow(predicted_depth)
+                plt.imshow(predicted_Y_full.reshape(h, w))
+                plt.colorbar()
+                plt.savefig("full_depth.png")
             else:
                 plt.loglog(X, Y, ".")
                 plt.xlabel("Depth-Anything disparity")
