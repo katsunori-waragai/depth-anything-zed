@@ -174,6 +174,13 @@ class DepthEngine:
         
         return self.postprocess(self.h_output) # Postprocess the depth map
 
+    def infer_anysize(self, image: np.ndarray):
+        h, w = image.shape[:2]
+        tmpimg = cv2.resize(image, (960, 540))
+        tmp_depth = self.infer(tmpimg)
+        return cv2.resize(tmp_depth, (w, h))
+
+
 def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate,
