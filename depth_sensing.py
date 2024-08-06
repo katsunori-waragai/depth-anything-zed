@@ -87,10 +87,10 @@ def main():
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
             print(f"{np.max(uneffective_inferred)=}")
-            X = np.asarray(effective_inferred)
+            X = np.asarray(effective_inferred)  # disparity
             X2 = np.asarray(uneffective_inferred)
-            Y = np.asarray(1.0 / effective_zed_depth)
-            Y_full = np.asarray(1.0 / (frame + EPS))
+            Y = np.asarray(effective_zed_depth)  # depth
+            Y_full = np.asarray(frame + EPS)
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
@@ -111,7 +111,6 @@ def main():
 
             print(f"{X.shape=} {X.dtype=}")
             print(f"{Y.shape=} {Y.dtype=}")
-            plt.clf()
 
             ransac = sklearn.linear_model.RANSACRegressor()
             ransac.fit(logX, logY)
@@ -120,24 +119,26 @@ def main():
 
             predicted_logY_full = ransac.predict(logX_full)
             predicted_Y_full = np.exp(predicted_logY_full)
-            predicted_depth = 1.0 / predicted_Y_full
+            predicted_depth = predicted_Y_full
             predicted_depth = predicted_depth.reshape((h, w))
             plt.figure(1)
+            plt.clf()
             print(f"{ransac.estimator_.coef_=}")
             plt.plot(logX, logY, ".")
             plt.plot(logX, predicted_logY, ".")
             plt.plot(logX2, predicted_logY2, ".")
             plt.xlabel("Depth-Anything disparity (log)")
-            plt.ylabel("ZED SDK disparity (log)")
+            plt.ylabel("ZED SDK depth (log)")
             plt.grid(True)
             plt.savefig("depth_cmp_log.png")
             plt.figure(2, figsize=(16, 12))
+            plt.clf()
             plt.subplot(1, 2, 1)
             plt.imshow(cv_depth_img)
             plt.colorbar()
             plt.subplot(1, 2, 2)
             # plt.imshow(predicted_depth)
-            plt.imshow(predicted_Y_full.reshape(h, w))
+            plt.imshow(- predicted_logY_full.reshape(h, w))
             plt.colorbar()
             plt.savefig("full_depth.png")
 
