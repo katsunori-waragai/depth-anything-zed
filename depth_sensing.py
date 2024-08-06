@@ -48,6 +48,8 @@ def main():
     mirror_ref = sl.Transform()
     mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
 
+    EPS = 1e-6
+
     while True:
         # A new image is available if grab() returns SUCCESS
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -88,12 +90,12 @@ def main():
             X = np.asarray(effective_inferred)
             X2 = np.asarray(uneffective_inferred)
             Y = np.asarray(1.0 / effective_zed_depth)
+            Y_full = np.asarray(1.0 / (frame + EPS))
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
             X_full = disparity_raw.flatten()
 
-            EPS = 1e-6
             logX = np.log(X + EPS)
             logX2 = np.log(X2 + EPS)
             logY = np.log(Y + EPS)
@@ -131,6 +133,10 @@ def main():
                 plt.grid(True)
                 plt.savefig("depth_cmp_log.png")
                 plt.figure(2)
+                plt.subplot(1, 2, 1)
+                plt.imshow(cv_depth_img)
+                plt.colorbar()
+                plt.subplot(1, 2, 2)
                 # plt.imshow(predicted_depth)
                 plt.imshow(predicted_Y_full.reshape(h, w))
                 plt.colorbar()
