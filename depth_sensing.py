@@ -61,7 +61,8 @@ def main():
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
-            effective_zed_depth = depth_data[np.isfinite(depth_data)]
+            isfinite_pixels = np.isfinite(depth_data)
+            effective_zed_depth = depth_data[isfinite_pixels]
 
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
@@ -79,8 +80,8 @@ def main():
             disparity_raw = cv2.resize(disparity_raw, (w, h))
             disparity_color = depth_as_colorimage(disparity_raw)
 
-            effective_inferred = disparity_raw[np.isfinite(depth_data)]
-            uneffective_inferred = disparity_raw[np.logical_not(np.isfinite(depth_data))]
+            effective_inferred = disparity_raw[isfinite_pixels]
+            uneffective_inferred = disparity_raw[np.logical_not(isfinite_pixels)]
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
@@ -116,7 +117,7 @@ def main():
 
             predicted_logY_full = ransac.predict(logX_full)
             predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
-            predicted_logY_full2[np.isfinite(depth_data)] = - np.log(depth_data)[np.isfinite(depth_data)]
+            predicted_logY_full2[isfinite_pixels] = np.log(depth_data)[isfinite_pixels]
             plt.figure(1)
             plt.clf()
             print(f"{ransac.estimator_.coef_=}")
@@ -127,21 +128,30 @@ def main():
             plt.ylabel("ZED SDK depth (log)")
             plt.grid(True)
             plt.savefig("depth_cmp_log.png")
+
+            predicted_logY_full = predicted_logY_full.reshape(h, w)
             plt.figure(2, figsize=(16, 12))
             plt.clf()
             plt.subplot(2, 2, 1)
             # plt.imshow(cv_depth_img)
             plt.imshow(- np.log(depth_data), vmin=-10)
             plt.colorbar()
+            plt.title("ZED SDK")
             plt.subplot(2, 2, 2)
-            plt.imshow(- predicted_logY_full.reshape(h, w), vmin=-10)
+            plt.imshow(- predicted_logY_full, vmin=-10)
             plt.colorbar()
+            plt.title("depth anything")
             plt.subplot(2, 2, 3)
-            plt.imshow(np.isnan(depth_data))
+            assert predicted_logY_full.shape[:2] == depth_data.shape[:2]
+            additional_depth = predicted_logY_full.copy()
+            additional_depth[isfinite_pixels] = np.NAN
+            plt.imshow(additional_depth, vmin=-10)
             plt.colorbar()
+            plt.title("isnan")
             plt.subplot(2, 2, 4)
             plt.imshow(- predicted_logY_full2, vmin=-10)
             plt.colorbar()
+            plt.title("ZED SDK + depth anything")
             plt.savefig("full_depth.png")
 
             assert disparity_color.shape[:2] == cv_image.shape[:2]
