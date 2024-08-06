@@ -115,6 +115,8 @@ def main():
             predicted_logY2 = ransac.predict(logX2)
 
             predicted_logY_full = ransac.predict(logX_full)
+            predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
+            predicted_logY_full2[np.isfinite(depth_data)] = - np.log(depth_data)[np.isfinite(depth_data)]
             plt.figure(1)
             plt.clf()
             print(f"{ransac.estimator_.coef_=}")
@@ -133,8 +135,12 @@ def main():
             plt.colorbar()
             plt.subplot(2, 2, 2)
             plt.imshow(- predicted_logY_full.reshape(h, w), vmin=-10)
+            plt.colorbar()
             plt.subplot(2, 2, 3)
             plt.imshow(np.isnan(depth_data))
+            plt.colorbar()
+            plt.subplot(2, 2, 4)
+            plt.imshow(- predicted_logY_full2, vmin=-10)
             plt.colorbar()
             plt.savefig("full_depth.png")
 
