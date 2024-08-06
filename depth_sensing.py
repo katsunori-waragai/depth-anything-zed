@@ -130,26 +130,28 @@ def main():
             plt.savefig("depth_cmp_log.png")
 
             predicted_logY_full = predicted_logY_full.reshape(h, w)
+            vmin = -10
+            vmax = -5.5
             plt.figure(2, figsize=(16, 12))
             plt.clf()
             plt.subplot(2, 2, 1)
             # plt.imshow(cv_depth_img)
-            plt.imshow(- np.log(depth_data), vmin=-10)
+            plt.imshow(- np.log(depth_data), vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("ZED SDK")
             plt.subplot(2, 2, 2)
-            plt.imshow(- predicted_logY_full, vmin=-10)
+            plt.imshow(- predicted_logY_full, vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("depth anything")
             plt.subplot(2, 2, 3)
             assert predicted_logY_full.shape[:2] == depth_data.shape[:2]
             additional_depth = predicted_logY_full.copy()
             additional_depth[isfinite_pixels] = np.NAN
-            plt.imshow(additional_depth, vmin=-10)
+            plt.imshow(additional_depth, vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("isnan")
             plt.subplot(2, 2, 4)
-            plt.imshow(- predicted_logY_full2, vmin=-10)
+            plt.imshow(- predicted_logY_full2, vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("ZED SDK + depth anything")
             plt.savefig("full_depth.png")
