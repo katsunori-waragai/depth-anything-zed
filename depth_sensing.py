@@ -1,3 +1,17 @@
+"""
+Depth Anything を用いて欠損点のdepthを補完する。
+
+TODO：
+- RANSACでの合わせ込みの際に、遠方側の点は除外しよう。
+    - 遠方側で関係式を合わせようとすると誤差が大きくなるはずのため。
+    - 視差とdepthとの関係式は depth ∝ 1/視差　であるべき。
+    - log-log プロットで傾き　-1であるべき。
+    - 遠方側は除外して、近距離用のRANSACでフィッティングを作ろう。
+- logスケールでのfittingの残差を表示すること。
+    - 残差の分だけ距離を間違えることになる。
+- 補完後のdepthから、3DのpointCloud を得られるようにすること。
+"""
+
 import pyzed.sl as sl
 import math
 import numpy as np
@@ -8,7 +22,6 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from lib_depth_engine import depth_as_colorimage
 from lib_depth_engine import DepthEngine
 
 def main():
