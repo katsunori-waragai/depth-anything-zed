@@ -145,7 +145,8 @@ def main():
             assert predicted_logY_full.shape[:2] == depth_data.shape[:2]
             additional_depth = predicted_logY_full.copy()
             additional_depth[isfinite_pixels] = np.NAN
-            plt.imshow(additional_depth, vmin=vmin, vmax=vmax)
+            plt.imshow(cv_image)
+#            plt.imshow(additional_depth, vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("isnan")
             plt.subplot(2, 2, 4)
