@@ -63,8 +63,6 @@ def main():
             print(f"{depth_data.shape=} {depth_data.dtype=}")
             effective_zed_depth = depth_data[np.isfinite(depth_data)]
 
-            # assert np.alltrue(np.isfinite(depth_data))  # fails
-            depth_data_color = depth_as_colorimage(depth_data)
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
             cv2.imshow("cv_depth_img", cv_depth_img)
@@ -90,7 +88,6 @@ def main():
             X = np.asarray(effective_inferred)  # disparity
             X2 = np.asarray(uneffective_inferred)
             Y = np.asarray(effective_zed_depth)  # depth
-            Y_full = np.asarray(frame + EPS)
             assert np.alltrue(np.isfinite(X))
             assert np.alltrue(np.isfinite(Y))
 
@@ -118,9 +115,6 @@ def main():
             predicted_logY2 = ransac.predict(logX2)
 
             predicted_logY_full = ransac.predict(logX_full)
-            predicted_Y_full = np.exp(predicted_logY_full)
-            predicted_depth = predicted_Y_full
-            predicted_depth = predicted_depth.reshape((h, w))
             plt.figure(1)
             plt.clf()
             print(f"{ransac.estimator_.coef_=}")
