@@ -1,3 +1,17 @@
+"""
+Depth Anything を用いて欠損点のdepthを補完する。
+
+TODO：
+- RANSACでの合わせ込みの際に、遠方側の点は除外しよう。
+    - 遠方側で関係式を合わせようとすると誤差が大きくなるはずのため。
+    - 視差とdepthとの関係式は depth ∝ 1/視差　であるべき。
+    - log-log プロットで傾き　-1であるべき。
+    - 遠方側は除外して、近距離用のRANSACでフィッティングを作ろう。
+- logスケールでのfittingの残差を表示すること。
+    - 残差の分だけ距離を間違えることになる。
+- 補完後のdepthから、3DのpointCloud を得られるようにすること。
+"""
+
 import pyzed.sl as sl
 import math
 import numpy as np
@@ -8,7 +22,6 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from lib_depth_engine import depth_as_colorimage
 from lib_depth_engine import DepthEngine
 
 def main():
@@ -22,7 +35,6 @@ def main():
         grayscale=False
     )
 
-    # Create a Camera object
     zed = sl.Camera()
 
     # Create a InitParameters object and set configuration parameters
@@ -45,19 +57,13 @@ def main():
     point_cloud = sl.Mat()
     depth_image = sl.Mat()
 
-    mirror_ref = sl.Transform()
-    mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
-
     EPS = 1e-6
 
     while True:
-        # A new image is available if grab() returns SUCCESS
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
-            # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
             cv_image = image.get_data()
             cv_image = np.asarray(cv_image[:, :, :3]) # as RGB
-            # Retrieve depth map. Depth is aligned on the left image
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
@@ -66,7 +72,6 @@ def main():
 
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
             cv_depth_img = depth_image.get_data()
-            cv2.imshow("cv_depth_img", cv_depth_img)
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
             # depth-anything からもdepthの推測値を得ること
@@ -76,7 +81,6 @@ def main():
             print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
             h, w = cv_image.shape[:2]
-            disparity_color = depth_as_colorimage(disparity_raw)
 
             effective_inferred = disparity_raw[isfinite_pixels]
             uneffective_inferred = disparity_raw[np.logical_not(isfinite_pixels)]
@@ -133,7 +137,6 @@ def main():
             plt.figure(2, figsize=(16, 12))
             plt.clf()
             plt.subplot(2, 2, 1)
-            # plt.imshow(cv_depth_img)
             plt.imshow(- np.log(depth_data), vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("ZED SDK")
@@ -146,7 +149,6 @@ def main():
             additional_depth = predicted_logY_full.copy()
             additional_depth[isfinite_pixels] = np.NAN
             plt.imshow(cv_image)
-#            plt.imshow(additional_depth, vmin=vmin, vmax=vmax)
             plt.colorbar()
             plt.title("isnan")
             plt.subplot(2, 2, 4)
@@ -156,10 +158,6 @@ def main():
             plt.savefig("full_depth.png")
 
             assert disparity_color.shape[:2] == cv_image.shape[:2]
-            cv2.imshow("depth_anything_color", disparity_color)
-            key = cv2.waitKey(1)
-            if key == ord("q"):
-                exit
 
             i += 1
            
