@@ -56,7 +56,7 @@ def main():
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT)
             cv_image = image.get_data()
-            cv_image = cv_image[:, :, :3] # as RGB
+            cv_image = np.asarray(cv_image[:, :, :3]) # as RGB
             # Retrieve depth map. Depth is aligned on the left image
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
@@ -68,15 +68,13 @@ def main():
             cv2.imshow("cv_depth_img", cv_depth_img)
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
-
             # depth-anything からもdepthの推測値を得ること
-            frame = cv2.resize(cv_image, (960, 540))
             print(f"{cv_image.shape=} {cv_image.dtype=}")
-            print(f"{frame.shape=} {frame.dtype=}")
-            assert frame.dtype == np.uint8
-            disparity_raw = depth_engine.infer(frame)
+            disparity_raw = depth_engine.infer_anysize(cv_image)
+            print(f"{disparity_raw.shape=} {cv_image.shape=}")
+            print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
+            assert disparity_raw.shape[:2] == cv_image.shape[:2]
             h, w = cv_image.shape[:2]
-            disparity_raw = cv2.resize(disparity_raw, (w, h))
             disparity_color = depth_as_colorimage(disparity_raw)
 
             effective_inferred = disparity_raw[np.isfinite(depth_data)]
