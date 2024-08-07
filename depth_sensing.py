@@ -24,7 +24,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from lib_depth_engine import DepthEngine
+from lib_depth_engine import DepthEngine, depth_as_colorimage
 
 
 def isfinite_near_pixels(depth_data, disparity_raw):
@@ -178,6 +178,7 @@ def main():
     i = 0
     image = sl.Mat()
     depth = sl.Mat()
+    depthimg = sl.Mat()
 
     complementor = DepthComplementor()
 
@@ -187,7 +188,8 @@ def main():
             cv_image = image.get_data()
             cv_image = np.asarray(cv_image[:, :, :3]) # as RGB
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
-            depth_data = depth.get_data()  # cv_image 型
+            depth_data = depth.get_data()  # np.ndarray 型
+            zed.retrieve_image(depthimg, sl.VIEW.DEPTH)
             print(f"{depth_data.shape=} {depth_data.dtype=}")
             print(f"{np.nanpercentile(depth_data, [5, 95])=}")
 
@@ -201,8 +203,16 @@ def main():
             h, w = cv_image.shape[:2]
             predicted_log_depth2, predicted_log_depth = complementor.complement(depth_data, disparity_raw)
 
-            plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_image)
-            time.sleep(5)
+            if 0:
+                plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_image)
+                time.sleep(5)
+            else:
+                depth_mono_image = depthimg.get_data()
+                cv2.imshow("zed", depth_mono_image)
+                # cv2.imshow("zed", depth_as_colorimage(- np.log(np.abs(depth_data))))
+                key = cv2.waitKey(1)
+                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
+                key = cv2.waitKey(1)
 
             i += 1
            
