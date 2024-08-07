@@ -47,6 +47,7 @@ class DepthComplementor:
     EPS = 1e-6
 
     def fit(self, depth_data, disparity_raw, isfinite_near):
+        t0 = cv2.getTickCount()
         assert depth_data.shape[:2] == disparity_raw.shape[:2]
         effective_zed_depth = depth_data[isfinite_near]
         effective_inferred = disparity_raw[isfinite_near]
@@ -67,6 +68,10 @@ class DepthComplementor:
         print(f"{Y.shape=} {Y.dtype=}")
 
         self.ransac.fit(logX, logY)
+
+        t1 = cv2.getTickCount()
+        used = (t1 - t0) / cv2.getTickFrequency()
+        print(f"{used} [s] in fit")
         if True:
             predicted_logY = self.predict(logX)
             self.regression_plot(logX, logY, predicted_logY)
@@ -75,7 +80,12 @@ class DepthComplementor:
         """
         returns log_depth
         """
-        return self.ransac.predict(logX)
+        t0 = cv2.getTickCount()
+        r = self.ransac.predict(logX)
+        t1 = cv2.getTickCount()
+        used = (t1 - t0) / cv2.getTickFrequency()
+        print(f"{used} [s] in predict")
+        return r
 
     def regression_plot(self, logX, logY, predicted_logY):
         plt.figure(1)
