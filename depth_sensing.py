@@ -98,7 +98,7 @@ class DepthComplementor:
         predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
         predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
-        return predicted_logY_full2
+        return predicted_logY_full2, predicted_logY_full
 
 
 def main():
@@ -163,9 +163,7 @@ def main():
             logX_full = np.log(X_full + EPS)
             logX_full = logX_full.reshape(-1, 1)
 
-            predicted_logY_full = complementor.predict(logX_full)
-            predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
-            predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
+            predicted_logY_full2, predicted_logY_full = complementor.complement(depth_data, disparity_raw)
             if 0:
                 plt.figure(1)
                 plt.clf()
