@@ -17,12 +17,53 @@ import math
 import numpy as np
 import sys
 import math
+from dataclasses import dataclass
 
 import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
 from lib_depth_engine import DepthEngine
+
+
+@dataclass
+class DepthComplementor:
+    """
+保持するもの
+- fitした値の係数などの情報
+    
+    """
+
+    ransac = sklearn.linear_model.RANSACRegressor()
+
+    def fit(self, depth_data, disparity_raw, isfinite_near):
+        EPS = 1e-6
+        assert depth_data.shape[:2] == disparity_raw.shape[:2]
+        effective_zed_depth = depth_data[isfinite_near]
+        effective_inferred = disparity_raw[isfinite_near]
+
+        print(f"{np.max(effective_zed_depth)=}")
+        print(f"{np.max(effective_inferred)=}")
+        X = np.asarray(effective_inferred)  # disparity
+        Y = np.asarray(effective_zed_depth)  # depth
+        assert np.alltrue(np.isfinite(X))
+        assert np.alltrue(np.isfinite(Y))
+        logX = np.log(X + EPS)
+        logY = np.log(Y + EPS)
+        assert np.alltrue(np.isfinite(logX))
+        assert np.alltrue(np.isfinite(logY))
+        logX = logX.reshape(-1, 1)
+        logY = logY.reshape(-1, 1)
+        print(f"{X.shape=} {X.dtype=}")
+        print(f"{Y.shape=} {Y.dtype=}")
+
+        self.ransac.fit(logX, logY)
+
+    def predict(self, logX):
+        """
+        returns log_depth
+        """
+        return self.ransac.predict(logX)
 
 def main():
     # depth_anything の準備をする。
@@ -80,61 +121,28 @@ def main():
             isnear_da = np.greater(disparity_raw, math.exp(0.5))
             isfinite_near = np.logical_and(isfinite_pixels, isnear)
             isfinite_near = np.logical_and(isfinite_near, isnear_da)
-            effective_zed_depth = depth_data[isfinite_near]
 
-            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
-            cv_depth_img = depth_image.get_data()
-
+            complementor = DepthComplementor()
+            complementor.fit(depth_data, disparity_raw, isfinite_near)
             h, w = cv_image.shape[:2]
 
-            effective_inferred = disparity_raw[isfinite_near]
-            uneffective_inferred = disparity_raw[np.logical_not(isfinite_near)]
-
-            print(f"{np.max(effective_zed_depth)=}")
-            print(f"{np.max(effective_inferred)=}")
-            print(f"{np.max(uneffective_inferred)=}")
-            X = np.asarray(effective_inferred)  # disparity
-            X2 = np.asarray(uneffective_inferred)
-            Y = np.asarray(effective_zed_depth)  # depth
-            assert np.alltrue(np.isfinite(X))
-            assert np.alltrue(np.isfinite(Y))
-
             X_full = disparity_raw.flatten()
-
-            logX = np.log(X + EPS)
-            logX2 = np.log(X2 + EPS)
-            logY = np.log(Y + EPS)
-
             logX_full = np.log(X_full + EPS)
-
-            assert np.alltrue(np.isfinite(logX))
-            assert np.alltrue(np.isfinite(logY))
-            logX = logX.reshape(-1, 1)
-            logX2 = logX2.reshape(-1, 1)
-            logY = logY.reshape(-1, 1)
             logX_full = logX_full.reshape(-1, 1)
 
-            print(f"{X.shape=} {X.dtype=}")
-            print(f"{Y.shape=} {Y.dtype=}")
-
-            ransac = sklearn.linear_model.RANSACRegressor()
-            ransac.fit(logX, logY)
-            predicted_logY = ransac.predict(logX)
-            predicted_logY2 = ransac.predict(logX2)
-
-            predicted_logY_full = ransac.predict(logX_full)
+            predicted_logY_full = complementor.predict(logX_full)
             predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
             predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
-            plt.figure(1)
-            plt.clf()
-            print(f"{ransac.estimator_.coef_=}")
-            plt.plot(logX, logY, ".")
-            plt.plot(logX, predicted_logY, ".")
-#            plt.plot(logX2, predicted_logY2, ".")
-            plt.xlabel("Depth-Anything disparity (log)")
-            plt.ylabel("ZED SDK depth (log)")
-            plt.grid(True)
-            plt.savefig("depth_cmp_log.png")
+            if 0:
+                plt.figure(1)
+                plt.clf()
+                plt.plot(logX, logY, ".")
+                plt.plot(logX, predicted_logY, ".")
+    #            plt.plot(logX2, predicted_logY2, ".")
+                plt.xlabel("Depth-Anything disparity (log)")
+                plt.ylabel("ZED SDK depth (log)")
+                plt.grid(True)
+                plt.savefig("depth_cmp_log.png")
 
             predicted_logY_full = predicted_logY_full.reshape(h, w)
             vmin = -10
