@@ -29,13 +29,13 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine, depth_as_colorimage
 
 
-def isfinite_near_pixels(zed_depth, ad_disparity):
+def isfinite_near_pixels(zed_depth, da_disparity):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
     """
     isfinite_pixels = np.isfinite(zed_depth)
     isnear = np.less(zed_depth, 1000)  # [mm]
-    isnear_da = np.greater(ad_disparity, math.exp(0.5))
+    isnear_da = np.greater(da_disparity, math.exp(0.5))
     isfinite_near = np.logical_and(isfinite_pixels, isnear)
     isfinite_near = np.logical_and(isfinite_near, isnear_da)
     return isfinite_near
@@ -53,11 +53,11 @@ class DepthComplementor:
     EPS = 1e-6
     predictable = False
 
-    def fit(self, zed_depth, ad_disparity, isfinite_near):
+    def fit(self, zed_depth, da_disparity, isfinite_near):
         t0 = cv2.getTickCount()
         assert zed_depth.shape[:2] == predicted_log_depthdisparity_raw.shape[:2]
         effective_zed_depth = zed_depth[isfinite_near]
-        effective_inferred = ad_disparity[isfinite_near]
+        effective_inferred = da_disparity[isfinite_near]
 
         print(f"{np.max(effective_zed_depth)=}")
         print(f"{np.max(effective_inferred)=}")
@@ -102,15 +102,15 @@ class DepthComplementor:
         plt.grid(True)
         plt.savefig("depth_cmp_log.png")
 
-    def complement(self, zed_depth, ad_disparity):
+    def complement(self, zed_depth, da_disparity):
         h, w = zed_depth.shape[:2]
-        X_full = ad_disparity.flatten()
+        X_full = da_disparity.flatten()
         logX_full = np.log(X_full + self.EPS)
         logX_full = logX_full.reshape(-1, 1)
 
         predicted_log_depth = self.predict(logX_full)
         predicted_log_depth2 = np.reshape(predicted_log_depth.copy(), (h, w))
-        isfinite_near = isfinite_near_pixels(zed_depth, ad_disparity)
+        isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_log_depth2[isfinite_near] = np.log(zed_depth)[isfinite_near]
         return predicted_log_depth2, predicted_log_depth
 
@@ -196,14 +196,14 @@ def main(quick: bool):
             print(f"{np.nanpercentile(zed_depth, [5, 95])=}")
 
             # depth-anything からもdepthの推測値を得る
-            ad_disparity = depth_engine.infer_anysize(cv_image)
-            assert ad_disparity.shape[:2] == cv_image.shape[:2]
+            da_disparity = depth_engine.infer_anysize(cv_image)
+            assert da_disparity.shape[:2] == cv_image.shape[:2]
 
-            isfinite_near = isfinite_near_pixels(zed_depth, ad_disparity)
+            isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
-                complementor.fit(zed_depth, ad_disparity, isfinite_near)
+                complementor.fit(zed_depth, da_disparity, isfinite_near)
             h, w = cv_image.shape[:2]
-            predicted_log_depth2, predicted_log_depth = complementor.complement(zed_depth, ad_disparity)
+            predicted_log_depth2, predicted_log_depth = complementor.complement(zed_depth, da_disparity)
 
             if not quick:
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
