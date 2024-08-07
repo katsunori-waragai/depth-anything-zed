@@ -1,6 +1,10 @@
 """
 Depth Anything を用いて欠損点のdepthを補完する。
 
+- Depth の単位は [mm] です。
+- Depth Anything で算出したdisparity: 単位は不明。depth ∝ 1 / disparity
+    近距離で値が大きい。
+
 TODO：
 - RANSACでの合わせ込みの際に、遠方側の点は除外しよう。
     - 遠方側で関係式を合わせようとすると誤差が大きくなるはずのため。
@@ -10,8 +14,13 @@ TODO：
 - logスケールでのfittingの残差を表示すること。
     - 残差の分だけ距離を間違えることになる。
 - 補完後のdepthから、3DのpointCloud を得られるようにすること。
-
--
+参考：zed sdk でのpoint_cloud の算出
+```
+point_cloud = sl.Mat()
+zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU, point_cloud_res)
+xyz_data = point_cloud.get_data()
+```
+-　
 """
 
 import pyzed.sl as sl
@@ -29,7 +38,7 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine, depth_as_colorimage
 
 
-def isfinite_near_pixels(zed_depth, da_disparity):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
     """
@@ -51,9 +60,15 @@ class DepthComplementor:
 
     ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
-    predictable = False
+    predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
-    def fit(self, zed_depth, da_disparity, isfinite_near):
+    def fit(self, zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray):
+        """
+        isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
+        - RANSAC のアルゴリズムを使用。
+        - 深度は視差に反比例します。
+        - そのため、log(深度) とlog(視差) は-1の勾配で1次式で表されると期待します。
+        """
         t0 = cv2.getTickCount()
         assert zed_depth.shape[:2] == da_disparity.shape[:2]
         effective_zed_depth = zed_depth[isfinite_near]
@@ -79,8 +94,10 @@ class DepthComplementor:
             predicted_logY = self.predict(logX)
             self.regression_plot(logX, logY, predicted_logY)
 
-    def predict(self, logX):
+    def predict(self, logX: np.ndarray) -> np.ndarray:
         """
+        zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
+
         returns log_depth
         """
         t0 = cv2.getTickCount()
@@ -91,7 +108,7 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return r
 
-    def regression_plot(self, logX, logY, predicted_logY):
+    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray):
         plt.figure(1)
         plt.clf()
         plt.plot(logX, logY, ".")
@@ -102,7 +119,7 @@ class DepthComplementor:
         plt.grid(True)
         plt.savefig("depth_cmp_log.png")
 
-    def complement(self, zed_depth, da_disparity):
+    def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten()
         logX_full = np.log(X_full + self.EPS)
@@ -168,13 +185,11 @@ def main(quick: bool):
     init_params.depth_mode = sl.DEPTH_MODE.ULTRA  # Use ULTRA depth mode
     init_params.coordinate_units = sl.UNIT.MILLIMETER  # Use meter units (for depth measurements)
 
-    # Open the camera
     status = zed.open(init_params)
     if status != sl.ERROR_CODE.SUCCESS: #Ensure the camera has opened succesfully
         print("Camera Open : "+repr(status)+". Exit program.")
         exit()
 
-    # Create and set RuntimeParameters after opening the camera
     runtime_parameters = sl.RuntimeParameters()
     
     i = 0
@@ -182,7 +197,7 @@ def main(quick: bool):
     depth = sl.Mat()
     depthimg = sl.Mat()
 
-    complementor = DepthComplementor()
+    complementor = DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
 
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -202,7 +217,8 @@ def main(quick: bool):
             isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
                 complementor.fit(zed_depth, da_disparity, isfinite_near)
-            h, w = cv_image.shape[:2]
+
+            # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_log_depth2, predicted_log_depth = complementor.complement(zed_depth, da_disparity)
 
             if not quick:
@@ -211,15 +227,12 @@ def main(quick: bool):
             else:
                 depth_mono_image = depthimg.get_data()
                 cv2.imshow("zed", depth_as_colorimage(depth_mono_image[:, :, 0]))
-                # cv2.imshow("zed", depth_as_colorimage(- np.log(np.abs(zed_depth))))
-                key = cv2.waitKey(1)
                 cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
                 key = cv2.waitKey(1)
 
             i += 1
            
 
-    # Close the camera
     zed.close()
 
 if __name__ == "__main__":
