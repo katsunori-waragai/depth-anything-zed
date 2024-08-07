@@ -208,7 +208,7 @@ def main(quick: bool):
                 time.sleep(5)
             else:
                 depth_mono_image = depthimg.get_data()
-                cv2.imshow("zed", depth_mono_image)
+                cv2.imshow("zed", depth_as_colorimage(depth_mono_image[:, :, 0]))
                 # cv2.imshow("zed", depth_as_colorimage(- np.log(np.abs(depth_data))))
                 key = cv2.waitKey(1)
                 cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
