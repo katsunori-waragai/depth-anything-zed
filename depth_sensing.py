@@ -173,9 +173,7 @@ def main():
     i = 0
     image = sl.Mat()
     depth = sl.Mat()
-    depth_image = sl.Mat()
 
-    EPS = 1e-6
     complementor = DepthComplementor()
 
     while True:
