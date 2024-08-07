@@ -26,6 +26,15 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine
 
 
+def isfinite_near_pixels(depth_data, disparity_raw):
+    isfinite_pixels = np.isfinite(depth_data)
+    isnear = np.less(depth_data, 1000)  # [mm]
+    isnear_da = np.greater(disparity_raw, math.exp(0.5))
+    isfinite_near = np.logical_and(isfinite_pixels, isnear)
+    isfinite_near = np.logical_and(isfinite_near, isnear_da)
+    return isfinite_near
+
+
 @dataclass
 class DepthComplementor:
     """
@@ -35,9 +44,9 @@ class DepthComplementor:
     """
 
     ransac = sklearn.linear_model.RANSACRegressor()
+    EPS = 1e-6
 
     def fit(self, depth_data, disparity_raw, isfinite_near):
-        EPS = 1e-6
         assert depth_data.shape[:2] == disparity_raw.shape[:2]
         effective_zed_depth = depth_data[isfinite_near]
         effective_inferred = disparity_raw[isfinite_near]
@@ -48,8 +57,8 @@ class DepthComplementor:
         Y = np.asarray(effective_zed_depth)  # depth
         assert np.alltrue(np.isfinite(X))
         assert np.alltrue(np.isfinite(Y))
-        logX = np.log(X + EPS)
-        logY = np.log(Y + EPS)
+        logX = np.log(X + self.EPS)
+        logY = np.log(Y + self.EPS)
         assert np.alltrue(np.isfinite(logX))
         assert np.alltrue(np.isfinite(logY))
         logX = logX.reshape(-1, 1)
@@ -58,12 +67,39 @@ class DepthComplementor:
         print(f"{Y.shape=} {Y.dtype=}")
 
         self.ransac.fit(logX, logY)
+        if True:
+            predicted_logY = self.predict(logX)
+            self.regression_plot(logX, logY, predicted_logY)
 
     def predict(self, logX):
         """
         returns log_depth
         """
         return self.ransac.predict(logX)
+
+    def regression_plot(self, logX, logY, predicted_logY):
+        plt.figure(1)
+        plt.clf()
+        plt.plot(logX, logY, ".")
+        plt.plot(logX, predicted_logY, ".")
+        #            plt.plot(logX2, predicted_logY2, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth (log)")
+        plt.grid(True)
+        plt.savefig("depth_cmp_log.png")
+
+    def complement(self, depth_data, disparity_raw):
+        h, w = depth_data.shape[:2]
+        X_full = disparity_raw.flatten()
+        logX_full = np.log(X_full + self.EPS)
+        logX_full = logX_full.reshape(-1, 1)
+
+        predicted_logY_full = self.predict(logX_full)
+        predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
+        isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
+        predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
+        return predicted_logY_full2
+
 
 def main():
     # depth_anything の準備をする。
@@ -116,11 +152,8 @@ def main():
             print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
 
-            isfinite_pixels = np.isfinite(depth_data)
-            isnear = np.less(depth_data, 1000)  # [mm]
-            isnear_da = np.greater(disparity_raw, math.exp(0.5))
-            isfinite_near = np.logical_and(isfinite_pixels, isnear)
-            isfinite_near = np.logical_and(isfinite_near, isnear_da)
+
+            isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
 
             complementor = DepthComplementor()
             complementor.fit(depth_data, disparity_raw, isfinite_near)
@@ -160,6 +193,7 @@ def main():
             plt.subplot(2, 2, 3)
             assert predicted_logY_full.shape[:2] == depth_data.shape[:2]
             additional_depth = predicted_logY_full.copy()
+            isfinite_pixels = np.isfinite(depth_data)
             additional_depth[isfinite_pixels] = np.NAN
             plt.imshow(cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))
             plt.colorbar()
