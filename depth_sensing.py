@@ -16,6 +16,7 @@ import pyzed.sl as sl
 import math
 import numpy as np
 import sys
+import time
 import math
 from dataclasses import dataclass
 
@@ -144,6 +145,7 @@ def main():
     depth_image = sl.Mat()
 
     EPS = 1e-6
+    complementor = DepthComplementor()
 
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -162,24 +164,16 @@ def main():
             print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
 
-
             isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
 
-            complementor = DepthComplementor()
             complementor.fit(depth_data, disparity_raw, isfinite_near)
             h, w = cv_image.shape[:2]
-
-            X_full = disparity_raw.flatten()
-            logX_full = np.log(X_full + EPS)
-            logX_full = logX_full.reshape(-1, 1)
-
             predicted_logY_full2, predicted_logY_full = complementor.complement(depth_data, disparity_raw)
             if 0:
                 plt.figure(1)
                 plt.clf()
                 plt.plot(logX, logY, ".")
                 plt.plot(logX, predicted_logY, ".")
-    #            plt.plot(logX2, predicted_logY2, ".")
                 plt.xlabel("Depth-Anything disparity (log)")
                 plt.ylabel("ZED SDK depth (log)")
                 plt.grid(True)
@@ -211,6 +205,7 @@ def main():
             plt.colorbar()
             plt.title("ZED SDK + depth anything")
             plt.savefig("full_depth.png")
+            time.sleep(1)
 
             i += 1
            
