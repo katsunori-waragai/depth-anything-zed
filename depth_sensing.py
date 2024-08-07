@@ -55,7 +55,7 @@ class DepthComplementor:
 
     def fit(self, zed_depth, da_disparity, isfinite_near):
         t0 = cv2.getTickCount()
-        assert zed_depth.shape[:2] == predicted_log_depthdisparity_raw.shape[:2]
+        assert zed_depth.shape[:2] == da_disparity.shape[:2]
         effective_zed_depth = zed_depth[isfinite_near]
         effective_inferred = da_disparity[isfinite_near]
 
