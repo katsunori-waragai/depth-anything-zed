@@ -148,7 +148,7 @@ def plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_
     print(f"saved {pngname}")
 
 
-def main():
+def main(quick: bool):
     # depth_anything の準備をする。
     depth_engine = DepthEngine(
         frame_rate=30,
@@ -203,7 +203,7 @@ def main():
             h, w = cv_image.shape[:2]
             predicted_log_depth2, predicted_log_depth = complementor.complement(depth_data, disparity_raw)
 
-            if 0:
+            if not quick:
                 plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_image)
                 time.sleep(5)
             else:
@@ -221,4 +221,8 @@ def main():
     zed.close()
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser("depth sensing")
+    parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
+    args = parser.parse_args()
+    main(args.quick)
