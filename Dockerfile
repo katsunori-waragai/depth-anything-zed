@@ -10,7 +10,8 @@ RUN apt install -y libv4l-dev v4l-utils qv4l2
 RUN apt install -y curl
 RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 RUN apt install zstd
-RUN python3 -m pip install matplotlib numpy 
+RUN python3 -m pip install matplotlib scikit-learn
+RUN python3 -m pip install 'numpy<2' 
 RUN python3 -m pip install opencv-python 
 RUN python3 -m pip install huggingface_hub onnxruntime onnx
 # only for development
@@ -28,3 +29,4 @@ WORKDIR /root/Depth-Anything-for-Jetson-Orin
 COPY *.py ./
 COPY reinstall-opencv.sh ./
 RUN cd  /root/Depth-Anything-for-Jetson-Orin
+ENV LD_PRELOAD=/usr/local/lib/python3.8/dist-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0

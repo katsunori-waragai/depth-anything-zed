@@ -1,6 +1,10 @@
 # depth-anything-zed
 docker environment for depth-anything　with ZED SDK
 
+ZED SDK との連動を前提としたリポジトリです。
+
+ZED SDK との連動を想定しない場合には、depth-anything-docker のリポジトリを用いてください。
+
 ## 参照元
 Jetson 用のDepth-Anything のリポジトリ
 https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
@@ -16,6 +20,9 @@ https://github.com/LiheYoung/Depth-Anything
 ## わかっていること
 - Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
+### 改善したい内容
+- ZED SDK のdepthのうち、近すぎてdepthが出ない領域を表示すること
+- その領域に対してdepth-anything のdepthを表示させること。
 
 ### 予め host 環境で `xhost +` を実行しておく
 
@@ -47,12 +54,25 @@ python3 depth_main.py
 # use ZED SDK
 python3 python3 zed_cam.py
 ```
+
+# ZED-SDK でのdepthとdepth-anythingとの比較
+```commandline
+python3 depth_sensing.py
+```
+
+### 表示の改善のするべきこと
+- zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
+- 期待すること：　１次式の関係にあること。
+
+
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 weights ファイルがhost環境のディスク領域のmount にした。
 そのため、なにもしなくても、次回のguest環境に引き継がれる。
 
 # TODO
 - 他の方式でのDepthの推定と比較できるようにすること。
+- まず、ZED-SDKでの標準的なdepthの取得スクリプトをリポジトリに追加すること。
+- 次に、そのスクリプトとdepth-anythingのスクリプトとを組み合わせること。
 
 # troubleshooting
 ## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
@@ -78,4 +98,5 @@ https://github.com/DepthAnything/Depth-Anything-V2
 ```
 TRT を利用しているコード側の以下の改変で解決した。
 https://github.com/katsunori-waragai/depth-anything-zed/pull/16
+
 

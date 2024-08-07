@@ -26,6 +26,35 @@ def depth_as_colorimage(depth_raw):
     return cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
 
 
+def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
+    """
+    resized_pred のdepthデータをpoint cloud に変換する
+
+    問題点：
+    focal_length_x, focal_length_y の値の妥当性
+    resized_predの計測値の妥当性
+
+    """
+    height, width = resized_pred.shape[:2]
+    P_x = width // 2 # center of the image
+    P_y = height // 2
+
+    # 以下のfocal_length は、画素単位のもの
+    # [m]での焦点距離 / 画素のピッチ [m] をZED2iのmanual から参照した値を用いている。
+    focal_length_x = 2.1e-3 / 2e-6 #  ZED2i
+    focal_length_y = 2.1e-3 / 2e-6 # [m]
+
+    x, y = np.meshgrid(np.arange(width), np.arange(height))
+    x = (x - P_x) / focal_length_x
+    y = (y - P_y) / focal_length_y
+    z = np.array(resized_pred)
+    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    print(f"{np.min(points[:, 0])=} {np.max(points[:, 0])=}")
+    print(f"{np.min(points[:, 1])=} {np.max(points[:, 1])=}")
+    print(f"{np.min(points[:, 2])=} {np.max(points[:, 2])=}")
+    return points
+
+
 class DepthEngine:
     """
     Real-time depth estimation using Depth Anything with TensorRT
@@ -69,7 +98,8 @@ class DepthEngine:
         if raw: self.raw_depth = None 
 
         # Load the TensorRT engine
-        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING)) 
+        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
+        assert Path(trt_engine_path).is_file()
         self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
         self.context = self.engine.create_execution_context()
         print(f"Engine loaded from {trt_engine_path}")
@@ -174,33 +204,12 @@ class DepthEngine:
         
         return self.postprocess(self.h_output) # Postprocess the depth map
 
-def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
-    """
-    resized_pred のdepthデータをpoint cloud に変換する
+    def infer_anysize(self, image: np.ndarray):
+        h, w = image.shape[:2]
+        tmpimg = cv2.resize(image, (960, 540))
+        tmp_depth = self.infer(tmpimg)
+        return cv2.resize(tmp_depth, (w, h))
 
-    問題点：
-    focal_length_x, focal_length_y の値の妥当性
-    resized_predの計測値の妥当性
-
-    """
-    height, width = resized_pred.shape[:2]
-    P_x = width // 2 # center of the image
-    P_y = height // 2
-
-    # 以下のfocal_length は、画素単位のもの
-    # [m]での焦点距離 / 画素のピッチ [m] をZED2iのmanual から参照した値を用いている。
-    focal_length_x = 2.1e-3 / 2e-6 #  ZED2i
-    focal_length_y = 2.1e-3 / 2e-6 # [m]
-
-    x, y = np.meshgrid(np.arange(width), np.arange(height))
-    x = (x - P_x) / focal_length_x
-    y = (y - P_y) / focal_length_y
-    z = np.array(resized_pred)
-    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
-    print(f"{np.min(points[:, 0])=} {np.max(points[:, 0])=}")
-    print(f"{np.min(points[:, 1])=} {np.max(points[:, 1])=}")
-    print(f"{np.min(points[:, 2])=} {np.max(points[:, 2])=}")
-    return points
 
 def depth_run(args):
     depth_engine = DepthEngine(
