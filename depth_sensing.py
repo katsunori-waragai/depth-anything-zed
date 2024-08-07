@@ -28,6 +28,9 @@ from lib_depth_engine import DepthEngine
 
 
 def isfinite_near_pixels(depth_data, disparity_raw):
+    """
+    RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
+    """
     isfinite_pixels = np.isfinite(depth_data)
     isnear = np.less(depth_data, 1000)  # [mm]
     isnear_da = np.greater(disparity_raw, math.exp(0.5))
@@ -46,6 +49,7 @@ class DepthComplementor:
 
     ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
+    predictable = False
 
     def fit(self, depth_data, disparity_raw, isfinite_near):
         t0 = cv2.getTickCount()
@@ -65,7 +69,7 @@ class DepthComplementor:
         print(f"{Y.shape=} {Y.dtype=}")
 
         self.ransac.fit(logX, logY)
-
+        self.predictable = True
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
@@ -78,6 +82,7 @@ class DepthComplementor:
         returns log_depth
         """
         t0 = cv2.getTickCount()
+        assert self.predictable
         r = self.ransac.predict(logX)
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
@@ -101,14 +106,14 @@ class DepthComplementor:
         logX_full = np.log(X_full + self.EPS)
         logX_full = logX_full.reshape(-1, 1)
 
-        predicted_logY_full = self.predict(logX_full)
-        predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
+        predicted_log_depth = self.predict(logX_full)
+        predicted_log_depth2 = np.reshape(predicted_log_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
-        predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
-        return predicted_logY_full2, predicted_logY_full
+        predicted_log_depth2[isfinite_near] = np.log(depth_data)[isfinite_near]
+        return predicted_log_depth2, predicted_log_depth
 
 
-def plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_image):
+def plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_image):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -119,14 +124,14 @@ def plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_
     plt.colorbar()
     plt.title("ZED SDK")
     plt.subplot(2, 2, 2)
-    plt.imshow(- np.reshape(predicted_logY_full, (h, w)), vmin=vmin, vmax=vmax)
+    plt.imshow(- np.reshape(predicted_log_depth, (h, w)), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("depth anything")
     plt.subplot(2, 2, 3)
     if 1:
-        print(f"{predicted_logY_full.shape=}")
+        print(f"{predicted_log_depth.shape=}")
         print(f"{depth_data.shape=}")
-    additional_depth = np.reshape(predicted_logY_full.copy(), (h, w))
+    additional_depth = np.reshape(predicted_log_depth.copy(), (h, w))
     print(f"{additional_depth.shape=}")
     print(f"{depth_data.shape=}")
     isfinite_pixels = np.isfinite(depth_data)
@@ -135,7 +140,7 @@ def plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_
     plt.colorbar()
     plt.title("isnan")
     plt.subplot(2, 2, 4)
-    plt.imshow(- predicted_logY_full2, vmin=vmin, vmax=vmax)
+    plt.imshow(- predicted_log_depth2, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
     pngname = "full_depth.png"
@@ -173,9 +178,7 @@ def main():
     i = 0
     image = sl.Mat()
     depth = sl.Mat()
-    depth_image = sl.Mat()
 
-    EPS = 1e-6
     complementor = DepthComplementor()
 
     while True:
@@ -193,12 +196,12 @@ def main():
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
 
             isfinite_near = isfinite_near_pixels(depth_data, disparity_raw)
-
-            complementor.fit(depth_data, disparity_raw, isfinite_near)
+            if not complementor.predictable:
+                complementor.fit(depth_data, disparity_raw, isfinite_near)
             h, w = cv_image.shape[:2]
-            predicted_logY_full2, predicted_logY_full = complementor.complement(depth_data, disparity_raw)
+            predicted_log_depth2, predicted_log_depth = complementor.complement(depth_data, disparity_raw)
 
-            plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_image)
+            plot_complemented(depth_data, predicted_log_depth, predicted_log_depth2, cv_image)
             time.sleep(5)
 
             i += 1
