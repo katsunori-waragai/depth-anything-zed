@@ -54,7 +54,6 @@ def main():
     i = 0
     image = sl.Mat()
     depth = sl.Mat()
-    point_cloud = sl.Mat()
     depth_image = sl.Mat()
 
     EPS = 1e-6
@@ -67,12 +66,7 @@ def main():
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
-            isfinite_pixels = np.isfinite(depth_data)
-            effective_zed_depth = depth_data[isfinite_pixels]
-
-            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
-            cv_depth_img = depth_image.get_data()
-            zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
+            print(f"{np.nanpercentile(depth_data, [5, 95])=}")
 
             # depth-anything からもdepthの推測値を得ること
             print(f"{cv_image.shape=} {cv_image.dtype=}")
@@ -80,10 +74,21 @@ def main():
             print(f"{disparity_raw.shape=} {cv_image.shape=}")
             print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
+
+            isfinite_pixels = np.isfinite(depth_data)
+            isnear = np.less(depth_data, 1000)  # [mm]
+            isnear_da = np.greater(disparity_raw, math.exp(0.5))
+            isfinite_near = np.logical_and(isfinite_pixels, isnear)
+            isfinite_near = np.logical_and(isfinite_near, isnear_da)
+            effective_zed_depth = depth_data[isfinite_near]
+
+            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
+            cv_depth_img = depth_image.get_data()
+
             h, w = cv_image.shape[:2]
 
-            effective_inferred = disparity_raw[isfinite_pixels]
-            uneffective_inferred = disparity_raw[np.logical_not(isfinite_pixels)]
+            effective_inferred = disparity_raw[isfinite_near]
+            uneffective_inferred = disparity_raw[np.logical_not(isfinite_near)]
 
             print(f"{np.max(effective_zed_depth)=}")
             print(f"{np.max(effective_inferred)=}")
@@ -119,13 +124,13 @@ def main():
 
             predicted_logY_full = ransac.predict(logX_full)
             predicted_logY_full2 = np.reshape(predicted_logY_full.copy(), (h, w))
-            predicted_logY_full2[isfinite_pixels] = np.log(depth_data)[isfinite_pixels]
+            predicted_logY_full2[isfinite_near] = np.log(depth_data)[isfinite_near]
             plt.figure(1)
             plt.clf()
             print(f"{ransac.estimator_.coef_=}")
             plt.plot(logX, logY, ".")
             plt.plot(logX, predicted_logY, ".")
-            plt.plot(logX2, predicted_logY2, ".")
+#            plt.plot(logX2, predicted_logY2, ".")
             plt.xlabel("Depth-Anything disparity (log)")
             plt.ylabel("ZED SDK depth (log)")
             plt.grid(True)
