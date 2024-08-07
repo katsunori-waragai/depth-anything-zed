@@ -70,7 +70,7 @@ class DepthComplementor:
         - そのため、log(深度) とlog(視差) は-1の勾配で1次式で表されると期待します。
         """
         t0 = cv2.getTickCount()
-        assert zed_depth.shape[:2] == predicted_log_depthdisparity_raw.shape[:2]
+        assert zed_depth.shape[:2] == da_disparity.shape[:2]
         effective_zed_depth = zed_depth[isfinite_near]
         effective_inferred = da_disparity[isfinite_near]
 
