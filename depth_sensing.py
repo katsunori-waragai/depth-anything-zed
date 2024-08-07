@@ -67,13 +67,6 @@ def main():
             depth_data = depth.get_data()  # cv_image 型
             print(f"{depth_data.shape=} {depth_data.dtype=}")
             print(f"{np.nanpercentile(depth_data, [5, 95])=}")
-            isfinite_pixels = np.isfinite(depth_data)
-            isnear = np.less(depth_data, 1000)  # [mm]
-            isfinite_near = np.logical_and(isfinite_pixels, isnear)
-            effective_zed_depth = depth_data[isfinite_near]
-
-            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
-            cv_depth_img = depth_image.get_data()
 
             # depth-anything からもdepthの推測値を得ること
             print(f"{cv_image.shape=} {cv_image.dtype=}")
@@ -81,6 +74,17 @@ def main():
             print(f"{disparity_raw.shape=} {cv_image.shape=}")
             print(f"{disparity_raw.dtype=} {cv_image.dtype=}")
             assert disparity_raw.shape[:2] == cv_image.shape[:2]
+
+            isfinite_pixels = np.isfinite(depth_data)
+            isnear = np.less(depth_data, 1000)  # [mm]
+            isnear_da = np.greater(disparity_raw, math.exp(0.5))
+            isfinite_near = np.logical_and(isfinite_pixels, isnear)
+            isfinite_near = np.logical_and(isfinite_near, isnear_da)
+            effective_zed_depth = depth_data[isfinite_near]
+
+            zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
+            cv_depth_img = depth_image.get_data()
+
             h, w = cv_image.shape[:2]
 
             effective_inferred = disparity_raw[isfinite_near]
