@@ -108,6 +108,41 @@ class DepthComplementor:
         return predicted_logY_full2, predicted_logY_full
 
 
+def plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_image):
+    vmin = -10
+    vmax = -5.5
+    h, w = cv_image.shape[:2]
+    plt.figure(2, figsize=(16, 12))
+    plt.clf()
+    plt.subplot(2, 2, 1)
+    plt.imshow(- np.log(depth_data), vmin=vmin, vmax=vmax)
+    plt.colorbar()
+    plt.title("ZED SDK")
+    plt.subplot(2, 2, 2)
+    plt.imshow(- np.reshape(predicted_logY_full, (h, w)), vmin=vmin, vmax=vmax)
+    plt.colorbar()
+    plt.title("depth anything")
+    plt.subplot(2, 2, 3)
+    if 1:
+        print(f"{predicted_logY_full.shape=}")
+        print(f"{depth_data.shape=}")
+    additional_depth = np.reshape(predicted_logY_full.copy(), (h, w))
+    print(f"{additional_depth.shape=}")
+    print(f"{depth_data.shape=}")
+    isfinite_pixels = np.isfinite(depth_data)
+    additional_depth[isfinite_pixels] = np.NAN
+    plt.imshow(cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))
+    plt.colorbar()
+    plt.title("isnan")
+    plt.subplot(2, 2, 4)
+    plt.imshow(- predicted_logY_full2, vmin=vmin, vmax=vmax)
+    plt.colorbar()
+    plt.title("ZED SDK + depth anything")
+    pngname = "full_depth.png"
+    plt.savefig(pngname)
+    print(f"saved {pngname}")
+
+
 def main():
     # depth_anything の準備をする。
     depth_engine = DepthEngine(
@@ -162,39 +197,6 @@ def main():
             complementor.fit(depth_data, disparity_raw, isfinite_near)
             h, w = cv_image.shape[:2]
             predicted_logY_full2, predicted_logY_full = complementor.complement(depth_data, disparity_raw)
-            def plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_image):
-                vmin = -10
-                vmax = -5.5
-                h, w = cv_image.shape[:2]
-                plt.figure(2, figsize=(16, 12))
-                plt.clf()
-                plt.subplot(2, 2, 1)
-                plt.imshow(- np.log(depth_data), vmin=vmin, vmax=vmax)
-                plt.colorbar()
-                plt.title("ZED SDK")
-                plt.subplot(2, 2, 2)
-                plt.imshow(- np.reshape(predicted_logY_full, (h, w)), vmin=vmin, vmax=vmax)
-                plt.colorbar()
-                plt.title("depth anything")
-                plt.subplot(2, 2, 3)
-                if 1:
-                    print(f"{predicted_logY_full.shape=}")
-                    print(f"{depth_data.shape=}")
-                additional_depth = np.reshape(predicted_logY_full.copy(), (h, w))
-                print(f"{additional_depth.shape=}")
-                print(f"{depth_data.shape=}")
-                isfinite_pixels = np.isfinite(depth_data)
-                additional_depth[isfinite_pixels] = np.NAN
-                plt.imshow(cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))
-                plt.colorbar()
-                plt.title("isnan")
-                plt.subplot(2, 2, 4)
-                plt.imshow(- predicted_logY_full2, vmin=vmin, vmax=vmax)
-                plt.colorbar()
-                plt.title("ZED SDK + depth anything")
-                pngname = "full_depth.png"
-                plt.savefig(pngname)
-                print(f"saved {pngname}")
 
             plot_complemented(depth_data, predicted_logY_full, predicted_logY_full2, cv_image)
             time.sleep(5)
