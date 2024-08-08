@@ -226,11 +226,8 @@ def main(quick: bool):
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth)
-                vmin = min(np.nanmin(- log_zed_depth), np.nanmin(- predicted_log_depth2))
-                vmax = max(np.nanmax(- log_zed_depth), np.nanmax(- predicted_log_depth2))
-                cv2.imshow("zed", depth_as_colorimage(- np.log(zed_depth), vmin=vmin, vmax=vmax))
-                predicted_depth2 = np.exp(predicted_log_depth2)
-                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2, vmin=vmin, vmax=vmax))
+                concat_img = np.hstack((log_zed_depth, predicted_log_depth2))
+                cv2.imshow("complemented", depth_as_colorimage(- concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
