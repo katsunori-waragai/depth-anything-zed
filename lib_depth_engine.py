@@ -20,8 +20,22 @@ from depth_anything import transform
 
 import simpleply
 
-def depth_as_colorimage(depth_raw):
-    depth_raw = (depth_raw - depth_raw.min()) / (depth_raw.max() - depth_raw.min()) * 255.0
+def finitemax(depth):
+    return np.nanmax(depth[np.isfinite(depth)])
+
+def finitemin(depth):
+    return np.nanmin(depth[np.isfinite(depth)])
+
+
+def depth_as_colorimage(depth_raw: np.ndarray, vmin=None, vmax=None) -> np.ndarray:
+    """
+    apply color mapping with vmin, vmax
+    """
+    if vmin is None:
+        vmin = finitemin(depth_raw)
+    if vmax is None:
+        vmax = finitemax(depth_raw)
+    depth_raw = (depth_raw - vmin) / (vmax - vmin) * 255.0
     depth_raw = depth_raw.astype(np.uint8)
     return cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
 

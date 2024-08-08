@@ -35,7 +35,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from lib_depth_engine import DepthEngine, depth_as_colorimage
+from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray):
@@ -199,6 +199,10 @@ def main(quick: bool):
 
     complementor = DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
 
+    stable_max = None
+    stable_min = None
+    EPS = 1.0e-6
+
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
@@ -225,9 +229,16 @@ def main(quick: bool):
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
                 time.sleep(5)
             else:
-                depth_mono_image = depthimg.get_data()
-                cv2.imshow("zed", depth_as_colorimage(depth_mono_image[:, :, 0]))
-                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
+                log_zed_depth = np.log(zed_depth + EPS)
+                concat_img = np.hstack((log_zed_depth, predicted_log_depth2))
+                minval = finitemin(concat_img)
+                maxval = finitemax(concat_img)
+                stable_max = max((maxval, stable_max)) if stable_max else maxval
+                stable_min = max((minval, stable_min)) if stable_min else minval
+
+                print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
+                if maxval > minval:
+                    cv2.imshow("complemented", depth_as_colorimage(- concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
