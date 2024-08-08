@@ -19,7 +19,10 @@ from torchvision.transforms import Compose
 from depth_anything import transform
 
 
-def depth_as_colorimage(depth_raw, vmin=None, vmax=None):
+def depth_as_colorimage(depth_raw: np.ndarray, vmin=None, vmax=None) -> np.ndarray:
+    """
+    apply color mapping with vmin, vmax
+    """
     if vmin is None:
         vmin = np.nanmin(depth_raw)
     if vmax is None:
