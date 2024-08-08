@@ -19,14 +19,21 @@ from torchvision.transforms import Compose
 from depth_anything import transform
 
 
+def finitemax(depth):
+    return np.nanmax(depth[np.isfinite(depth)])
+
+def finitemin(depth):
+    return np.nanmin(depth[np.isfinite(depth)])
+
+
 def depth_as_colorimage(depth_raw: np.ndarray, vmin=None, vmax=None) -> np.ndarray:
     """
     apply color mapping with vmin, vmax
     """
     if vmin is None:
-        vmin = np.nanmin(depth_raw)
+        vmin = finitemin(depth_raw)
     if vmax is None:
-        vmax = np.nanmax(depth_raw)
+        vmax = finitemax(depth_raw)
     depth_raw = (depth_raw - vmin) / (vmax - vmin) * 255.0
     depth_raw = depth_raw.astype(np.uint8)
     return cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
