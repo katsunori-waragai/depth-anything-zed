@@ -225,9 +225,12 @@ def main(quick: bool):
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
                 time.sleep(5)
             else:
-                depth_mono_image = depthimg.get_data()
-                cv2.imshow("zed", depth_as_colorimage(depth_mono_image[:, :, 0]))
-                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
+                log_zed_depth = np.log(zed_depth)
+                vmin = min(np.nanmin(- log_zed_depth), np.nanmin(- predicted_log_depth2))
+                vmax = max(np.nanmax(- log_zed_depth), np.nanmax(- predicted_log_depth2))
+                cv2.imshow("zed", depth_as_colorimage(- np.log(zed_depth), vmin=vmin, vmax=vmax))
+                predicted_depth2 = np.exp(predicted_log_depth2)
+                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2, vmin=vmin, vmax=vmax))
                 key = cv2.waitKey(1)
 
             i += 1
