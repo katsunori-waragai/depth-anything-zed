@@ -225,9 +225,9 @@ def main(quick: bool):
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
                 time.sleep(5)
             else:
-                depth_mono_image = depthimg.get_data()
-                cv2.imshow("zed", depth_as_colorimage(depth_mono_image[:, :, 0]))
-                cv2.imshow("complemented", depth_as_colorimage(- predicted_log_depth2))
+                log_zed_depth = np.log(zed_depth)
+                concat_img = np.hstack((log_zed_depth, predicted_log_depth2))
+                cv2.imshow("complemented", depth_as_colorimage(- concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
