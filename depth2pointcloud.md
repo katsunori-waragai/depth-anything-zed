@@ -53,3 +53,31 @@ Note: The exact focal length can vary depending on the selected resolution, and 
 
 https://github.com/stereolabs/zed-opencv/issues/39
 
+
+/usr/local/zed/settings/SN[0-9]+.conf
+
+```commandline
+
+head -22 SN*.conf
+[LEFT_CAM_2K]
+fx=1064.82
+fy=1065.07
+cx=1099.05
+cy=628.813
+k1=-0.0634518
+k2=0.0401532
+p1=-0.000375119
+p2=0.00074809
+k3=-0.0161231
+
+[RIGHT_CAM_2K]
+fx=1065.27
+fy=1065.34
+cx=1133.31
+cy=654.957
+k1=-0.0587747
+k2=0.0322036
+p1=5.85653e-05
+p2=-0.000297978
+k3=-0.0123602
+```
