@@ -230,9 +230,11 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
             if save_depth:
                 predicted_depth = np.exp(predicted_log_depth)
                 depth_file = Path("data/depth.npy")
+                zed_depth_file = Path("data/zed_depth.npy")
                 left_file = Path("data/left.png")
                 depth_file.parent.mkdir(exist_ok=True, parents=True)
                 np.save(depth_file, predicted_depth)
+                np.save(zed_depth_file, zed_depth)
                 cv2.imwrite(str(left_file), cv_image)
                 print(f"saved {depth_file} {left_file}")
 

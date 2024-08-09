@@ -8,8 +8,9 @@ def write_point_cloud(p: Path, xyzs: np.ndarray, colors: np.ndarray):
     PointCloud のデータをファイルに書き込む。
     """
     candidate_points = xyzs.shape[0]
-    h, w, c = colors.shape
-    colors = colors.reshape((h * w, c))
+    if len(colors.shape) == 3:
+        h, w, c = colors.shape
+        colors = colors.reshape((h * w, c))
     print(f"{xyzs.shape=} {colors.shape=}")
     assert xyzs.shape[0] == colors.shape[0]
     indexes = [i for i in range(candidate_points) if np.isfinite(xyzs[i, :]).all()]

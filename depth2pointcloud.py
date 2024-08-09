@@ -64,8 +64,12 @@ class Depth2Points:
     cx: float
     cy: float
     def cloud_points(self, depth):
+        """
+        ここでは、depthが2次元配列であることが必要
+        """
         H_, W_ = depth.shape[:2]
         x, y = np.meshgrid(np.arange(W_), np.arange(H_))
+        assert x.shape == depth.shape
         x = (x - self.cx) / self.fx
         y = (y - self.cy) / self.fy
         z = np.array(depth)  # [mm]
@@ -75,7 +79,7 @@ class Depth2Points:
 
 if __name__ == "__main__":
     import simpleply
-    depth_file = "data/depth.npy"
+    depth_file = "data/zed_depth.npy"
     depth = np.load(depth_file)
 
     rgb_file = "data/left.png"
@@ -97,7 +101,12 @@ if __name__ == "__main__":
 
     depth2point = Depth2Points(fx, fy, cx, cy)
     points = depth2point.cloud_points(depth)
+
+    assert depth.shape[:2] == img.shape[:2]
+    point_img = np.reshape(img, (H * W, 3))
+    selected_points = points[np.isfinite(depth.flatten())]
+    selected_img = point_img[np.isfinite(depth.flatten())]
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
-    simpleply.write_point_cloud(plyname, points, img)
+    simpleply.write_point_cloud(plyname, selected_points, selected_img)
