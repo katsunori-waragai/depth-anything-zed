@@ -55,6 +55,7 @@ k3=-0.0123602
 
 from dataclasses import dataclass
 import numpy as np
+import cv2
 
 @dataclass
 class Depth2Points:
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     depth_file = "data/depth.npy"
     depth = np.load(depth_file)
 
-    rgb_file = "data/rgb.png"
+    rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
 
     fx = 1064.82
