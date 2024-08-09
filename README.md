@@ -12,11 +12,29 @@ https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 #### original
 https://github.com/LiheYoung/Depth-Anything
 
+Project page
+https://www.freemake.com/jp/free_video_downloader/
+
+[Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data](https://arxiv.org/pdf/2401.10891)
+CVPR 2024
+
 ## もくろみ
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
 - ZED SDK 環境でデータを取得できるので、depth_anything の結果とZED SDK でのdepthとを直接比較できる。
+### ZED SDK単独で用いた場合の限界
+- Depth Rangeの下限以下だと、欠損点になる。
+- 左右のカメラで対応点がとれない箇所が、欠損点になる。
+- 透明物体に対する深度が、間違った値となる。
+### 単眼depthが計算できる理由
+- 照度差ステレオがある。
+- 物体表面の輝度値をもとに物体表面の法線の向きを算出
+- それらの情報を組み合せて物体の形状が算出できる。
+- それら照度差ステレオでできていたことが、単眼deph計算が可能な裏付けになっている。
+### 利用するRGB画像
+- ステレオカメラでは、左画像の画素位置を基準に深度情報を計算するのが標準になっている。
+- 単眼depth計算には、左カメラ画像を用いる。
 ## わかっていること
 - Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
@@ -58,21 +76,23 @@ python3 python3 zed_cam.py
 # ZED-SDK でのdepthとdepth-anythingとの比較
 ```commandline
 python3 depth_sensing.py
+
+python3 depth_sensing.py --quick
 ```
+
+
 
 ### 表示の改善のするべきこと
 - zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
 - 期待すること：　１次式の関係にあること。
-
+## fitting残差の表示をすること
+- それが何％の誤差になるのか
+## depthを対数軸ではなく、linearの軸で算出すること。
 
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 weights ファイルがhost環境のディスク領域のmount にした。
 そのため、なにもしなくても、次回のguest環境に引き継がれる。
 
-# TODO
-- 他の方式でのDepthの推定と比較できるようにすること。
-- まず、ZED-SDKでの標準的なdepthの取得スクリプトをリポジトリに追加すること。
-- 次に、そのスクリプトとdepth-anythingのスクリプトとを組み合わせること。
 
 # troubleshooting
 ## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
@@ -100,3 +120,5 @@ TRT を利用しているコード側の以下の改変で解決した。
 https://github.com/katsunori-waragai/depth-anything-zed/pull/16
 
 
+## 将来的な入れ替えの可能性
+- 単眼depthの分野の進展は継続中であり、それを考慮した実装にしたい。
