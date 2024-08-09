@@ -30,6 +30,7 @@ import sys
 import time
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import cv2
 import sklearn.linear_model
@@ -167,7 +168,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     print(f"saved {pngname}")
 
 
-def main(quick: bool):
+def main(quick: bool, save_depth: bool):
     # depth_anything の準備をする。
     depth_engine = DepthEngine(
         frame_rate=30,
@@ -224,6 +225,14 @@ def main(quick: bool):
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_log_depth2, predicted_log_depth = complementor.complement(zed_depth, da_disparity)
+            if save_depth:
+                predicted_depth = np.exp(predicted_log_depth)
+                depth_file = Path("data/depth.npy")
+                left_file = Path("data/left.png")
+                depth_file.parent.mkdir(exist_ok=True, parents=True)
+                np.save(depth_file, predicted_depth)
+                cv2.imwrite(str(left_file), cv_image)
+                print(f"saved {depth_file} {left_file}")
 
             if not quick:
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
@@ -250,5 +259,6 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser("depth sensing")
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
+    parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
     args = parser.parse_args()
-    main(args.quick)
+    main(args.quick, args.save_depth)
