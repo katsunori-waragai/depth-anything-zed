@@ -73,8 +73,12 @@ class Depth2Points:
 
 
 if __name__ == "__main__":
-    depth_file = "depth.npy"
+    import simpleply
+    depth_file = "data/depth.npy"
     depth = np.load(depth_file)
+
+    rgb_file = "data/rgb.png"
+    img = cv2.imread(rgb_file)
 
     fx = 1064.82
     fy = 1065.07
@@ -85,3 +89,6 @@ if __name__ == "__main__":
     depth2point = Depth2Points(fx, fy, cx, cy)
     points = depth2point.cloud_points(depth)
     print(f"{points.shape=}")
+    plyname = "data/test.ply"
+
+    simpleply.write_point_cloud(plyname, points, img)
