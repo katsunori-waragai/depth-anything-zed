@@ -109,4 +109,13 @@ if __name__ == "__main__":
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
+    mean_point = np.mean(selected_points, axis=0)
+
+    centered_points = selected_points.copy()
+    centered_points[:, 0] -= mean_point[0]
+    centered_points[:, 1] -= mean_point[1]
+    centered_points[:, 2] -= mean_point[2]
+    plyname2 = "data/test_centered.ply"
+
     simpleply.write_point_cloud(plyname, selected_points, selected_img)
+    simpleply.write_point_cloud(plyname2, centered_points, selected_img)
