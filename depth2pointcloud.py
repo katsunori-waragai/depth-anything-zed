@@ -102,10 +102,9 @@ if __name__ == "__main__":
     depth2point = Depth2Points(fx, fy, cx, cy)
     points = depth2point.cloud_points(depth)
 
-    flatten = depth.flatten()
-    selected_points = points[np.isfinite(flatten)]
+    selected_points = points[np.isfinite(depth.flatten())]
 
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
-    simpleply.write_point_cloud(plyname, points, img)
+    simpleply.write_point_cloud(plyname, selected_points, img)
