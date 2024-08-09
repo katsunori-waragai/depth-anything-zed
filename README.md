@@ -93,6 +93,18 @@ python3 depth_sensing.py --quick
 weights ファイルがhost環境のディスク領域のmount にした。
 そのため、なにもしなくても、次回のguest環境に引き継がれる。
 
+# todo
+- pointCloud への変換の確認方法
+  - 球が球として計測できるか。
+- スケーリングの妥当性を確認できているか？
+- カメラ解像度と推論のための解像度の違いの扱いが妥当になっているか？
+  - focal_length_x, focal_length_y の値との関連はどうか
+- depth_anything を使ってdepthの値の絶対値を気にしている例はどれくらいあるのか？
+- depth_anything での平面の平面性はどんなであるか
+- 数値としてのdepthを点群データに変換して妥当性を確認しやすくすること
+- 以下のissue を読むと点群データへの変換と可視化の例が記されている。
+https://github.com/LiheYoung/Depth-Anything/issues/36
+
 
 # troubleshooting
 ## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
