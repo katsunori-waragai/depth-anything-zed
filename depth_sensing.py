@@ -168,7 +168,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     print(f"saved {pngname}")
 
 
-def main(quick: bool, save_depth: bool):
+def main(quick: bool, save_depth: bool, save_ply: bool):
     # depth_anything の準備をする。
     depth_engine = DepthEngine(
         frame_rate=30,
@@ -197,6 +197,7 @@ def main(quick: bool, save_depth: bool):
     image = sl.Mat()
     depth = sl.Mat()
     depthimg = sl.Mat()
+    point_cloud = sl.Mat()
 
     complementor = DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
 
@@ -234,6 +235,12 @@ def main(quick: bool, save_depth: bool):
                 cv2.imwrite(str(left_file), cv_image)
                 print(f"saved {depth_file} {left_file}")
 
+            if save_ply:
+                zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
+                zed_ply_name = "data/pointcloud.ply"
+                point_cloud.write(zed_ply_name)
+                print(f"saved {zed_ply_name}")
+
             if not quick:
                 plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
                 time.sleep(5)
@@ -260,5 +267,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("depth sensing")
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
     parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
+    parser.add_argument("--save_ply", action="store_true", help="save ply")
     args = parser.parse_args()
-    main(args.quick, args.save_depth)
+    main(args.quick, args.save_depth, args.save_ply)
