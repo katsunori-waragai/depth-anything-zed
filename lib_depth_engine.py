@@ -18,6 +18,7 @@ from torchvision.transforms import Compose
 
 from depth_anything import transform
 
+import simpleply
 
 def finitemax(depth):
     return np.nanmax(depth[np.isfinite(depth)])
@@ -37,6 +38,35 @@ def depth_as_colorimage(depth_raw: np.ndarray, vmin=None, vmax=None) -> np.ndarr
     depth_raw = (depth_raw - vmin) / (vmax - vmin) * 255.0
     depth_raw = depth_raw.astype(np.uint8)
     return cv2.applyColorMap(depth_raw, cv2.COLORMAP_INFERNO)
+
+
+def to_point_cloud_np(resized_pred: np.ndarray) -> np.ndarray:
+    """
+    resized_pred のdepthデータをpoint cloud に変換する
+
+    問題点：
+    focal_length_x, focal_length_y の値の妥当性
+    resized_predの計測値の妥当性
+
+    """
+    height, width = resized_pred.shape[:2]
+    P_x = width // 2 # center of the image
+    P_y = height // 2
+
+    # 以下のfocal_length は、画素単位のもの
+    # [m]での焦点距離 / 画素のピッチ [m] をZED2iのmanual から参照した値を用いている。
+    focal_length_x = 2.1e-3 / 2e-6 #  ZED2i
+    focal_length_y = 2.1e-3 / 2e-6 # [m]
+
+    x, y = np.meshgrid(np.arange(width), np.arange(height))
+    x = (x - P_x) / focal_length_x
+    y = (y - P_y) / focal_length_y
+    z = np.array(resized_pred)
+    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+    print(f"{np.min(points[:, 0])=} {np.max(points[:, 0])=}")
+    print(f"{np.min(points[:, 1])=} {np.max(points[:, 1])=}")
+    print(f"{np.min(points[:, 2])=} {np.max(points[:, 2])=}")
+    return points
 
 
 class DepthEngine:
@@ -207,15 +237,25 @@ def depth_run(args):
     cap = cv2.VideoCapture(0)
     try:
         while True:
-            _, frame = cap.read()
-            if 1:  # stereo camera left part
-                H_, w_ = frame.shape[:2]
-                frame = frame[:, :w_ // 2, :]
-            frame = cv2.resize(frame, (960, 540))
+            _, orig_frame = cap.read()
+            # stereo camera left part
+            H_, w_ = orig_frame.shape[:2]
+            orig_frame = orig_frame[:, :w_ // 2, :]
+            original_height, original_width = orig_frame[:2]
+            frame = cv2.resize(orig_frame, (960, 540))
+            print(f"{frame.shape=} {frame.dtype=}")
             depth_raw = depth_engine.infer(frame)
 
             depth = depth_as_colorimage(depth_raw)
             results = np.concatenate((frame, depth), axis=1)
+
+            depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+            points = to_point_cloud_np(depth_raw_orignal_size)
+
+            plyname = Path("tmp.ply")
+            simpleply.write_point_cloud(plyname, points, orig_frame)
+            print(f"saved {plyname}")
+            input("hit return key")
 
             if depth_engine.record:
                 depth_engine.video.write(results)
@@ -226,8 +266,18 @@ def depth_run(args):
             if depth_engine.stream:
                 cv2.imshow('Depth', results)  # This causes bad performance
 
-                if cv2.waitKey(1) == ord('q'):
+                key = cv2.waitKey(100)
+                if key == ord('q'):
                     break
+                elif key == ord("s"):
+                    depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height),
+                                                        interpolation=cv2.INTER_NEAREST)
+                    points = to_point_cloud_np(depth_raw_orignal_size)
+
+                    plyname = Path("tmp.ply")
+                    simpleply.write_point_cloud(plyname, points, orig_frame)
+                    print(f"saved {plyname}")
+
     except Exception as e:
         print(e)
     finally:

@@ -1,20 +1,10 @@
+"""
 # 点群への変換
 - 数値としてのdepthを点群データに変換して妥当性を確認しやすくすること
 - 以下のissue を読むと点群データへの変換と可視化の例が記されている。
 https://github.com/LiheYoung/Depth-Anything/issues/36
 
 ## linearの軸で算出した結果を点群に変換すること
-```commandline
-@dataclass
-class Depth2Points:
-    fx: float
-    fy: float
-    cx: float
-    cy: float
-    def cloud_points(self, depth):
-        pass
-        
-```
 
 ## ZED SDK での撮影の解像度のモードを確認すること
 それによって、焦点距離の情報が変わってくることを考慮すること。
@@ -25,26 +15,6 @@ https://github.com/LiheYoung/Depth-Anything/issues/36
 
 以下のような手続きで変更可能なはずである。
 ここで、以下の値が既知であることを前提としている。
-
-focal_length_x: float, focal_length_y: float
-
-
-
-```
-
-def to_point_cloud_np(resized_pred: np.ndarray, focal_length_x: float, focal_length_y: float) -> np.ndarray:
-    """
-    """
-    height, width = resized_pred.shape[:2]
-    P_x = width // 2 # center of the image
-    P_y = height // 2
-    x, y = np.meshgrid(np.arange(width), np.arange(height))
-    x = (x - P_x) / focal_length_x
-    y = (y - P_y) / focal_length_y
-    z = np.array(resized_pred)
-    points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
-    return points
-```
 
 https://support.stereolabs.com/hc/en-us/articles/360007395634-What-is-the-camera-focal-length-and-field-of-view
 
@@ -81,3 +51,53 @@ p1=5.85653e-05
 p2=-0.000297978
 k3=-0.0123602
 ```
+"""
+
+from dataclasses import dataclass
+import numpy as np
+import cv2
+
+@dataclass
+class Depth2Points:
+    fx: float
+    fy: float
+    cx: float
+    cy: float
+    def cloud_points(self, depth):
+        H_, W_ = depth.shape[:2]
+        x, y = np.meshgrid(np.arange(W_), np.arange(H_))
+        x = (x - self.cx) / self.fx
+        y = (y - self.cy) / self.fy
+        z = np.array(depth)  # [mm]
+        points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
+        return points
+
+
+if __name__ == "__main__":
+    import simpleply
+    depth_file = "data/depth.npy"
+    depth = np.load(depth_file)
+
+    rgb_file = "data/left.png"
+    img = cv2.imread(rgb_file)
+
+    # [LEFT_CAM_2K]
+    # fx = 1064.82
+    # fy = 1065.07
+    # cx = 1099.05
+    # cy = 628.813
+
+    # [LEFT_CAM_HD]
+    fx = 532.41
+    fy = 532.535
+    cx = 636.025  # [pixel]
+    cy = 362.4065 # [pixel]
+
+    H, W = depth.shape[:2]
+
+    depth2point = Depth2Points(fx, fy, cx, cy)
+    points = depth2point.cloud_points(depth)
+    print(f"{points.shape=}")
+    plyname = "data/test.ply"
+
+    simpleply.write_point_cloud(plyname, points, img)

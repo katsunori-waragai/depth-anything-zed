@@ -16,6 +16,7 @@ RUN python3 -m pip install opencv-python
 RUN python3 -m pip install huggingface_hub onnxruntime onnx
 # only for development
 RUN apt update && apt install -y eog nano
+RUN apt install -y meshlab
 
 ENV ZED_SDK_INSTALLER=ZED_SDK_Tegra_L4T35.3_v4.1.0.zstd.run
 RUN wget --quiet -O ${ZED_SDK_INSTALLER} https://download.stereolabs.com/zedsdk/4.1/l4t35.2/jetsons
