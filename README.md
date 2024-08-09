@@ -12,6 +12,12 @@ https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
 #### original
 https://github.com/LiheYoung/Depth-Anything
 
+Project page
+https://www.freemake.com/jp/free_video_downloader/
+
+[Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data](https://arxiv.org/pdf/2401.10891)
+CVPR 2024
+
 ## もくろみ
 - 順序が安定しているdepth(深度情報)がとれること。
 - 深度の絶対値は期待しない。
@@ -113,3 +119,5 @@ TRT を利用しているコード側の以下の改変で解決した。
 https://github.com/katsunori-waragai/depth-anything-zed/pull/16
 
 
+## 将来的な入れ替えの可能性
+- 単眼depthの分野の進展は継続中であり、それを考慮した実装にしたい。
