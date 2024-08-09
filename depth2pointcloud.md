@@ -1,9 +1,30 @@
+# 点群への変換
+- 数値としてのdepthを点群データに変換して妥当性を確認しやすくすること
+- 以下のissue を読むと点群データへの変換と可視化の例が記されている。
+https://github.com/LiheYoung/Depth-Anything/issues/36
+
+## linearの軸で算出した結果を点群に変換すること
+```commandline
+@dataclass
+class Depth2Points:
+    fx: float
+    fy: float
+    cx: float
+    cy: float
+    def cloud_points(self, depth):
+        pass
+        
+```
+
+## ZED SDK での撮影の解像度のモードを確認すること
+それによって、焦点距離の情報が変わってくることを考慮すること。
+
 depthからpointcloud に変化する手続きの例は、以下のURLを参照した。
 https://github.com/LiheYoung/Depth-Anything/issues/36
 
 
 以下のような手続きで変更可能なはずである。
-ここで、以下の値が基地であることを前提としている。
+ここで、以下の値が既知であることを前提としている。
 
 focal_length_x: float, focal_length_y: float
 

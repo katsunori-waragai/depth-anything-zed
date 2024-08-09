@@ -82,7 +82,9 @@ python3 depth_sensing.py --quick
 ### 表示の改善のするべきこと
 - zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
 - 期待すること：　１次式の関係にあること。
-
+## fitting残差の表示をすること
+- それが何％の誤差になるのか
+## depthを対数軸ではなく、linearの軸で算出すること。
 
 ## host環境にtensorRTに変換後の重みファイルを保存しておくには
 weights ファイルがhost環境のディスク領域のmount にした。
