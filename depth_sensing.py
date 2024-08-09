@@ -192,6 +192,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
         exit()
 
     runtime_parameters = sl.RuntimeParameters()
+    runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.CAMERA
     
     i = 0
     image = sl.Mat()
