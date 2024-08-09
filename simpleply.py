@@ -6,6 +6,8 @@ import numpy as np
 def write_point_cloud(p: Path, xyzs: np.ndarray, colors: np.ndarray):
     """
     PointCloud のデータをファイルに書き込む。
+
+    colors: rgb order
     """
     candidate_points = xyzs.shape[0]
     if len(colors.shape) == 3:
