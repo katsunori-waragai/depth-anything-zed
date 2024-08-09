@@ -17,6 +17,15 @@ https://github.com/LiheYoung/Depth-Anything
 - 深度の絶対値は期待しない。
 - segment-anything レベルでの解像度は期待しない。
 - ZED SDK 環境でデータを取得できるので、depth_anything の結果とZED SDK でのdepthとを直接比較できる。
+### ZED SDK単独で用いた場合の限界
+- Depth Rangeの下限以下だと、欠損点になる。
+- 左右のカメラで対応点がとれない箇所が、欠損点になる。
+- 透明物体に対する深度が、間違った値となる。
+### 単眼depthが計算できる理由
+- 照度差ステレオがある。
+- 物体表面の輝度値をもとに物体表面の法線の向きを算出
+- それらの情報を組み合せて物体の形状が算出できる。
+- それら照度差ステレオでできていたことが、単眼deph計算が可能な裏付けになっている。
 ## わかっていること
 - Depth-Anythingの場合だと、近すぎる対象物でも距離が算出される。
 - 遠すぎる対象物でも、それなりの値が算出される。欠損値とはならない。
@@ -58,7 +67,11 @@ python3 python3 zed_cam.py
 # ZED-SDK でのdepthとdepth-anythingとの比較
 ```commandline
 python3 depth_sensing.py
+
+python3 depth_sensing.py --quick
 ```
+
+
 
 ### 表示の改善のするべきこと
 - zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
