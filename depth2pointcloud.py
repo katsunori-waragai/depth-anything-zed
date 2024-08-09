@@ -68,7 +68,7 @@ class Depth2Points:
         x, y = np.meshgrid(np.arange(W_), np.arange(H_))
         x = (x - self.cx) / self.fx
         y = (y - self.cy) / self.fy
-        z = np.array(depth)
+        z = np.array(depth)  # [mm]
         points = np.stack((np.multiply(x, z), np.multiply(y, z), z), axis=-1).reshape(-1, 3)
         return points
 
@@ -81,10 +81,18 @@ if __name__ == "__main__":
     rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
 
-    fx = 1064.82
-    fy = 1065.07
-    cx = 1099.05
-    cy = 628.813
+    # [LEFT_CAM_2K]
+    # fx = 1064.82
+    # fy = 1065.07
+    # cx = 1099.05
+    # cy = 628.813
+
+    # [LEFT_CAM_HD]
+    fx = 532.41
+    fy = 532.535
+    cx = 636.025  # [pixel]
+    cy = 362.4065 # [pixel]
+
     H, W = depth.shape[:2]
 
     depth2point = Depth2Points(fx, fy, cx, cy)
