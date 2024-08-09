@@ -84,6 +84,7 @@ if __name__ == "__main__":
 
     rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     # [LEFT_CAM_2K]
     # fx = 1064.82
