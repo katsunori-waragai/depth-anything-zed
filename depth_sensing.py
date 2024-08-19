@@ -39,7 +39,7 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=1000, small_disparity_limit=math.exp(0.5)):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=3000, small_disparity_limit=math.exp(0.5)):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
 
@@ -209,6 +209,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
     i = 0
     image = sl.Mat()
+    image_right = sl.Mat()
     depth = sl.Mat()
     depthimg = sl.Mat()
     point_cloud = sl.Mat()
@@ -250,6 +251,12 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 np.save(zed_depth_file, zed_depth)
                 cv2.imwrite(str(left_file), cv_image)
                 print(f"saved {depth_file} {left_file}")
+
+                zed.retrieve_image(image_right, sl.VIEW.RIGHT)
+                cv_image_right = image_right.get_data()
+                cv_image_right = np.asarray(cv_image_right[:, :, :3])  # as RGB
+                right_file = Path("data/right.png")
+                cv2.imwrite(str(right_file), cv_image_right)
 
             if save_ply:
                 zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
