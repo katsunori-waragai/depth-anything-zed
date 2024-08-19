@@ -111,22 +111,29 @@ class DepthComplementor:
         return r
 
     def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask):
-        plt.figure(1)
+        plt.figure(1, figsize=(8, 6))
         plt.clf()
-        plt.subplot(1, 2, 1)
+        plt.subplot(2, 2, 1)
         plt.plot(logX, logY, ".")
         plt.plot(logX, predicted_logY, ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity (log)")
         plt.ylabel("ZED SDK depth (log)")
         plt.grid(True)
-        plt.subplot(1, 2, 2)
+        plt.subplot(2, 2, 2)
 
         plt.plot(logX[inlier_mask], logY[inlier_mask], ".")
         plt.plot(logX, predicted_logY, ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity (log)")
         plt.ylabel("ZED SDK depth (log)")
+        plt.grid(True)
+        plt.subplot(2, 2, 4)
+
+        plt.plot(logX[inlier_mask], logY[inlier_mask] - predicted_logY[inlier_mask], ".")
+        #            plt.plot(logX2, predicted_logY2, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth/predicted_depth (log)")
         plt.grid(True)
         plt.savefig("depth_cmp_log.png")
 
