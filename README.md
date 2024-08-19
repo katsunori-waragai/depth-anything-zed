@@ -161,3 +161,7 @@ fittingの定義域の外
 - Depth-anything:
   - ポスターがあったら、ポスターに写っている内容を奥行きがあると解釈して結果を返す。
   - そのため、絵に対しても奥行きを解釈することがある。
+
+## 付記
+[ubuntu版Dockerを毎回sudoなしで実行したい](https://qiita.com/katoyu_try1/items/1bdaaad9f64af86bbfb7)
+
