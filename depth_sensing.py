@@ -39,13 +39,16 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=1000, small_disparity_limit=math.exp(0.5)):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
+
+    far_depth_limit [mm]
+    small_disparity_limit [pixel]
     """
     isfinite_pixels = np.isfinite(zed_depth)
-    isnear = np.less(zed_depth, 1000)  # [mm]
-    isnear_da = np.greater(da_disparity, math.exp(0.5))
+    isnear = np.less(zed_depth, far_depth_limit)  # [mm]
+    isnear_da = np.greater(da_disparity, small_disparity_limit)
     isfinite_near = np.logical_and(isfinite_pixels, isnear)
     isfinite_near = np.logical_and(isfinite_near, isnear_da)
     return isfinite_near

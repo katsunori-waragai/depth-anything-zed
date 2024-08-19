@@ -141,9 +141,19 @@ https://github.com/katsunori-waragai/depth-anything-zed/pull/16
 - 
 
 ## ほしいもの
-- depth2anythingとzed-sdk とでのフィッティングの残差
+- [x] depth2anythingとzed-sdk とでのフィッティングの残差
+- [x] マジックナンバーを減らすこと
 - フィッティングを行うサンプリングを１フレームよりも増やすこと
   - そうすることで、対応点のとれる距離の範囲を広範囲にすること
+
+## fitting　後の残差が大きくなりやすい領域は
+- 推測
+物体の輪郭に生じるartifact
+細いことで、ブロックマッチングで対応がとれにくい領域
+fittingの定義域の外
+透明物体
+
+
 
 # Depth-anything とステレオ計測との相容れない部分
 - ステレオ計測:
@@ -151,3 +161,7 @@ https://github.com/katsunori-waragai/depth-anything-zed/pull/16
 - Depth-anything:
   - ポスターがあったら、ポスターに写っている内容を奥行きがあると解釈して結果を返す。
   - そのため、絵に対しても奥行きを解釈することがある。
+
+## 付記
+[ubuntu版Dockerを毎回sudoなしで実行したい](https://qiita.com/katoyu_try1/items/1bdaaad9f64af86bbfb7)
+
