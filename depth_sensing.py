@@ -110,8 +110,22 @@ class DepthComplementor:
         r = self.ransac.predict_log(logX)
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
-        print(f"{used} [s] in predict")
+        print(f"{used} [s] in predict_log")
         return r
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
+
+        returns log_depth
+        """
+        t0 = cv2.getTickCount()
+        assert self.predictable
+        r = self.ransac.predict_log(np.log(X))
+        t1 = cv2.getTickCount()
+        used = (t1 - t0) / cv2.getTickFrequency()
+        print(f"{used} [s] in predict")
+        return np.exp(r)
 
     def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask):
         plt.figure(1, figsize=(8, 6))
