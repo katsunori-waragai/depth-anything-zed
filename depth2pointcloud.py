@@ -57,12 +57,14 @@ from dataclasses import dataclass
 import numpy as np
 import cv2
 
+
 @dataclass
 class Depth2Points:
     fx: float
     fy: float
     cx: float
     cy: float
+
     def cloud_points(self, depth):
         """
         ここでは、depthが2次元配列であることが必要
@@ -79,6 +81,7 @@ class Depth2Points:
 
 if __name__ == "__main__":
     import simpleply
+
     depth_file = "data/zed_depth.npy"
     depth = np.load(depth_file)
 
@@ -97,7 +100,7 @@ if __name__ == "__main__":
         fx = 532.41
         fy = 532.535
         cx = 636.025  # [pixel]
-        cy = 362.4065 # [pixel]
+        cy = 362.4065  # [pixel]
     else:
         print(f"need setting for {image.shape}")
         exit
