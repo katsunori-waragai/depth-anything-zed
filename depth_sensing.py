@@ -54,9 +54,9 @@ def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray):
 @dataclass
 class DepthComplementor:
     """
-保持するもの
-- fitした値の係数などの情報
-    
+    保持するもの
+    - fitした値の係数などの情報
+
     """
 
     ransac = sklearn.linear_model.RANSACRegressor()
@@ -140,11 +140,11 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.figure(2, figsize=(16, 12))
     plt.clf()
     plt.subplot(2, 2, 1)
-    plt.imshow(- np.log(zed_depth), vmin=vmin, vmax=vmax)
+    plt.imshow(-np.log(zed_depth), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK")
     plt.subplot(2, 2, 2)
-    plt.imshow(- np.reshape(predicted_log_depth, (h, w)), vmin=vmin, vmax=vmax)
+    plt.imshow(-np.reshape(predicted_log_depth, (h, w)), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("depth anything")
     plt.subplot(2, 2, 3)
@@ -160,7 +160,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.colorbar()
     plt.title("isnan")
     plt.subplot(2, 2, 4)
-    plt.imshow(- predicted_log_depth2, vmin=vmin, vmax=vmax)
+    plt.imshow(-predicted_log_depth2, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
     pngname = "full_depth.png"
@@ -170,14 +170,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
 
 def main(quick: bool, save_depth: bool, save_ply: bool):
     # depth_anything の準備をする。
-    depth_engine = DepthEngine(
-        frame_rate=30,
-        raw=True,
-        stream=True,
-        record=False,
-        save=False,
-        grayscale=False
-    )
+    depth_engine = DepthEngine(frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False)
 
     zed = sl.Camera()
 
@@ -187,13 +180,13 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
     init_params.coordinate_units = sl.UNIT.MILLIMETER  # Use meter units (for depth measurements)
 
     status = zed.open(init_params)
-    if status != sl.ERROR_CODE.SUCCESS: #Ensure the camera has opened succesfully
-        print("Camera Open : "+repr(status)+". Exit program.")
+    if status != sl.ERROR_CODE.SUCCESS:  # Ensure the camera has opened succesfully
+        print("Camera Open : " + repr(status) + ". Exit program.")
         exit()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.CAMERA
-    
+
     i = 0
     image = sl.Mat()
     depth = sl.Mat()
@@ -210,7 +203,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
             cv_image = image.get_data()
-            cv_image = np.asarray(cv_image[:, :, :3]) # as RGB
+            cv_image = np.asarray(cv_image[:, :, :3])  # as RGB
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
             zed_depth = depth.get_data()  # np.ndarray 型
             zed.retrieve_image(depthimg, sl.VIEW.DEPTH)
@@ -257,16 +250,17 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
                 print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
                 if maxval > minval:
-                    cv2.imshow("complemented", depth_as_colorimage(- concat_img))
+                    cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
-           
 
     zed.close()
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser("depth sensing")
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
     parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
