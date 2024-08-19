@@ -88,12 +88,13 @@ class DepthComplementor:
 
         self.ransac.fit(logX, logY)
         self.predictable = True
+        inlier_mask = self.ransac.inlier_mask_
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
+        predicted_logY = self.predict(logX)
         if True:
-            predicted_logY = self.predict(logX)
-            self.regression_plot(logX, logY, predicted_logY)
+            self.regression_plot(logX, logY, predicted_logY, inlier_mask)
 
     def predict(self, logX: np.ndarray) -> np.ndarray:
         """
@@ -109,10 +110,19 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return r
 
-    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray):
+    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask):
         plt.figure(1)
         plt.clf()
+        plt.subplot(1, 2, 1)
         plt.plot(logX, logY, ".")
+        plt.plot(logX, predicted_logY, ".")
+        #            plt.plot(logX2, predicted_logY2, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth (log)")
+        plt.grid(True)
+        plt.subplot(1, 2, 2)
+
+        plt.plot(logX[inlier_mask], logY[inlier_mask], ".")
         plt.plot(logX, predicted_logY, ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity (log)")
