@@ -84,6 +84,7 @@ if __name__ == "__main__":
 
     rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     # [LEFT_CAM_2K]
     # fx = 1064.82
@@ -91,11 +92,15 @@ if __name__ == "__main__":
     # cx = 1099.05
     # cy = 628.813
 
-    # [LEFT_CAM_HD]
-    fx = 532.41
-    fy = 532.535
-    cx = 636.025  # [pixel]
-    cy = 362.4065 # [pixel]
+    if img.shape[1] == 1280:
+        # [LEFT_CAM_HD]
+        fx = 532.41
+        fy = 532.535
+        cx = 636.025  # [pixel]
+        cy = 362.4065 # [pixel]
+    else:
+        print(f"need setting for {image.shape}")
+        exit
 
     H, W = depth.shape[:2]
 
@@ -109,4 +114,14 @@ if __name__ == "__main__":
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
+    # 点群の座標の原点を移動して、meshlab での表示を楽にする。
+    mean_point = np.mean(selected_points, axis=0)
+
+    centered_points = selected_points.copy()
+    centered_points[:, 0] -= mean_point[0]
+    centered_points[:, 1] -= mean_point[1]
+    centered_points[:, 2] -= mean_point[2]
+    plyname2 = "data/test_centered.ply"
+
     simpleply.write_point_cloud(plyname, selected_points, selected_img)
+    simpleply.write_point_cloud(plyname2, centered_points, selected_img)
