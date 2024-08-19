@@ -14,6 +14,7 @@ import lib_depth_engine
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 
+
 def parse_args(init):
     if len(opt.input_svo_file) > 0 and opt.input_svo_file.endswith(".svo"):
         init.set_from_svo_file(opt.input_svo_file)
@@ -68,12 +69,7 @@ def as_matrix(chw_array):
 
 def main(opt):
     depth_engine = lib_depth_engine.DepthEngine(
-        frame_rate=15,
-        raw=True,
-        stream=True,
-        record=False,
-        save=False,
-        grayscale=False
+        frame_rate=15, raw=True, stream=True, record=False, save=False, grayscale=False
     )
 
     zed = sl.Camera()
@@ -111,7 +107,7 @@ def main(opt):
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
             depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
-            assert frame.dtype ==  depth_any.dtype
+            assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
             results = np.concatenate((frame, depth_any), axis=1)
             cv2.imshow("Depth", results)
@@ -123,6 +119,7 @@ def main(opt):
     finally:
         if "zed" in locals():
             zed.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
