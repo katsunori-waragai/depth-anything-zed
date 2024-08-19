@@ -14,6 +14,7 @@ RUN python3 -m pip install matplotlib scikit-learn
 RUN python3 -m pip install 'numpy<2' 
 RUN python3 -m pip install opencv-python 
 RUN python3 -m pip install huggingface_hub onnxruntime onnx
+RUN python3 -m pip install open3d
 # only for development
 RUN apt update && apt install -y eog nano
 RUN apt install -y meshlab
