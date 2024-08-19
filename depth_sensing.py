@@ -95,11 +95,11 @@ class DepthComplementor:
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
-        predicted_logY = self.predict(logX)
+        predicted_logY = self.predict_log(logX)
         if True:
             self.regression_plot(logX, logY, predicted_logY, inlier_mask)
 
-    def predict(self, logX: np.ndarray) -> np.ndarray:
+    def predict_log(self, logX: np.ndarray) -> np.ndarray:
         """
         zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
 
@@ -107,7 +107,7 @@ class DepthComplementor:
         """
         t0 = cv2.getTickCount()
         assert self.predictable
-        r = self.ransac.predict(logX)
+        r = self.ransac.predict_log(logX)
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in predict")
@@ -146,7 +146,7 @@ class DepthComplementor:
         logX_full = np.log(X_full + self.EPS)
         logX_full = logX_full.reshape(-1, 1)
 
-        predicted_log_depth = self.predict(logX_full)
+        predicted_log_depth = self.predict_log(logX_full)
         predicted_log_depth2 = np.reshape(predicted_log_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_log_depth2[isfinite_near] = np.log(zed_depth)[isfinite_near]
