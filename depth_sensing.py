@@ -95,11 +95,11 @@ class DepthComplementor:
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
-        predicted_logY = self.predict_log(logX)
+        predicted_logY = self._predict_log(logX)
         if True:
             self.regression_plot(logX, logY, predicted_logY, inlier_mask)
 
-    def predict_log(self, logX: np.ndarray) -> np.ndarray:
+    def _predict_log(self, logX: np.ndarray) -> np.ndarray:
         """
         zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
 
@@ -121,7 +121,7 @@ class DepthComplementor:
         """
         t0 = cv2.getTickCount()
         assert self.predictable
-        r = self.predict_log(np.log(X + self.EPS))
+        r = self._predict_log(np.log(X + self.EPS))
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in predict")
