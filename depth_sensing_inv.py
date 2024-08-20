@@ -91,7 +91,7 @@ class DepthComplementor:
         print(f"{np.max(effective_da_disparity)=}")
         X = np.asarray(effective_da_disparity)  # disparity
         Y = np.asarray(effective_inv_zed_depth)  # depth
-
+        X = X.flatten().reshape(-1, 1)
         self.ransac.fit(X, Y)
         self.predictable = True
         inlier_mask = self.ransac.inlier_mask_
