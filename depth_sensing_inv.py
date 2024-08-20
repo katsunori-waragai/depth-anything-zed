@@ -60,13 +60,18 @@ class DepthComplementor:
     保持するもの
     - fitした値の係数などの情報
 
+    改変方針
+    inv_zed_depth:
+        ZED SDK のdepthの逆数をとったもの。視差に比例する。
+    da_disparity
+        depth anything の算出する視差。しかし、単眼で算出しているので、絶対値は信頼ができない。
     """
 
     ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
-    def fit(self, zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
+    def fit(self, inv_zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
         isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
         - RANSAC のアルゴリズムを使用。
@@ -74,8 +79,8 @@ class DepthComplementor:
         - そのため、log(深度) とlog(視差) は-1の勾配で1次式で表されると期待します。
         """
         t0 = cv2.getTickCount()
-        assert zed_depth.shape[:2] == da_disparity.shape[:2]
-        effective_zed_depth = zed_depth[isfinite_near]
+        assert inv_zed_depth.shape[:2] == da_disparity.shape[:2]
+        effective_zed_depth = inv_zed_depth[isfinite_near]
         effective_inferred = da_disparity[isfinite_near]
 
         print(f"{np.max(effective_zed_depth)=}")
@@ -99,7 +104,21 @@ class DepthComplementor:
         if plot:
             self.regression_plot(logX, logY, predicted_logY, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
 
-    def _predict_log(self, logX: np.ndarray) -> np.ndarray:
+    # def _predict_log(self, logX: np.ndarray) -> np.ndarray:
+    #     """
+    #     zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
+    #
+    #     returns log_depth
+    #     """
+    #     t0 = cv2.getTickCount()
+    #     assert self.predictable
+    #     r = self.ransac.predict(logX)
+    #     t1 = cv2.getTickCount()
+    #     used = (t1 - t0) / cv2.getTickFrequency()
+    #     print(f"{used} [s] in predict_log")
+    #     return r
+
+    def predict(self, inv_zed_depth: np.ndarray) -> np.ndarray:
         """
         zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
 
@@ -107,21 +126,7 @@ class DepthComplementor:
         """
         t0 = cv2.getTickCount()
         assert self.predictable
-        r = self.ransac.predict(logX)
-        t1 = cv2.getTickCount()
-        used = (t1 - t0) / cv2.getTickFrequency()
-        print(f"{used} [s] in predict_log")
-        return r
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        """
-        zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
-
-        returns log_depth
-        """
-        t0 = cv2.getTickCount()
-        assert self.predictable
-        r = self._predict_log(np.log(X + self.EPS))
+        r = self._predict_log(np.log(inv_zed_depth + self.EPS))
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in predict")
