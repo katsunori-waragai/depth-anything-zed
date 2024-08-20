@@ -66,7 +66,7 @@ class DepthComplementor:
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
-    def fit(self, zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray):
+    def fit(self, zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
         isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
         - RANSAC のアルゴリズムを使用。
@@ -96,8 +96,8 @@ class DepthComplementor:
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
         predicted_logY = self._predict_log(logX)
-        if True:
-            self.regression_plot(logX, logY, predicted_logY, inlier_mask)
+        if plot:
+            self.regression_plot(logX, logY, predicted_logY, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
 
     def _predict_log(self, logX: np.ndarray) -> np.ndarray:
         """
@@ -127,7 +127,7 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return np.exp(r)
 
-    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname="depth_cmp_log.png"):
+    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
         plt.figure(1, figsize=(8, 6))
         plt.clf()
         plt.subplot(2, 2, 1)
@@ -152,6 +152,7 @@ class DepthComplementor:
         plt.xlabel("Depth-Anything disparity (log)")
         plt.ylabel("ZED SDK depth/predicted_depth (log)")
         plt.grid(True)
+        pngname.parent.mkdir(exist_ok=True, parents=True)
         plt.savefig(pngname)
 
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
@@ -167,7 +168,7 @@ class DepthComplementor:
         return predicted_depth2, predicted_depth
 
 
-def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname="full_depth.png"):
+def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname=Path("full_depth.png")):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -197,6 +198,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.imshow(-predicted_log_depth2, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
+    pngname.parent.mkdir(exist_ok=True, parents=True)
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
@@ -277,7 +279,8 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 print(f"saved {zed_ply_name}")
 
             if not quick:
-                plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image)
+                full_depth_pngname = Path("data/full_depth.png")
+                plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, full_depth_pngname)
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
