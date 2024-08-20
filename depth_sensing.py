@@ -127,7 +127,7 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return np.exp(r)
 
-    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask):
+    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname="depth_cmp_log.png"):
         plt.figure(1, figsize=(8, 6))
         plt.clf()
         plt.subplot(2, 2, 1)
@@ -152,7 +152,7 @@ class DepthComplementor:
         plt.xlabel("Depth-Anything disparity (log)")
         plt.ylabel("ZED SDK depth/predicted_depth (log)")
         plt.grid(True)
-        plt.savefig("depth_cmp_log.png")
+        plt.savefig(pngname)
 
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         """
@@ -167,7 +167,7 @@ class DepthComplementor:
         return predicted_depth2, predicted_depth
 
 
-def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image):
+def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname="full_depth.png"):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -197,7 +197,6 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.imshow(-predicted_log_depth2, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
-    pngname = "full_depth.png"
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
