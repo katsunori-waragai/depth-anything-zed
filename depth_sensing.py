@@ -95,11 +95,11 @@ class DepthComplementor:
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
-        predicted_logY = self.predict(logX)
+        predicted_logY = self._predict_log(logX)
         if True:
             self.regression_plot(logX, logY, predicted_logY, inlier_mask)
 
-    def predict(self, logX: np.ndarray) -> np.ndarray:
+    def _predict_log(self, logX: np.ndarray) -> np.ndarray:
         """
         zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
 
@@ -110,8 +110,22 @@ class DepthComplementor:
         r = self.ransac.predict(logX)
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
-        print(f"{used} [s] in predict")
+        print(f"{used} [s] in predict_log")
         return r
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
+
+        returns log_depth
+        """
+        t0 = cv2.getTickCount()
+        assert self.predictable
+        r = self._predict_log(np.log(X + self.EPS))
+        t1 = cv2.getTickCount()
+        used = (t1 - t0) / cv2.getTickFrequency()
+        print(f"{used} [s] in predict")
+        return np.exp(r)
 
     def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask):
         plt.figure(1, figsize=(8, 6))
@@ -141,16 +155,16 @@ class DepthComplementor:
         plt.savefig("depth_cmp_log.png")
 
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
+        """
+        input, output in linear scale
+        """
         h, w = zed_depth.shape[:2]
-        X_full = da_disparity.flatten()
-        logX_full = np.log(X_full + self.EPS)
-        logX_full = logX_full.reshape(-1, 1)
-
-        predicted_log_depth = self.predict(logX_full)
-        predicted_log_depth2 = np.reshape(predicted_log_depth.copy(), (h, w))
+        X_full = da_disparity.flatten().reshape(-1, 1)
+        predicted_depth = self.predict(X_full)
+        predicted_depth2 = np.reshape(predicted_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
-        predicted_log_depth2[isfinite_near] = np.log(zed_depth)[isfinite_near]
-        return predicted_log_depth2, predicted_log_depth
+        predicted_depth2[isfinite_near] = zed_depth[isfinite_near]
+        return predicted_depth2, predicted_depth
 
 
 def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image):
@@ -241,9 +255,8 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 complementor.fit(zed_depth, da_disparity, isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
-            predicted_log_depth2, predicted_log_depth = complementor.complement(zed_depth, da_disparity)
+            predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
             if save_depth:
-                predicted_depth = np.exp(predicted_log_depth)
                 depth_file = Path("data/depth.npy")
                 zed_depth_file = Path("data/zed_depth.npy")
                 left_file = Path("data/left.png")
@@ -265,11 +278,11 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 print(f"saved {zed_ply_name}")
 
             if not quick:
-                plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image)
+                plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image)
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
-                concat_img = np.hstack((log_zed_depth, predicted_log_depth2))
+                concat_img = np.hstack((log_zed_depth, np.log(predicted_depth2)))
                 minval = finitemin(concat_img)
                 maxval = finitemax(concat_img)
                 stable_max = max((maxval, stable_max)) if stable_max else maxval
