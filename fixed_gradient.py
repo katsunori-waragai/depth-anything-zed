@@ -53,4 +53,5 @@ if __name__ == "__main__":
     plt.scatter(X[~inlier_mask], y[~inlier_mask], color='gold', marker='.', label='Outliers')
     plt.plot(line_X, line_y_ransac, color='cornflowerblue', label='RANSAC regressor')
     plt.legend(loc='best')
-    plt.show()
+#    plt.show()
+    plt.savefig("fixed_gradient.png")
