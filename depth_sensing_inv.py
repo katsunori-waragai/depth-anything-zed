@@ -163,9 +163,11 @@ class DepthComplementor:
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
         predicted_inv_depth = self.predict(X_full)
+        predicted_inv_depth = np.reshape(predicted_inv_depth, (h, w))
         predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
+
         assert np.alltrue(np.greater(predicted_inv_depth, 0.0))
         return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
 
@@ -259,6 +261,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
+            assert predicted_depth.shape[:2] ==  da_disparity.shape[:2]
             if save_depth:
                 depth_file = Path("data/depth.npy")
                 zed_depth_file = Path("data/zed_depth.npy")
@@ -286,6 +289,8 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
+                assert log_zed_depth.shape == predicted_depth.shape
+                assert log_zed_depth.dtype == predicted_depth.dtype
                 concat_img = np.hstack((log_zed_depth, np.log(predicted_depth)))
                 minval = finitemin(concat_img)
                 maxval = finitemax(concat_img)
