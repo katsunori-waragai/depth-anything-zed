@@ -223,6 +223,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
     i = 0
     image = sl.Mat()
+    image_right = sl.Mat()
     depth = sl.Mat()
     depthimg = sl.Mat()
     point_cloud = sl.Mat()
@@ -236,6 +237,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
+            zed.retrieve_image(image_right, sl.VIEW.RIGHT)
             cv_image = image.get_data()
             cv_image = np.asarray(cv_image[:, :, :3])  # as RGB
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
@@ -263,6 +265,11 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 np.save(zed_depth_file, zed_depth)
                 cv2.imwrite(str(left_file), cv_image)
                 print(f"saved {depth_file} {left_file}")
+
+                cv_image_right = image_right.get_data()
+                cv_image_right = np.asarray(cv_image_right[:, :, :3])  # as RGB
+                right_file = Path("data/right.png")
+                cv2.imwrite(str(right_file), cv_image_right)
 
             if save_ply:
                 zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
