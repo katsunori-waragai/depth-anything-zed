@@ -61,17 +61,21 @@ class DepthComplementor:
     - fitした値の係数などの情報
 
     改変方針
+    da_disparity:
+        depth anything の算出する視差。しかし、単眼で算出しているので、絶対値は信頼ができない。
     inv_zed_depth:
         ZED SDK のdepthの逆数をとったもの。視差に比例する。
-    da_disparity
-        depth anything の算出する視差。しかし、単眼で算出しているので、絶対値は信頼ができない。
+
+    predictの動作:
+        inv_zed_depth = self.predict(da_disparity)
+        の入出力とする。
     """
 
     ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
-    def fit(self, inv_zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
+    def fit(self, da_disparity: np.ndarray, inv_zed_depth: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
         isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
         - RANSAC のアルゴリズムを使用。
@@ -80,29 +84,23 @@ class DepthComplementor:
         """
         t0 = cv2.getTickCount()
         assert inv_zed_depth.shape[:2] == da_disparity.shape[:2]
-        effective_zed_depth = inv_zed_depth[isfinite_near]
-        effective_inferred = da_disparity[isfinite_near]
+        effective_inv_zed_depth = inv_zed_depth[isfinite_near]
+        effective_da_disparity = da_disparity[isfinite_near]
 
-        print(f"{np.max(effective_zed_depth)=}")
-        print(f"{np.max(effective_inferred)=}")
-        X = np.asarray(effective_inferred)  # disparity
-        Y = np.asarray(effective_zed_depth)  # depth
-        logX = np.log(X + self.EPS)
-        logY = np.log(Y + self.EPS)
-        logX = logX.reshape(-1, 1)
-        logY = logY.reshape(-1, 1)
-        print(f"{X.shape=} {X.dtype=}")
-        print(f"{Y.shape=} {Y.dtype=}")
+        print(f"{np.max(effective_inv_zed_depth)=}")
+        print(f"{np.max(effective_da_disparity)=}")
+        X = np.asarray(effective_da_disparity)  # disparity
+        Y = np.asarray(effective_inv_zed_depth)  # depth
 
-        self.ransac.fit(logX, logY)
+        self.ransac.fit(X, Y)
         self.predictable = True
         inlier_mask = self.ransac.inlier_mask_
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
-        predicted_logY = self._predict_log(logX)
-        if plot:
-            self.regression_plot(logX, logY, predicted_logY, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
+        predicted_Y = self.ransac.predict(X)
+        # if plot:
+        #     self.regression_plot(logX, logY, predicted_logY, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
 
     # def _predict_log(self, logX: np.ndarray) -> np.ndarray:
     #     """
@@ -118,47 +116,45 @@ class DepthComplementor:
     #     print(f"{used} [s] in predict_log")
     #     return r
 
-    def predict(self, inv_zed_depth: np.ndarray) -> np.ndarray:
+    def predict(self, da_disparity: np.ndarray) -> np.ndarray:
         """
-        zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
-
-        returns log_depth
+        depth anything 由来の値をZED SDK でのdepthの逆数相当に変換する。
         """
         t0 = cv2.getTickCount()
         assert self.predictable
-        r = self._predict_log(np.log(inv_zed_depth + self.EPS))
+        r = self.ransac.predict(da_disparity)
         t1 = cv2.getTickCount()
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in predict")
-        return np.exp(r)
+        return r
 
-    def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
-        plt.figure(1, figsize=(8, 6))
-        plt.clf()
-        plt.subplot(2, 2, 1)
-        plt.plot(logX, logY, ".")
-        plt.plot(logX, predicted_logY, ".")
-        #            plt.plot(logX2, predicted_logY2, ".")
-        plt.xlabel("Depth-Anything disparity (log)")
-        plt.ylabel("ZED SDK depth (log)")
-        plt.grid(True)
-        plt.subplot(2, 2, 2)
-
-        plt.plot(logX[inlier_mask], logY[inlier_mask], ".")
-        plt.plot(logX, predicted_logY, ".")
-        #            plt.plot(logX2, predicted_logY2, ".")
-        plt.xlabel("Depth-Anything disparity (log)")
-        plt.ylabel("ZED SDK depth (log)")
-        plt.grid(True)
-        plt.subplot(2, 2, 4)
-
-        plt.plot(logX[inlier_mask], logY[inlier_mask] - predicted_logY[inlier_mask], ".")
-        #            plt.plot(logX2, predicted_logY2, ".")
-        plt.xlabel("Depth-Anything disparity (log)")
-        plt.ylabel("ZED SDK depth/predicted_depth (log)")
-        plt.grid(True)
-        pngname.parent.mkdir(exist_ok=True, parents=True)
-        plt.savefig(pngname)
+    # def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
+    #     plt.figure(1, figsize=(8, 6))
+    #     plt.clf()
+    #     plt.subplot(2, 2, 1)
+    #     plt.plot(logX, logY, ".")
+    #     plt.plot(logX, predicted_logY, ".")
+    #     #            plt.plot(logX2, predicted_logY2, ".")
+    #     plt.xlabel("Depth-Anything disparity (log)")
+    #     plt.ylabel("ZED SDK depth (log)")
+    #     plt.grid(True)
+    #     plt.subplot(2, 2, 2)
+    #
+    #     plt.plot(logX[inlier_mask], logY[inlier_mask], ".")
+    #     plt.plot(logX, predicted_logY, ".")
+    #     #            plt.plot(logX2, predicted_logY2, ".")
+    #     plt.xlabel("Depth-Anything disparity (log)")
+    #     plt.ylabel("ZED SDK depth (log)")
+    #     plt.grid(True)
+    #     plt.subplot(2, 2, 4)
+    #
+    #     plt.plot(logX[inlier_mask], logY[inlier_mask] - predicted_logY[inlier_mask], ".")
+    #     #            plt.plot(logX2, predicted_logY2, ".")
+    #     plt.xlabel("Depth-Anything disparity (log)")
+    #     plt.ylabel("ZED SDK depth/predicted_depth (log)")
+    #     plt.grid(True)
+    #     pngname.parent.mkdir(exist_ok=True, parents=True)
+    #     plt.savefig(pngname)
 
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         """
@@ -166,11 +162,11 @@ class DepthComplementor:
         """
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
-        predicted_depth = self.predict(X_full)
-        predicted_depth2 = np.reshape(predicted_depth.copy(), (h, w))
+        predicted_inv_depth = self.predict(X_full)
+        predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
-        predicted_depth2[isfinite_near] = zed_depth[isfinite_near]
-        return predicted_depth2, predicted_depth
+        predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
+        return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
 
 
 def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname=Path("full_depth.png")):
