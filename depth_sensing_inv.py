@@ -166,6 +166,7 @@ class DepthComplementor:
         predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
+        assert np.alltrue(np.greater(predicted_inv_depth, 0.0))
         return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
 
 
@@ -285,7 +286,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
-                concat_img = np.hstack((log_zed_depth, np.log(predicted_depth2)))
+                concat_img = np.hstack((log_zed_depth, np.log(predicted_depth)))
                 minval = finitemin(concat_img)
                 maxval = finitemax(concat_img)
                 stable_max = max((maxval, stable_max)) if stable_max else maxval
@@ -293,7 +294,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
                 print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
                 if maxval > minval:
-                    cv2.imshow("complemented", depth_as_colorimage(-concat_img))
+                    cv2.imshow("complemented", depth_as_colorimage(-concat_img, vmax=0))
                 key = cv2.waitKey(1)
 
             i += 1
