@@ -99,22 +99,8 @@ class DepthComplementor:
         used = (t1 - t0) / cv2.getTickFrequency()
         print(f"{used} [s] in fit")
         predicted_Y = self.ransac.predict(X)
-        # if plot:
-        #     self.regression_plot(logX, logY, predicted_logY, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
-
-    # def _predict_log(self, logX: np.ndarray) -> np.ndarray:
-    #     """
-    #     zed_depthでの欠損値を、depth-anything 由来の値で補完して返す。
-    #
-    #     returns log_depth
-    #     """
-    #     t0 = cv2.getTickCount()
-    #     assert self.predictable
-    #     r = self.ransac.predict(logX)
-    #     t1 = cv2.getTickCount()
-    #     used = (t1 - t0) / cv2.getTickFrequency()
-    #     print(f"{used} [s] in predict_log")
-    #     return r
+        if plot:
+            self.regression_plot(X, Y, predicted_Y, inlier_mask, pngname=Path("data/depth_cmp_log.png"))
 
     def predict(self, da_disparity: np.ndarray) -> np.ndarray:
         """
@@ -128,33 +114,32 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return r
 
-    # def regression_plot(self, logX: np.ndarray, logY: np.ndarray, predicted_logY: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
-    #     plt.figure(1, figsize=(8, 6))
-    #     plt.clf()
-    #     plt.subplot(2, 2, 1)
-    #     plt.plot(logX, logY, ".")
-    #     plt.plot(logX, predicted_logY, ".")
-    #     #            plt.plot(logX2, predicted_logY2, ".")
-    #     plt.xlabel("Depth-Anything disparity (log)")
-    #     plt.ylabel("ZED SDK depth (log)")
-    #     plt.grid(True)
-    #     plt.subplot(2, 2, 2)
-    #
-    #     plt.plot(logX[inlier_mask], logY[inlier_mask], ".")
-    #     plt.plot(logX, predicted_logY, ".")
-    #     #            plt.plot(logX2, predicted_logY2, ".")
-    #     plt.xlabel("Depth-Anything disparity (log)")
-    #     plt.ylabel("ZED SDK depth (log)")
-    #     plt.grid(True)
-    #     plt.subplot(2, 2, 4)
-    #
-    #     plt.plot(logX[inlier_mask], logY[inlier_mask] - predicted_logY[inlier_mask], ".")
-    #     #            plt.plot(logX2, predicted_logY2, ".")
-    #     plt.xlabel("Depth-Anything disparity (log)")
-    #     plt.ylabel("ZED SDK depth/predicted_depth (log)")
-    #     plt.grid(True)
-    #     pngname.parent.mkdir(exist_ok=True, parents=True)
-    #     plt.savefig(pngname)
+    def regression_plot(self, X: np.ndarray, Y: np.ndarray, predicted_Y: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
+        plt.figure(1, figsize=(8, 6))
+        plt.clf()
+        plt.subplot(2, 2, 1)
+        plt.plot(X, Y, ".")
+        plt.plot(X, predicted_Y, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth (log)")
+        plt.grid(True)
+        plt.subplot(2, 2, 2)
+
+        plt.plot(X[inlier_mask], Y[inlier_mask], ".")
+        plt.plot(X, predicted_Y, ".")
+        #            plt.plot(logX2, predicted_logY2, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth (log)")
+        plt.grid(True)
+        plt.subplot(2, 2, 4)
+
+        plt.plot(X[inlier_mask], Y[inlier_mask] - predicted_Y[inlier_mask], ".")
+        #            plt.plot(logX2, predicted_logY2, ".")
+        plt.xlabel("Depth-Anything disparity (log)")
+        plt.ylabel("ZED SDK depth/predicted_depth (log)")
+        plt.grid(True)
+        pngname.parent.mkdir(exist_ok=True, parents=True)
+        plt.savefig(pngname)
 
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         """
