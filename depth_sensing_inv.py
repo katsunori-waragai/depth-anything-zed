@@ -254,7 +254,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
-                complementor.fit(zed_depth, da_disparity, isfinite_near)
+                complementor.fit(da_disparity, 1.0 / zed_depth,  isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
