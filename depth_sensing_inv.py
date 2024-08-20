@@ -71,7 +71,7 @@ class DepthComplementor:
         の入出力とする。
     """
 
-    ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor)
+    ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
