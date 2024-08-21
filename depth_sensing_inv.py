@@ -71,7 +71,7 @@ class DepthComplementor:
         の入出力とする。
     """
 
-    ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor, min_samples=2, residual_threshold=0.5, max_trials=1000)
+    ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=0.5, max_trials=1000)
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
@@ -122,6 +122,8 @@ class DepthComplementor:
         plt.plot(X, predicted_Y, ".")
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("1 / ZED SDK depth")
+        plt.xlim(0, None)
+        plt.ylim(0, None)
         plt.grid(True)
         plt.subplot(2, 2, 2)
 
@@ -130,6 +132,8 @@ class DepthComplementor:
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("1 / ZED SDK depth")
+        plt.xlim(0, None)
+        plt.ylim(0, None)
         plt.grid(True)
         plt.subplot(2, 2, 4)
 
@@ -138,6 +142,8 @@ class DepthComplementor:
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("ZED SDK depth/predicted_depth ")
         plt.grid(True)
+        plt.xlim(0, None)
+        plt.ylim(0, None)
         pngname.parent.mkdir(exist_ok=True, parents=True)
         plt.savefig(pngname)
 
