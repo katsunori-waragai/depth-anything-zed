@@ -62,16 +62,19 @@ class DepthComplementor:
     - fitした値の係数などの情報
 
     """
-    if 0:
-        from fixed_gradient import FixedSlopeRegressor
-        fixed_slope = 1.0
-        base_regressor = FixedSlopeRegressor(slope=fixed_slope)
-        ransac = sklearn.linear_model.RANSACRegressor(estimator=base_regressor, min_samples=2, residual_threshold=0.5, max_trials=1000)
-    else:
-        ransac = sklearn.linear_model.RANSACRegressor()
-
+    use_fixed_model = True
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
+
+    def __post_init__(self):
+        if self.use_fixed_model:
+            from fixed_gradient import FixedSlopeRegressor
+            fixed_slope = 1.0
+            base_regressor = FixedSlopeRegressor(slope=fixed_slope)
+            self.ransac = sklearn.linear_model.RANSACRegressor(estimator=base_regressor, min_samples=2,
+                                                          residual_threshold=0.5, max_trials=1000)
+        else:
+            self.ransac = sklearn.linear_model.RANSACRegressor()
 
     def fit(self, zed_depth: np.ndarray, da_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
