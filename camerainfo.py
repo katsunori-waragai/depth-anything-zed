@@ -1,3 +1,4 @@
+import inspect
 import pyzed.sl as sl
 
 # Create a ZED camera object
@@ -15,9 +16,28 @@ if status != sl.ERROR_CODE.SUCCESS:
 # Retrieve camera information
 cam_info = zed.get_camera_information()
 
+for k, v in inspect.getmembers(cam_info):
+    print(k, v)
+
+print(f"{cam_info.camera_configuration=}")
+print(f"{cam_info.sensors_configuration=}")
+
+for k, v in inspect.getmembers(cam_info.camera_configuration):
+    print(k, v)
+
+for k, v in inspect.getmembers(cam_info.sensors_configuration):
+    print(k, v)
+
 # Access left and right camera parameters
-left_cam_params = cam_info.calibration_parameters.left_cam
-right_cam_params = cam_info.calibration_parameters.right_cam
+left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
+right_cam_params = cam_info.camera_configuration.calibration_parameters.right_cam
+
+
+for k, v in inspect.getmembers(left_cam_params):
+    print(k, v)
+
+for k, v in inspect.getmembers(right_cam_params):
+    print(k, v)
 
 # Print some of the camera parameters
 print("Left Camera Parameters:")
