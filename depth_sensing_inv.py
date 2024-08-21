@@ -204,7 +204,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
-def get_depth(disparity: np.ndarray[], baseline=119.987, focal_length=532.41) -> np.ndarray:
+def get_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
     """
         fx = 532.41
         fy = 532.535
