@@ -38,7 +38,6 @@ import matplotlib.pylab as plt
 
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
-from fixed_gradient import FixedSlopeRegressor
 
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=1000, small_disparity_limit=math.exp(0.5)):
@@ -63,9 +62,14 @@ class DepthComplementor:
     - fitした値の係数などの情報
 
     """
-    fixed_slope = 1.0
-    base_regressor = FixedSlopeRegressor(slope=fixed_slope)
-    ransac = sklearn.linear_model.RANSACRegressor(estimator=base_regressor, min_samples=2, residual_threshold=0.5, max_trials=1000)
+    if 0:
+        from fixed_gradient import FixedSlopeRegressor
+        fixed_slope = 1.0
+        base_regressor = FixedSlopeRegressor(slope=fixed_slope)
+        ransac = sklearn.linear_model.RANSACRegressor(estimator=base_regressor, min_samples=2, residual_threshold=0.5, max_trials=1000)
+    else:
+        ransac = sklearn.linear_model.RANSACRegressor()
+
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
