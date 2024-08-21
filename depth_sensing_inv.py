@@ -81,7 +81,7 @@ class DepthComplementor:
         else:
             self.ransac = sklearn.linear_model.RANSACRegressor()
 
-    def fit(self, da_disparity: np.ndarray, inv_zed_depth: np.ndarray, isfinite_near: np.ndarray, plot=True):
+    def fit(self, da_disparity: np.ndarray, zed_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
         isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
         - RANSAC のアルゴリズムを使用。
@@ -89,14 +89,14 @@ class DepthComplementor:
         - そのため、log(深度) とlog(視差) は-1の勾配で1次式で表されると期待します。
         """
         t0 = cv2.getTickCount()
-        assert inv_zed_depth.shape[:2] == da_disparity.shape[:2]
-        effective_inv_zed_depth = inv_zed_depth[isfinite_near]
+        assert zed_disparity.shape[:2] == da_disparity.shape[:2]
+        effective_zed_disparity = zed_disparity[isfinite_near]
         effective_da_disparity = da_disparity[isfinite_near]
 
-        print(f"{np.max(effective_inv_zed_depth)=}")
+        print(f"{np.max(effective_zed_disparity)=}")
         print(f"{np.max(effective_da_disparity)=}")
         X = np.asarray(effective_da_disparity)  # disparity
-        Y = np.asarray(effective_inv_zed_depth)  # depth
+        Y = np.asarray(effective_zed_disparity)  # depth
         X = X.flatten().reshape(-1, 1)
         self.ransac.fit(X, Y)
         self.predictable = True
@@ -137,7 +137,7 @@ class DepthComplementor:
         plt.plot(X, predicted_Y, ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity")
-        plt.ylabel("1 / ZED SDK depth")
+        plt.ylabel("ZED SDK disparity")
         plt.xlim(0, None)
         plt.ylim(0, None)
         plt.grid(True)
