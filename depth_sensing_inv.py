@@ -39,7 +39,7 @@ import matplotlib.pylab as plt
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 from fixed_intercept import FixedInterceptRegressor
 
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=1000, small_disparity_limit=math.exp(0.5)):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=3000, small_disparity_limit=math.exp(0.5)):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
 
@@ -284,7 +284,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
                 print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
                 if maxval > minval:
-                    cv2.imshow("complemented", depth_as_colorimage(-concat_img, vmax=0))
+                    cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
