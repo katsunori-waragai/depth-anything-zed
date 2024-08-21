@@ -171,7 +171,7 @@ class DepthComplementor:
         return predicted_depth, predicted_depth2
 
 
-def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname=Path("full_depth.png")):
+def plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, pngname=Path("full_depth.png")):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -182,14 +182,14 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.colorbar()
     plt.title("ZED SDK")
     plt.subplot(2, 2, 2)
-    plt.imshow(-np.reshape(predicted_log_depth, (h, w)), vmin=vmin, vmax=vmax)
+    plt.imshow(-np.reshape(np.log(predicted_depth), (h, w)), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("depth anything")
     plt.subplot(2, 2, 3)
     if 1:
-        print(f"{predicted_log_depth.shape=}")
+        print(f"{predicted_depth.shape=}")
         print(f"{zed_depth.shape=}")
-    additional_depth = np.reshape(predicted_log_depth.copy(), (h, w))
+    additional_depth = np.reshape(predicted_depth.copy(), (h, w))
     print(f"{additional_depth.shape=}")
     print(f"{zed_depth.shape=}")
     isfinite_pixels = np.isfinite(zed_depth)
@@ -198,7 +198,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.colorbar()
     plt.title("isnan")
     plt.subplot(2, 2, 4)
-    plt.imshow(-predicted_log_depth2, vmin=vmin, vmax=vmax)
+    plt.imshow(-np.log(predicted_depth2), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
     pngname.parent.mkdir(exist_ok=True, parents=True)
