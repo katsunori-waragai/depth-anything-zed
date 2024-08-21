@@ -163,15 +163,15 @@ class DepthComplementor:
         predicted_disparity = np.maximum(predicted_disparity, 0.0)
         predicted_disparity = np.reshape(predicted_disparity, (h, w))
         predicted_depth = disparity_to_depth(predicted_disparity)
-        predicted_depth2 = np.reshape(predicted_depth.copy(), (h, w))
+        mixed_depth = np.reshape(predicted_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
-        predicted_depth2[isfinite_near] = zed_depth[isfinite_near]
+        mixed_depth[isfinite_near] = zed_depth[isfinite_near]
 
         assert np.alltrue(np.greater_equal(predicted_disparity, 0.0))
-        return predicted_depth, predicted_depth2
+        return predicted_depth, mixed_depth
 
 
-def plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, pngname=Path("full_depth.png")):
+def plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, pngname=Path("full_depth.png")):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -198,7 +198,7 @@ def plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, pn
     plt.colorbar()
     plt.title("isnan")
     plt.subplot(2, 2, 4)
-    plt.imshow(-np.log(predicted_depth2), vmin=vmin, vmax=vmax)
+    plt.imshow(-np.log(mixed_depth), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
     pngname.parent.mkdir(exist_ok=True, parents=True)
@@ -260,7 +260,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 complementor.fit(da_disparity, real_disparity, isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
-            predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
+            predicted_depth, mixed_depth = complementor.complement(zed_depth, da_disparity)
             assert predicted_depth.shape[:2] == da_disparity.shape[:2]
 
             use_direct_conversion = False
@@ -291,7 +291,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
-                plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, full_depth_pngname)
+                plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
