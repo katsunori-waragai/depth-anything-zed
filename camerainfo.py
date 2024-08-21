@@ -41,13 +41,13 @@ for k, v in inspect.getmembers(right_cam_params):
 
 # Print some of the camera parameters
 print("Left Camera Parameters:")
-print(f"Resolution: {left_cam_params.resolution.width} x {left_cam_params.resolution.height}")
+print(f"image_size: {left_cam_params.image_size.width} x {left_cam_params.image_size.height}")
 print(f"Focal Length (fx, fy): {left_cam_params.fx}, {left_cam_params.fy}")
 print(f"Principal Point (cx, cy): {left_cam_params.cx}, {left_cam_params.cy}")
 print(f"Distortion Coefficients: {left_cam_params.disto}")
 
 print("\nRight Camera Parameters:")
-print(f"Resolution: {right_cam_params.resolution.width} x {right_cam_params.resolution.height}")
+print(f"image_size: {right_cam_params.image_size.width} x {right_cam_params.image_size.height}")
 print(f"Focal Length (fx, fy): {right_cam_params.fx}, {right_cam_params.fy}")
 print(f"Principal Point (cx, cy): {right_cam_params.cx}, {right_cam_params.cy}")
 print(f"Distortion Coefficients: {right_cam_params.disto}")
