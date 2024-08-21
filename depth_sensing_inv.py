@@ -35,7 +35,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from depth2pointcloud import disparity_to_depth
+from depth2pointcloud import disparity_to_depth, depth_to_disparity
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
@@ -155,18 +155,20 @@ class DepthComplementor:
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         """
         input, output in linear scale
+        return depth anything based depth
         """
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
-        predicted_inv_depth = self.predict(X_full)
-        predicted_inv_depth = np.maximum(predicted_inv_depth, 0.0)
-        predicted_inv_depth = np.reshape(predicted_inv_depth, (h, w))
-        predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
+        predicted_disparity = self.predict(X_full)
+        predicted_disparity = np.maximum(predicted_disparity, 0.0)
+        predicted_disparity = np.reshape(predicted_disparity, (h, w))
+        predicted_depth = disparity_to_depth(predicted_disparity)
+        predicted_depth2 = np.reshape(predicted_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
-        predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
+        predicted_depth2[isfinite_near] = zed_depth[isfinite_near]
 
-        assert np.alltrue(np.greater_equal(predicted_inv_depth, 0.0))
-        return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
+        assert np.alltrue(np.greater_equal(predicted_disparity, 0.0))
+        return predicted_depth, predicted_depth2
 
 
 def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname=Path("full_depth.png")):
@@ -254,13 +256,14 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
-                complementor.fit(da_disparity, 1.0 / zed_depth,  isfinite_near)
+                real_disparity = depth_to_disparity(zed_depth)
+                complementor.fit(da_disparity, real_disparity, isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
-            assert predicted_depth.shape[:2] ==  da_disparity.shape[:2]
+            assert predicted_depth.shape[:2] == da_disparity.shape[:2]
 
-            use_direct_conversion = True
+            use_direct_conversion = False
             if use_direct_conversion:
                 depth_by_da = disparity_to_depth(disparity=da_disparity)
                 assert depth_by_da.shape[:2] == da_disparity.shape[:2]
