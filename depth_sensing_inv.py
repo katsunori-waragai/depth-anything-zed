@@ -25,9 +25,7 @@ xyz_data = point_cloud.get_data()
 
 
 import pyzed.sl as sl
-import math
 import numpy as np
-import sys
 import time
 import math
 from dataclasses import dataclass
@@ -37,6 +35,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
+from depth2pointcloud import get_depth
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
@@ -204,18 +203,6 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
-def get_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
-    """
-    disparity(視差)をdepth(深度）に変換する。
-
-
-        fx = 532.41
-        fy = 532.535
-        cx = 636.025  # [pixel]
-        cy = 362.4065  # [pixel]
-    """
-    depth =  baseline * focal_length / disparity
-    return depth
 
 def main(quick: bool, save_depth: bool, save_ply: bool):
     # depth_anything の準備をする。

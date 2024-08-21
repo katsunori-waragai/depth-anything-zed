@@ -86,6 +86,19 @@ class Depth2Points:
         return points
 
 
+def get_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
+    """
+    disparity(視差)をdepth(深度）に変換する。
+
+
+        fx = 532.41
+        fy = 532.535
+        cx = 636.025  # [pixel]
+        cy = 362.4065  # [pixel]
+    """
+    depth =  baseline * focal_length / disparity
+    return depth
+
 if __name__ == "__main__":
     import simpleply
 
