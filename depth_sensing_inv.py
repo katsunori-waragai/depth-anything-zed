@@ -23,6 +23,7 @@ xyz_data = point_cloud.get_data()
 -　
 """
 
+
 import pyzed.sl as sl
 import math
 import numpy as np
@@ -38,8 +39,7 @@ import matplotlib.pylab as plt
 
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
-
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=1000, small_disparity_limit=math.exp(0.5)):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
 
@@ -70,10 +70,17 @@ class DepthComplementor:
         inv_zed_depth = self.predict(da_disparity)
         の入出力とする。
     """
-
-    ransac = sklearn.linear_model.RANSACRegressor()
+    use_fixed_model = True
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
+
+    def __post_init__(self):
+        if self.use_fixed_model:
+            from fixed_intercept import FixedInterceptRegressor
+            self.ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2,
+                                                          residual_threshold=None, max_trials=1000)
+        else:
+            self.ransac = sklearn.linear_model.RANSACRegressor()
 
     def fit(self, da_disparity: np.ndarray, inv_zed_depth: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
@@ -122,6 +129,8 @@ class DepthComplementor:
         plt.plot(X, predicted_Y, ".")
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("1 / ZED SDK depth")
+        plt.xlim(0, None)
+        plt.ylim(0, None)
         plt.grid(True)
         plt.subplot(2, 2, 2)
 
@@ -130,6 +139,8 @@ class DepthComplementor:
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("1 / ZED SDK depth")
+        plt.xlim(0, None)
+        plt.ylim(0, None)
         plt.grid(True)
         plt.subplot(2, 2, 4)
 
@@ -138,6 +149,7 @@ class DepthComplementor:
         plt.xlabel("Depth-Anything disparity")
         plt.ylabel("ZED SDK depth/predicted_depth ")
         plt.grid(True)
+        plt.xlim(0, None)
         pngname.parent.mkdir(exist_ok=True, parents=True)
         plt.savefig(pngname)
 
@@ -148,12 +160,13 @@ class DepthComplementor:
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
         predicted_inv_depth = self.predict(X_full)
+        predicted_inv_depth = np.maximum(predicted_inv_depth, 0.0)
         predicted_inv_depth = np.reshape(predicted_inv_depth, (h, w))
         predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
 
-        assert np.alltrue(np.greater(predicted_inv_depth, 0.0))
+        assert np.alltrue(np.greater_equal(predicted_inv_depth, 0.0))
         return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
 
 
@@ -284,7 +297,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
                 print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
                 if maxval > minval:
-                    cv2.imshow("complemented", depth_as_colorimage(-concat_img, vmax=0))
+                    cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
             i += 1
