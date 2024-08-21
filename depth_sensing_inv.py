@@ -35,7 +35,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from depth2pointcloud import get_depth
+from depth2pointcloud import disparity_to_depth
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
@@ -262,7 +262,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             use_direct_conversion = True
             if use_direct_conversion:
-                depth_by_da = get_depth(disparity=da_disparity)
+                depth_by_da = disparity_to_depth(disparity=da_disparity)
                 assert depth_by_da.shape[:2] == da_disparity.shape[:2]
                 predicted_depth = depth_by_da
             if save_depth:

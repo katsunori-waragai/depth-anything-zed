@@ -86,9 +86,10 @@ class Depth2Points:
         return points
 
 
-def get_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
+def disparity_to_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
     """
     disparity(視差)をdepth(深度）に変換する。
+
 
 
         fx = 532.41
