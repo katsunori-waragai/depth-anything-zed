@@ -28,6 +28,9 @@ for k, v in inspect.getmembers(cam_info.camera_configuration):
 for k, v in inspect.getmembers(cam_info.sensors_configuration):
     print(k, v)
 
+for k, v in inspect.getmembers(cam_info.camera_configuration.calibration_parameters):
+    print(k, v)
+
 # Access left and right camera parameters
 left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
 right_cam_params = cam_info.camera_configuration.calibration_parameters.right_cam
@@ -51,6 +54,9 @@ print(f"image_size: {right_cam_params.image_size.width} x {right_cam_params.imag
 print(f"Focal Length (fx, fy): {right_cam_params.fx}, {right_cam_params.fy}")
 print(f"Principal Point (cx, cy): {right_cam_params.cx}, {right_cam_params.cy}")
 print(f"Distortion Coefficients: {right_cam_params.disto}")
+print("\n")
+print(f"{cam_info.camera_configuration.calibration_parameters.get_camera_baseline()=}")
+
 
 # Close the camera
 zed.close()
