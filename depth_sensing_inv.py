@@ -204,6 +204,15 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
+def get_depth(disparity, baseline=119.987, focal_length=532.41):
+    """
+        fx = 532.41
+        fy = 532.535
+        cx = 636.025  # [pixel]
+        cy = 362.4065  # [pixel]
+    """
+    depth =  baseline * focal_length / disparity
+    return depth
 
 def main(quick: bool, save_depth: bool, save_ply: bool):
     # depth_anything の準備をする。
