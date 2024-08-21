@@ -70,13 +70,17 @@ class DepthComplementor:
         inv_zed_depth = self.predict(da_disparity)
         の入出力とする。
     """
-    if 1:
-        from fixed_intercept import FixedInterceptRegressor
-        ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000)
-    else:
-        ransac = sklearn.linear_model.RANSACRegressor()
+    use_fixed_model = True
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
+
+    def __post_init__(self):
+        if self.use_fixed_model:
+            from fixed_intercept import FixedInterceptRegressor
+            self.ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2,
+                                                          residual_threshold=None, max_trials=1000)
+        else:
+            self.ransac = sklearn.linear_model.RANSACRegressor()
 
     def fit(self, da_disparity: np.ndarray, inv_zed_depth: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
