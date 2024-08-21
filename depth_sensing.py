@@ -62,7 +62,7 @@ class DepthComplementor:
     - fitした値の係数などの情報
 
     """
-    use_fixed_model = True
+    use_fixed_model = False
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
