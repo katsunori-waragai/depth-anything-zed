@@ -204,7 +204,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.savefig(pngname)
     print(f"saved {pngname}")
 
-def get_depth(disparity, baseline=119.987, focal_length=532.41):
+def get_depth(disparity: np.ndarray[], baseline=119.987, focal_length=532.41) -> np.ndarray:
     """
         fx = 532.41
         fy = 532.535
@@ -269,6 +269,12 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
             predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
             assert predicted_depth.shape[:2] ==  da_disparity.shape[:2]
+
+            use_direct_conversion = True
+            if use_direct_conversion:
+                depth_by_da = get_depth(disparity=da_disparity)
+                assert depth_by_da.shape[:2] == da_disparity.shape[:2]
+                predicted_depth = depth_by_da
             if save_depth:
                 depth_file = Path("data/depth.npy")
                 zed_depth_file = Path("data/zed_depth.npy")
