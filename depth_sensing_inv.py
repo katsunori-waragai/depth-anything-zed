@@ -38,7 +38,6 @@ import sklearn.linear_model
 import matplotlib.pylab as plt
 
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
-from fixed_intercept import FixedInterceptRegressor
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=3000, small_disparity_limit=math.exp(0.5)):
     """
@@ -71,9 +70,11 @@ class DepthComplementor:
         inv_zed_depth = self.predict(da_disparity)
         の入出力とする。
     """
-
-    # ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000)
-    ransac = sklearn.linear_model.RANSACRegressor()
+    if 0:
+        from fixed_intercept import FixedInterceptRegressor
+        ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000)
+    else:
+        ransac = sklearn.linear_model.RANSACRegressor()
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
 
