@@ -25,9 +25,7 @@ xyz_data = point_cloud.get_data()
 
 
 import pyzed.sl as sl
-import math
 import numpy as np
-import sys
 import time
 import math
 from dataclasses import dataclass
@@ -37,6 +35,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
+from depth2pointcloud import disparity_to_depth, depth_to_disparity
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
@@ -82,7 +81,7 @@ class DepthComplementor:
         else:
             self.ransac = sklearn.linear_model.RANSACRegressor()
 
-    def fit(self, da_disparity: np.ndarray, inv_zed_depth: np.ndarray, isfinite_near: np.ndarray, plot=True):
+    def fit(self, da_disparity: np.ndarray, zed_disparity: np.ndarray, isfinite_near: np.ndarray, plot=True):
         """
         isfinite_near がtrue である画素について、zed sdkのdepthと depth anything の視差(disparity) との関係式を算出する。
         - RANSAC のアルゴリズムを使用。
@@ -90,14 +89,14 @@ class DepthComplementor:
         - そのため、log(深度) とlog(視差) は-1の勾配で1次式で表されると期待します。
         """
         t0 = cv2.getTickCount()
-        assert inv_zed_depth.shape[:2] == da_disparity.shape[:2]
-        effective_inv_zed_depth = inv_zed_depth[isfinite_near]
+        assert zed_disparity.shape[:2] == da_disparity.shape[:2]
+        effective_zed_disparity = zed_disparity[isfinite_near]
         effective_da_disparity = da_disparity[isfinite_near]
 
-        print(f"{np.max(effective_inv_zed_depth)=}")
+        print(f"{np.max(effective_zed_disparity)=}")
         print(f"{np.max(effective_da_disparity)=}")
         X = np.asarray(effective_da_disparity)  # disparity
-        Y = np.asarray(effective_inv_zed_depth)  # depth
+        Y = np.asarray(effective_zed_disparity)  # depth
         X = X.flatten().reshape(-1, 1)
         self.ransac.fit(X, Y)
         self.predictable = True
@@ -128,7 +127,7 @@ class DepthComplementor:
         plt.plot(X, Y, ".")
         plt.plot(X, predicted_Y, ".")
         plt.xlabel("Depth-Anything disparity")
-        plt.ylabel("1 / ZED SDK depth")
+        plt.ylabel("ZED SDK disparity")
         plt.xlim(0, None)
         plt.ylim(0, None)
         plt.grid(True)
@@ -138,7 +137,7 @@ class DepthComplementor:
         plt.plot(X, predicted_Y, ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity")
-        plt.ylabel("1 / ZED SDK depth")
+        plt.ylabel("ZED SDK disparity")
         plt.xlim(0, None)
         plt.ylim(0, None)
         plt.grid(True)
@@ -147,7 +146,7 @@ class DepthComplementor:
         plt.plot(X[inlier_mask], Y[inlier_mask] - predicted_Y[inlier_mask], ".")
         #            plt.plot(logX2, predicted_logY2, ".")
         plt.xlabel("Depth-Anything disparity")
-        plt.ylabel("ZED SDK depth/predicted_depth ")
+        plt.ylabel("disparity difference ")
         plt.grid(True)
         plt.xlim(0, None)
         pngname.parent.mkdir(exist_ok=True, parents=True)
@@ -156,21 +155,23 @@ class DepthComplementor:
     def complement(self, zed_depth: np.ndarray, da_disparity: np.ndarray):
         """
         input, output in linear scale
+        return depth anything based depth
         """
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
-        predicted_inv_depth = self.predict(X_full)
-        predicted_inv_depth = np.maximum(predicted_inv_depth, 0.0)
-        predicted_inv_depth = np.reshape(predicted_inv_depth, (h, w))
-        predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
+        predicted_disparity = self.predict(X_full)
+        predicted_disparity = np.maximum(predicted_disparity, 0.0)
+        predicted_disparity = np.reshape(predicted_disparity, (h, w))
+        predicted_depth = disparity_to_depth(predicted_disparity)
+        mixed_depth = np.reshape(predicted_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
-        predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
+        mixed_depth[isfinite_near] = zed_depth[isfinite_near]
 
-        assert np.alltrue(np.greater_equal(predicted_inv_depth, 0.0))
-        return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
+        assert np.alltrue(np.greater_equal(predicted_disparity, 0.0))
+        return predicted_depth, mixed_depth
 
 
-def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_image, pngname=Path("full_depth.png")):
+def plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, pngname=Path("full_depth.png")):
     vmin = -10
     vmax = -5.5
     h, w = cv_image.shape[:2]
@@ -181,14 +182,14 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.colorbar()
     plt.title("ZED SDK")
     plt.subplot(2, 2, 2)
-    plt.imshow(-np.reshape(predicted_log_depth, (h, w)), vmin=vmin, vmax=vmax)
+    plt.imshow(-np.reshape(np.log(predicted_depth), (h, w)), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("depth anything")
     plt.subplot(2, 2, 3)
     if 1:
-        print(f"{predicted_log_depth.shape=}")
+        print(f"{predicted_depth.shape=}")
         print(f"{zed_depth.shape=}")
-    additional_depth = np.reshape(predicted_log_depth.copy(), (h, w))
+    additional_depth = np.reshape(predicted_depth.copy(), (h, w))
     print(f"{additional_depth.shape=}")
     print(f"{zed_depth.shape=}")
     isfinite_pixels = np.isfinite(zed_depth)
@@ -197,7 +198,7 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
     plt.colorbar()
     plt.title("isnan")
     plt.subplot(2, 2, 4)
-    plt.imshow(-predicted_log_depth2, vmin=vmin, vmax=vmax)
+    plt.imshow(-np.log(mixed_depth), vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.title("ZED SDK + depth anything")
     pngname.parent.mkdir(exist_ok=True, parents=True)
@@ -255,11 +256,18 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
-                complementor.fit(da_disparity, 1.0 / zed_depth,  isfinite_near)
+                real_disparity = depth_to_disparity(zed_depth)
+                complementor.fit(da_disparity, real_disparity, isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
-            predicted_depth2, predicted_depth = complementor.complement(zed_depth, da_disparity)
-            assert predicted_depth.shape[:2] ==  da_disparity.shape[:2]
+            predicted_depth, mixed_depth = complementor.complement(zed_depth, da_disparity)
+            assert predicted_depth.shape[:2] == da_disparity.shape[:2]
+
+            use_direct_conversion = False
+            if use_direct_conversion:
+                depth_by_da = disparity_to_depth(disparity=da_disparity)
+                assert depth_by_da.shape[:2] == da_disparity.shape[:2]
+                predicted_depth = depth_by_da
             if save_depth:
                 depth_file = Path("data/depth.npy")
                 zed_depth_file = Path("data/zed_depth.npy")
@@ -283,7 +291,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
 
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
-                plot_complemented(zed_depth, predicted_depth, predicted_depth2, cv_image, full_depth_pngname)
+                plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
                 time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
