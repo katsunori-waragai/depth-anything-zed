@@ -206,6 +206,9 @@ def plot_complemented(zed_depth, predicted_log_depth, predicted_log_depth2, cv_i
 
 def get_depth(disparity: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
     """
+    disparity(視差)をdepth(深度）に変換する。
+
+
         fx = 532.41
         fy = 532.535
         cx = 636.025  # [pixel]
