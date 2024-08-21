@@ -160,12 +160,13 @@ class DepthComplementor:
         h, w = zed_depth.shape[:2]
         X_full = da_disparity.flatten().reshape(-1, 1)
         predicted_inv_depth = self.predict(X_full)
+        predicted_inv_depth = np.maximum(predicted_inv_depth, 0.0)
         predicted_inv_depth = np.reshape(predicted_inv_depth, (h, w))
         predicted_inv_depth2 = np.reshape(predicted_inv_depth.copy(), (h, w))
         isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
         predicted_inv_depth2[isfinite_near] = zed_depth[isfinite_near]
 
-        assert np.alltrue(np.greater(predicted_inv_depth, 0.0))
+        assert np.alltrue(np.greater_equal(predicted_inv_depth, 0.0))
         return 1.0 / predicted_inv_depth2, 1.0 / predicted_inv_depth
 
 
