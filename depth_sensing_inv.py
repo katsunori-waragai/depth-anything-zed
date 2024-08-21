@@ -70,7 +70,7 @@ class DepthComplementor:
         inv_zed_depth = self.predict(da_disparity)
         の入出力とする。
     """
-    if 0:
+    if 1:
         from fixed_intercept import FixedInterceptRegressor
         ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000)
     else:
