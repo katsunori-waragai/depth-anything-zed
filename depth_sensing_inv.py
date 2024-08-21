@@ -39,7 +39,7 @@ import matplotlib.pylab as plt
 
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=3000, small_disparity_limit=math.exp(0.5)):
+def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
 
