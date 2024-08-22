@@ -3,6 +3,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class FixedInterceptRegressor(BaseEstimator, RegressorMixin):
     def __init__(self, intercept=0.0):
         self.intercept = intercept
@@ -39,7 +40,9 @@ if __name__ == "__main__":
     fixed_intercept_regressor = FixedInterceptRegressor(intercept=fixed_intercept)
 
     # Use RANSAC with the custom regressor
-    ransac = RANSACRegressor(estimator=fixed_intercept_regressor, min_samples=2, residual_threshold=0.5, max_trials=1000)
+    ransac = RANSACRegressor(
+        estimator=fixed_intercept_regressor, min_samples=2, residual_threshold=0.5, max_trials=1000
+    )
     ransac.fit(X, y)
 
     # Get the estimated slope
@@ -55,11 +58,11 @@ if __name__ == "__main__":
     line_y_ransac = ransac.predict(line_X)
 
     # Plot the results
-    plt.scatter(X[inlier_mask], y[inlier_mask], color='yellowgreen', marker='.', label='Inliers')
-    plt.scatter(X[~inlier_mask], y[~inlier_mask], color='gold', marker='.', label='Outliers')
-    plt.plot(line_X, line_y_ransac, color='cornflowerblue', label='Fitted Line')
+    plt.scatter(X[inlier_mask], y[inlier_mask], color="yellowgreen", marker=".", label="Inliers")
+    plt.scatter(X[~inlier_mask], y[~inlier_mask], color="gold", marker=".", label="Outliers")
+    plt.plot(line_X, line_y_ransac, color="cornflowerblue", label="Fitted Line")
     plt.xlabel("X")
     plt.ylabel("y")
-    plt.legend(loc='best')
+    plt.legend(loc="best")
     # plt.show()
     plt.savefig("fixed_intercept.png")
