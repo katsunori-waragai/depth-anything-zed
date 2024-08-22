@@ -81,6 +81,10 @@ python3 depth_sensing.py --quick
 ```
 
 
+### わかったこと
+- log-log plotでのフィッティングよりも disparityベースでのフィッティングの方がよい。
+- そのため、log-log　plotでのフィッティングは削除した。
+
 
 ### 表示の改善のするべきこと
 - zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
