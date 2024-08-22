@@ -1,3 +1,7 @@
+"""
+depth-anything を使って推論を行うためのwrapper モジュール
+"""
+
 from __future__ import annotations
 from typing import Sequence
 
