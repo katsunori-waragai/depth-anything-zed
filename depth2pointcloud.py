@@ -99,6 +99,7 @@ def disparity_to_depth(disparity: np.ndarray, baseline=119.987, focal_length=532
     """
     return baseline * focal_length / disparity
 
+
 def depth_to_disparity(depth: np.ndarray, baseline=119.987, focal_length=532.41) -> np.ndarray:
     """
     depth(深度）をdisparity(視差)に変換する。
@@ -111,6 +112,7 @@ def depth_to_disparity(depth: np.ndarray, baseline=119.987, focal_length=532.41)
         cy = 362.4065  # [pixel]
     """
     return baseline * focal_length / depth
+
 
 if __name__ == "__main__":
     import simpleply

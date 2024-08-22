@@ -1,6 +1,7 @@
 import inspect
 import pyzed.sl as sl
 
+
 def get_fx_fy_cx_cy(left_cam_params):
     """
     Note:
@@ -8,12 +9,14 @@ def get_fx_fy_cx_cy(left_cam_params):
     """
     return left_cam_params.fx, left_cam_params.fy, left_cam_params.cx, left_cam_params.cy
 
+
 def get_baseline(cam_info) -> float:
     """
     Note:
         cam_info = zed.get_camera_information()
     """
     return cam_info.camera_configuration.calibration_parameters.get_camera_baseline()
+
 
 if __name__ == "__main__":
     # Create a ZED camera object
@@ -50,7 +53,6 @@ if __name__ == "__main__":
     left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
     right_cam_params = cam_info.camera_configuration.calibration_parameters.right_cam
 
-
     for k, v in inspect.getmembers(left_cam_params):
         print(k, v)
 
@@ -71,7 +73,6 @@ if __name__ == "__main__":
     print(f"Distortion Coefficients: {right_cam_params.disto}")
     print("\n")
     print(f"{cam_info.camera_configuration.calibration_parameters.get_camera_baseline()=}")
-
 
     print(f"{get_fx_fy_cx_cy(left_cam_params)=}")
     print(f"{get_baseline(cam_info)}")

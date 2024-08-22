@@ -23,7 +23,6 @@ xyz_data = point_cloud.get_data()
 -　
 """
 
-
 import pyzed.sl as sl
 import numpy as np
 import time
@@ -38,7 +37,10 @@ import matplotlib.pylab as plt
 from depth2pointcloud import disparity_to_depth, depth_to_disparity
 from lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
-def isfinite_near_pixels(zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)):
+
+def isfinite_near_pixels(
+    zed_depth: np.ndarray, da_disparity: np.ndarray, far_depth_limit=5000, small_disparity_limit=math.exp(0.5)
+):
     """
     RANSAC で合わせこみをする際に、事前に選択する画素をboolの配列として選択する。
 
@@ -69,6 +71,7 @@ class DepthComplementor:
         inv_zed_depth = self.predict(da_disparity)
         の入出力とする。
     """
+
     use_fixed_model = True
     EPS = 1e-6
     predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
@@ -76,8 +79,10 @@ class DepthComplementor:
     def __post_init__(self):
         if self.use_fixed_model:
             from fixed_intercept import FixedInterceptRegressor
-            self.ransac = sklearn.linear_model.RANSACRegressor(estimator=FixedInterceptRegressor(), min_samples=2,
-                                                          residual_threshold=None, max_trials=1000)
+
+            self.ransac = sklearn.linear_model.RANSACRegressor(
+                estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000
+            )
         else:
             self.ransac = sklearn.linear_model.RANSACRegressor()
 
@@ -120,7 +125,9 @@ class DepthComplementor:
         print(f"{used} [s] in predict")
         return r
 
-    def regression_plot(self, X: np.ndarray, Y: np.ndarray, predicted_Y: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")):
+    def regression_plot(
+        self, X: np.ndarray, Y: np.ndarray, predicted_Y: np.ndarray, inlier_mask, pngname=Path("depth_cmp_log.png")
+    ):
         plt.figure(1, figsize=(8, 6))
         plt.clf()
         plt.subplot(2, 2, 1)

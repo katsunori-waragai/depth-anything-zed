@@ -3,6 +3,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class FixedSlopeRegressor(BaseEstimator, RegressorMixin):
     def __init__(self, slope=1.0):
         self.slope = slope
@@ -22,6 +23,7 @@ class FixedSlopeRegressor(BaseEstimator, RegressorMixin):
 
     def set_params(self, **params):
         self.slope = params.get("slope", self.slope)
+
 
 if __name__ == "__main__":
     # Example data
@@ -49,9 +51,9 @@ if __name__ == "__main__":
     line_y_ransac = ransac.predict(line_X)
 
     # Plot the results
-    plt.scatter(X[inlier_mask], y[inlier_mask], color='yellowgreen', marker='.', label='Inliers')
-    plt.scatter(X[~inlier_mask], y[~inlier_mask], color='gold', marker='.', label='Outliers')
-    plt.plot(line_X, line_y_ransac, color='cornflowerblue', label='RANSAC regressor')
-    plt.legend(loc='best')
-#    plt.show()
+    plt.scatter(X[inlier_mask], y[inlier_mask], color="yellowgreen", marker=".", label="Inliers")
+    plt.scatter(X[~inlier_mask], y[~inlier_mask], color="gold", marker=".", label="Outliers")
+    plt.plot(line_X, line_y_ransac, color="cornflowerblue", label="RANSAC regressor")
+    plt.legend(loc="best")
+    #    plt.show()
     plt.savefig("fixed_gradient.png")
