@@ -78,7 +78,7 @@ class DepthComplementor:
 
     def __post_init__(self):
         if self.use_fixed_model:
-            from fixed_intercept import FixedInterceptRegressor
+            from depth_anything_zed.fixed_intercept import FixedInterceptRegressor
 
             self.ransac = sklearn.linear_model.RANSACRegressor(
                 estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000
