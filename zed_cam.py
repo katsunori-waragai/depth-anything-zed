@@ -4,11 +4,12 @@ depth画像を見るサンプルスクリプト
 This is developing code for depth-anything with zed sdk.
 """
 
-import pyzed.sl as sl
 import argparse
 
 import cv2
 import numpy as np
+
+import pyzed.sl as sl
 
 from depanyzed import lib_depth_engine
 
