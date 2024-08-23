@@ -1,7 +1,7 @@
 import inspect
 import pyzed.sl as sl
 
-from depth_anything_zed.camerainfo import get_fx_fy_cx_cy, get_baseline
+from dep_any_zed.camerainfo import get_fx_fy_cx_cy, get_baseline
 
 # Create a ZED camera object
 zed = sl.Camera()
@@ -29,7 +29,6 @@ for k, v in inspect.getmembers(cam_info.camera_configuration):
 
 for k, v in inspect.getmembers(cam_info.sensors_configuration):
     print(k, v)
-
 for k, v in inspect.getmembers(cam_info.camera_configuration.calibration_parameters):
     print(k, v)
 
