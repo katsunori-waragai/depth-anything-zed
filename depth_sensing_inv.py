@@ -35,7 +35,7 @@ import sklearn.linear_model
 import matplotlib.pylab as plt
 
 from depth2pointcloud import disparity_to_depth, depth_to_disparity
-from dep_any_zed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
+from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 
 def isfinite_near_pixels(
@@ -78,7 +78,7 @@ class DepthComplementor:
 
     def __post_init__(self):
         if self.use_fixed_model:
-            from dep_any_zed.fixed_intercept import FixedInterceptRegressor
+            from depanyzed.fixed_intercept import FixedInterceptRegressor
 
             self.ransac = sklearn.linear_model.RANSACRegressor(
                 estimator=FixedInterceptRegressor(), min_samples=2, residual_threshold=None, max_trials=1000

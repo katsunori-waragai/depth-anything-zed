@@ -10,7 +10,7 @@ import argparse
 import cv2
 import numpy as np
 
-from dep_any_zed import lib_depth_engine
+from depanyzed import lib_depth_engine
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 

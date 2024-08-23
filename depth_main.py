@@ -3,7 +3,7 @@ This is main script using lib_depth_engine.py without zed-sdk
 """
 
 import argparse
-from depth_anything_zed import lib_depth_engine
+from depanyzed import lib_depth_engine
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()

@@ -1,7 +1,7 @@
 import inspect
 import pyzed.sl as sl
 
-from dep_any_zed.camerainfo import get_fx_fy_cx_cy, get_baseline
+from depanyzed.camerainfo import get_fx_fy_cx_cy, get_baseline
 
 # Create a ZED camera object
 zed = sl.Camera()
