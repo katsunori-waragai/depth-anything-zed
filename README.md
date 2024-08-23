@@ -56,6 +56,10 @@ CVPR 2024
 ls /usr/locacl/lib/python3.8/dist-packages/
 ```
 
+#### whl ファイルを作りたいときは
+[pyproject.toml をベースにwhl ファイルを作る手順](https://qiita.com/nonbiri15/items/5b517cf1b52e5ed6e1f9) を参照してください。
+
+
 ### モデルの変換(Docker環境内)
 - ls weights
 - モデルの変換を自動化する（onnx -> trt）
