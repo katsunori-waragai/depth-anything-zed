@@ -7,6 +7,3 @@
 - 視差ベースのフィッティングにしたときに、視差が大きい領域での残差を小さくしたい。
 - depth-anything は、disparityの絶対値を出せない。
 
-
-/usr/local/lib/python3.8/dist-packages/depth_anything
-/usr/local/lib/python3.8/dist-packages/depth_anything_zed-0.0.1.dist-info

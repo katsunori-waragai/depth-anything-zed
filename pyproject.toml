@@ -9,6 +9,7 @@ readme = "README.md"
 version = "0.0.2"
 authors = [
     {name = "katsunori-waragai", email="waragai.katsunori@borgroid.co.jp"},
+    {name = "zhang chao", email = "zhang.chao@borgroid.co.jp"},
 ]
 
 requires-python = ">= 3.8"
@@ -21,8 +22,14 @@ dependencies = [
     "scikit-learn",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+]
+
 [project.urls]
-Repositor = "https://github.com/katsunori-waragai/depth-anything-zed"
+Repository = "https://github.com/katsunori-waragai/depth-anything-zed"
 
 [tool.setuptools]
 packages = ["depanyzed"]
