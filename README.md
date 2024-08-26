@@ -51,6 +51,8 @@ CVPR 2024
 - そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 ## インストール
 - `python3 -m pip install .`
+- 開発用のモジュールを含めるときには[dev]を追加することで[project.optional-dependencies]のdev =の内容がインストールされます。
+- `python3 -m pip install .[dev]`
 - インストール後の確認
 ```
 ls /usr/locacl/lib/python3.8/dist-packages/
