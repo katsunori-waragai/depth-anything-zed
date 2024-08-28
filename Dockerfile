@@ -28,4 +28,5 @@ RUN mkdir ./depanyzed/
 COPY ./depanyzed/* ./depanyzed/
 COPY pyproject.toml ./
 RUN python3 -m pip install .[dev]
+COPY Makefile ./
 ENV LD_PRELOAD=/usr/local/lib/python3.8/dist-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
