@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-from depanyzed.depth2pointcolud import Depth2Points
+from depanyzed.depth2pointcloud import Depth2Points
 
 if __name__ == "__main__":
     from depanyzed import simpleply
