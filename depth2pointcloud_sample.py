@@ -8,8 +8,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser("depth npy to point cloud")
-    parser.add_argument("--depth", default="data/zed_depth.npy", help="depth npy file")
-    parser.add_argument("--rgb", default="data/left.png", help="left rgb image file")
+    parser.add_argument("--depth", default="test/data/zed_depth.npy", help="depth npy file")
+    parser.add_argument("--rgb", default="test/data/left.png", help="left rgb image file")
     args = parser.parse_args()
 
     depth_file = args.depth
