@@ -1,3 +1,4 @@
+./data
 *.trt
 *.onnx
 *.pth
