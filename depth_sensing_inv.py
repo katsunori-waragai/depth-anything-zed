@@ -34,7 +34,7 @@ import cv2
 import sklearn.linear_model
 import matplotlib.pylab as plt
 
-from depth2pointcloud import disparity_to_depth, depth_to_disparity
+from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
 
 
