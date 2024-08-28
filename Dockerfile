@@ -24,7 +24,6 @@ RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-O
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 WORKDIR /root/Depth-Anything-for-Jetson-Orin
 COPY *.py ./
-COPY reinstall-opencv.sh ./
 COPY pyproject.toml ./
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 ENV LD_PRELOAD=/usr/local/lib/python3.8/dist-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
