@@ -13,6 +13,4 @@
 camerainfo.py　の利用
 
 モジュールへの移動
-simpleply.py
-depth2pointcloud.py　のモジュール部分の移動
 depth_sensing_inv.py　のモジュール部分の移動
