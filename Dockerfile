@@ -24,6 +24,8 @@ RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-O
 RUN cd /root/Depth-Anything-for-Jetson-Orin
 WORKDIR /root/Depth-Anything-for-Jetson-Orin
 COPY *.py ./
+RUN mkdir ./depanyzed/
+COPY ./depanyzed/* ./depanyzed/
 COPY pyproject.toml ./
-RUN cd /root/Depth-Anything-for-Jetson-Orin
+RUN python3 -m pip install .[dev]
 ENV LD_PRELOAD=/usr/local/lib/python3.8/dist-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0

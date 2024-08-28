@@ -45,18 +45,21 @@ CVPR 2024
 ### 予め host 環境で `xhost +` を実行しておく
 
 ## docker_build.sh
+Dockerfileの中でモジュールのインストールをするように改変しました。
+pythonが必要とするモジュールの記載はpyproject.toml に一元化してあります。
 
-## docker_run.sh
-- host 環境のweights/ をguest環境の weights/ としてマウントするようにした。(./data/ も同様)
-- そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
-## インストール
+#### インストール
 - `python3 -m pip install .`
 - 開発用のモジュールを含めるときには[dev]を追加することで[project.optional-dependencies]のdev =の内容がインストールされます。
 - `python3 -m pip install .[dev]`
 - インストール後の確認
 ```
-ls /usr/locacl/lib/python3.8/dist-packages/
+python3 -m pip list | grep depanyzed
 ```
+
+## docker_run.sh
+- host 環境のweights/ をguest環境の weights/ としてマウントするようにした。(./data/ も同様)
+- そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 
 #### whl ファイルを作りたいときは
 [pyproject.toml をベースにwhl ファイルを作る手順](https://qiita.com/nonbiri15/items/5b517cf1b52e5ed6e1f9) を参照してください。
