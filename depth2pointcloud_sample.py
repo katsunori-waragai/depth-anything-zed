@@ -2,14 +2,19 @@ import numpy as np
 import cv2
 
 from depanyzed.depth2pointcloud import Depth2Points
+from depanyzed import simpleply
 
 if __name__ == "__main__":
-    from depanyzed import simpleply
+    import argparse
 
-    depth_file = "data/zed_depth.npy"
+    parser = argparse.ArgumentParser("depth npy to point cloud")
+    parser.add_argument("--depth", default="data/zed_depth.npy", help="depth npy file")
+    parser.add_argument("--rgb", default="data/left.png", help="left rgb image file")
+    args = parser.parse_args()
+
+    depth_file = args.depth
+    rgb_file = args.rgb
     depth = np.load(depth_file)
-
-    rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
