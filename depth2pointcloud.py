@@ -115,12 +115,19 @@ def depth_to_disparity(depth: np.ndarray, baseline=119.987, focal_length=532.41)
 
 
 if __name__ == "__main__":
+    import argparse
     import simpleply
+    parser = argparse.ArgumentParser("depth npy to point cloud")
+    parser.add_argument("--depth", default="data/zed_depth.npy", help="depth npy file")
+    parser.add_argument("--rgb", default="data/left.png", help="left rgb image file")
+    args = parser.parse_args()
 
-    depth_file = "data/zed_depth.npy"
+    # depth_file = "data/zed_depth.npy"
+    # rgb_file = "data/left.png"
+    depth_file = args.depth
+    rgb_file = args.rgb
     depth = np.load(depth_file)
 
-    rgb_file = "data/left.png"
     img = cv2.imread(rgb_file)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
