@@ -6,6 +6,7 @@ import numpy as np
 from depanyzed.depth2pointcloud import Depth2Points
 from depanyzed import simpleply
 
+
 def test_Depth2Points():
 
     depth_file = "../test/data/zed_depth.npy"
@@ -44,14 +45,13 @@ def test_Depth2Points():
     centered_points[:, 0] -= mean_point[0]
     centered_points[:, 1] -= mean_point[1]
     centered_points[:, 2] -= mean_point[2]
-    
+
     assert points.shape[1] == 3
     assert points.dtype in (np.float32, np.float64)
     plyname2 = "data/test_centered.ply"
 
     simpleply.write_point_cloud(plyname, selected_points, selected_img)
     simpleply.write_point_cloud(plyname2, centered_points, selected_img)
-    
+
     assert Path(plyname).exists()
     assert Path(plyname2).exists()
-
