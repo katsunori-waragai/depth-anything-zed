@@ -22,7 +22,7 @@ from torchvision.transforms import Compose
 
 from depth_anything import transform
 
-import simpleply
+from depanyzed import simpleply
 
 
 def finitemax(depth):
