@@ -124,6 +124,19 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 full_plyname = "data/full_pointcloud.ply"
                 simpleply.write_point_cloud(full_plyname, selected_points, selected_img)
 
+                # print(f"saved {full_plyname}")
+                # 点群の座標の原点を移動して、meshlab での表示を楽にする。
+                mean_point = np.mean(selected_points, axis=0)
+
+                centered_points = selected_points.copy()
+                centered_points[:, 0] -= mean_point[0]
+                centered_points[:, 1] -= mean_point[1]
+                centered_points[:, 2] -= mean_point[2]
+                full_plyname2 = "data/full_pointcloud2.ply"
+                simpleply.write_point_cloud(full_plyname2, centered_points, selected_img)
+                print(f"saved {full_plyname2}")
+                time.sleep(5)
+
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
                 plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
