@@ -23,7 +23,7 @@ def test_Depth2Points():
         cx = 636.025  # [pixel]
         cy = 362.4065  # [pixel]
     else:
-        print(f"need setting for {image.shape}")
+        print(f"need setting for {img.shape}")
         exit
 
     H, W = depth.shape[:2]

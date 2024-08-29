@@ -19,6 +19,7 @@ import cv2
 from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
 from depanyzed.depthcomplementor import isfinite_near_pixels, DepthComplementor, plot_complemented
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
+from depanyzed import camerainfo
 
 
 def main(quick: bool, save_depth: bool, save_ply: bool):
@@ -53,6 +54,14 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
     stable_min = None
     EPS = 1.0e-6
 
+    cam_info = zed.get_camera_information()
+    baseline = camerainfo.get_baseline(cam_info)
+    left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
+
+    fx, fy, cx, cy = cam_info.get_fx_fy_cx_cy(left_cam_params)
+    print(f"{baseline=}")
+    print(f"{fx=} {fy=} {cx=} {cy=}")
+    input("hit any key to continue")
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
