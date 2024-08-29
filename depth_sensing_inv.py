@@ -1,4 +1,13 @@
-
+"""
+depth の補完を実行するサンプルスクリプト
+入力：zed-sdk カメラ
+補助ライブラリ：
+    depth-anything:
+        欠損点に対してdepthの計算を実施するライブラリ（単眼depth計算ライブラリ）
+出力：
+    補完処理後のdepthデータ
+    その疑似カラーでの表示（補完前・補完後）
+"""
 
 import pyzed.sl as sl
 import numpy as np
