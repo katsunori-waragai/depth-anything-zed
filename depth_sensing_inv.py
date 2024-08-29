@@ -137,6 +137,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 print(f"saved {full_plyname2}")
                 time.sleep(5)
 
+
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
                 plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
@@ -156,6 +157,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                     cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
+            input("hit any key to continue")
             i += 1
 
     zed.close()
