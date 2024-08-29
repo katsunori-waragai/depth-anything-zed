@@ -1,27 +1,4 @@
-"""
-Depth Anything を用いて欠損点のdepthを補完する。
 
-- Depth の単位は [mm] です。
-- Depth Anything で算出したdisparity: 単位は不明。depth ∝ 1 / disparity
-    近距離で値が大きい。
-
-TODO：
-- RANSACでの合わせ込みの際に、遠方側の点は除外しよう。
-    - 遠方側で関係式を合わせようとすると誤差が大きくなるはずのため。
-    - 視差とdepthとの関係式は depth ∝ 1/視差　であるべき。
-    - log-log プロットで傾き　-1であるべき。
-    - 遠方側は除外して、近距離用のRANSACでフィッティングを作ろう。
-- logスケールでのfittingの残差を表示すること。
-    - 残差の分だけ距離を間違えることになる。
-- 補完後のdepthから、3DのpointCloud を得られるようにすること。
-参考：zed sdk でのpoint_cloud の算出
-```
-point_cloud = sl.Mat()
-zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU, point_cloud_res)
-xyz_data = point_cloud.get_data()
-```
--　
-"""
 
 import pyzed.sl as sl
 import numpy as np

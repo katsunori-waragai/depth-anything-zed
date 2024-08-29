@@ -1,3 +1,7 @@
+"""
+Depth-anything 由来のファイル
+pthファイルをTRTファイルに変換するツール
+"""
 import argparse
 
 import time
