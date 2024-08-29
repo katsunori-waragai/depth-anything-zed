@@ -19,9 +19,12 @@ import cv2
 from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
 from depanyzed.depthcomplementor import isfinite_near_pixels, DepthComplementor, plot_complemented
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
+from depanyzed.depth2pointcloud import Depth2Points
+from depanyzed import camerainfo
+from depanyzed import simpleply
 
 
-def main(quick: bool, save_depth: bool, save_ply: bool):
+def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     # depth_anything の準備をする。
     depth_engine = DepthEngine(frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False)
 
@@ -53,6 +56,13 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
     stable_min = None
     EPS = 1.0e-6
 
+    cam_info = zed.get_camera_information()
+    baseline = camerainfo.get_baseline(cam_info)
+    left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
+    fx, fy, cx, cy = camerainfo.get_fx_fy_cx_cy(left_cam_params)
+    print(f"{baseline=}")
+    print(f"{fx=} {fy=} {cx=} {cy=}")
+    input("hit any key to continue")
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
@@ -104,6 +114,30 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 point_cloud.write(zed_ply_name)
                 print(f"saved {zed_ply_name}")
 
+            if save_fullply:
+                depth2point = Depth2Points(fx, fy, cx, cy)
+                points = depth2point.cloud_points(predicted_depth)
+                H, W = predicted_depth.shape[:2]
+                point_img = np.reshape(cv_image, (H * W, 3))
+                selected_points = points[np.isfinite(predicted_depth.flatten())]
+                selected_img = point_img[np.isfinite(predicted_depth.flatten())]
+                full_plyname = "data/full_pointcloud.ply"
+                simpleply.write_point_cloud(full_plyname, selected_points, selected_img)
+
+                # print(f"saved {full_plyname}")
+                # 点群の座標の原点を移動して、meshlab での表示を楽にする。
+                mean_point = np.mean(selected_points, axis=0)
+
+                centered_points = selected_points.copy()
+                centered_points[:, 0] -= mean_point[0]
+                centered_points[:, 1] -= mean_point[1]
+                centered_points[:, 2] -= mean_point[2]
+                full_plyname2 = "data/full_pointcloud2.ply"
+                simpleply.write_point_cloud(full_plyname2, centered_points, selected_img)
+                print(f"saved {full_plyname2}")
+                time.sleep(5)
+
+
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
                 plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
@@ -123,6 +157,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                     cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
+            input("hit any key to continue")
             i += 1
 
     zed.close()
@@ -135,5 +170,6 @@ if __name__ == "__main__":
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
     parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
     parser.add_argument("--save_ply", action="store_true", help="save ply")
+    parser.add_argument("--save_fullply", action="store_true", help="save full ply")
     args = parser.parse_args()
-    main(args.quick, args.save_depth, args.save_ply)
+    main(args.quick, args.save_depth, args.save_ply, args.save_fullply)
