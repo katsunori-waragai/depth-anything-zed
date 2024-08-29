@@ -19,10 +19,12 @@ import cv2
 from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
 from depanyzed.depthcomplementor import isfinite_near_pixels, DepthComplementor, plot_complemented
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
+from depanyzed.depth2pointcloud import Depth2Points
 from depanyzed import camerainfo
+from depanyzed import simpleply
 
 
-def main(quick: bool, save_depth: bool, save_ply: bool):
+def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     # depth_anything の準備をする。
     depth_engine = DepthEngine(frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False)
 
@@ -112,6 +114,16 @@ def main(quick: bool, save_depth: bool, save_ply: bool):
                 point_cloud.write(zed_ply_name)
                 print(f"saved {zed_ply_name}")
 
+            if save_fullply:
+                depth2point = Depth2Points(fx, fy, cx, cy)
+                points = depth2point.cloud_points(predicted_depth)
+                H, W = predicted_depth.shape[:2]
+                point_img = np.reshape(cv_image, (H * W, 3))
+                selected_points = points[np.isfinite(predicted_depth.flatten())]
+                selected_img = point_img[np.isfinite(predicted_depth.flatten())]
+                full_plyname = "data/full_pointcloud.ply"
+                simpleply.write_point_cloud(full_plyname, selected_points, selected_img)
+
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
                 plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
@@ -143,5 +155,6 @@ if __name__ == "__main__":
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
     parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
     parser.add_argument("--save_ply", action="store_true", help="save ply")
+    parser.add_argument("--save_fullply", action="store_true", help="save full ply")
     args = parser.parse_args()
-    main(args.quick, args.save_depth, args.save_ply)
+    main(args.quick, args.save_depth, args.save_ply, args.save_fullply)
