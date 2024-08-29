@@ -1,3 +1,7 @@
+"""
+depthのnpyファイルとleft画像を元に点群データのファイル(*.ply)を作るスクリプト
+"""
+
 import numpy as np
 import cv2
 
