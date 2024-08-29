@@ -38,20 +38,9 @@ def test_Depth2Points():
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
-    # 点群の座標の原点を移動して、meshlab での表示を楽にする。
-    mean_point = np.mean(selected_points, axis=0)
-
-    centered_points = selected_points.copy()
-    centered_points[:, 0] -= mean_point[0]
-    centered_points[:, 1] -= mean_point[1]
-    centered_points[:, 2] -= mean_point[2]
-
     assert points.shape[1] == 3
     assert points.dtype in (np.float32, np.float64)
-    plyname2 = "data/test_centered.ply"
 
     simpleply.write_point_cloud(plyname, selected_points, selected_img)
-    simpleply.write_point_cloud(plyname2, centered_points, selected_img)
 
     assert Path(plyname).exists()
-    assert Path(plyname2).exists()
