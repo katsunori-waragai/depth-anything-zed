@@ -107,11 +107,12 @@ def as_matrix(chw_array: np.ndarray) -> np.ndarray:
     H_, W_ = chw_array.shape[-2:]
     return np.reshape(chw_array, (H_, W_))
 
+
 def main(opt):
     outdir = Path(opt.outdir)
     leftdir = outdir / "left"
     rightdir = outdir / "right"
-    zeddepthdir = outdir /"zed-depth"
+    zeddepthdir = outdir / "zed-depth"
     leftdir.mkdir(exist_ok=True, parents=True)
     rightdir.mkdir(exist_ok=True, parents=True)
     zeddepthdir.mkdir(exist_ok=True, parents=True)
