@@ -12,7 +12,7 @@ def main(args):
     zeddepthdir = captured_dir / "zed-depth"
 
     left_images = sorted(leftdir.glob("*.png"))
-    depth_npys = sorted(zeddepthdir.glob("*.npy"))
+    depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
     for leftname, depth_name in zip(left_images, depth_npys):
         print(leftname, depth_name)
         image = cv2.imread(leftname)
@@ -35,3 +35,4 @@ if __name__ == "__main__":
     group.add_argument("--jet", help="jet colormap")
     args = parser.parse_args()
     print(args)
+    main(args)
