@@ -127,6 +127,7 @@ def main(opt):
             zed.retrieve_image(left_image, sl.VIEW.LEFT, sl.MEM.CPU)
             zed.retrieve_image(right_image, sl.VIEW.RIGHT, sl.MEM.CPU)
             zed.retrieve_image(depth_image, sl.VIEW.DEPTH)
+            zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
             cv_left_image = left_image.get_data()
             assert cv_left_image.shape[2] == 4  # ZED SDK dependent.
             cv_left_image = cv_left_image[:, :, :3].copy()
@@ -138,12 +139,15 @@ def main(opt):
             print("done left_image.get_data()")
             cv_depth_img = depth_image.get_data()[:, :, 0]
             print(f"{cv_depth_img.shape=} {cv_depth_img.dtype=}")
+            depth_data = depth.get_data()
             leftname = leftdir / f"left_{counter:05d}.png"
             rightname = rightdir / f"right_{counter:05d}.png"
             depthname = zeddepthdir / f"zeddepth_{counter:05d}.png"
+            depthnpyname = zeddepthdir / f"zeddepth_{counter:05d}.npy"
             cv2.imwrite(str(leftname), cv_left_image)
             cv2.imwrite(str(rightname), cv_right_image)
             cv2.imwrite(str(depthname), cv2.applyColorMap(cv_depth_img, cv2.COLORMAP_JET))
+            np.save(depthnpyname, depth_data)
             print(f"saved {leftname} {rightname}")
         else:
             continue
