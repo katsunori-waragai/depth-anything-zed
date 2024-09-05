@@ -7,7 +7,6 @@ import numpy as np
 from capture import depth_as_colorimage, depth_as_gray
 
 
-
 def main(args):
     captured_dir = Path(args.captured_dir)
     leftdir = captured_dir / "left"
@@ -22,7 +21,15 @@ def main(args):
         image = cv2.imread(str(leftname))
         depth = np.load(str(depth_name))
 
-        colored_depth = depth_as_colorimage(depth) if args.jet else depth_as_gray(depth)
+        if args.gray:
+            colored_depth = depth_as_gray(depth)
+        elif args.jet:
+            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_JET)
+        elif args.inferno:
+            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_INFERNO)
+        else:
+            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_JET)
+
         assert image.shape == colored_depth.shape
         assert image.dtype == colored_depth.dtype
         results = np.concatenate((image, colored_depth), axis=1)
@@ -40,6 +47,7 @@ if __name__ == "__main__":
     group = parser.add_argument_group("colormap")
     group.add_argument("--gray", action="store_true", help="gray colormap")
     group.add_argument("--jet", action="store_true", help="jet colormap")
+    group.add_argument("--inferno", action="store_true", help="inferno colormap")
     args = parser.parse_args()
     print(args)
     main(args)
