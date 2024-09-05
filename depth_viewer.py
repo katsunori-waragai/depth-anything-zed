@@ -5,6 +5,7 @@ import numpy as np
 
 from capture import depth_as_colorimage
 
+
 def main(args):
     captured_dir = Path(args.captured_dir)
     leftdir = captured_dir / "left"
