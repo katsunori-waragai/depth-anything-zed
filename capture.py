@@ -2,17 +2,10 @@
 capture script using zed2i
 """
 
-import sys
 import logging
 from pathlib import Path
 
 logger = logging.getLogger(Path(__file__).stem)
-
-sys.path.append("core")
-DEVICE = "cuda"
-import os
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import pyzed.sl as sl
 import argparse
@@ -21,18 +14,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-import torch
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
-
-
-def as_torch_img(numpy_img: np.ndarray, is_BGR_order=True):
-    if numpy_img.shape[2] == 4:
-        numpy_img = numpy_img[:, :, :3]
-    if is_BGR_order:
-        numpy_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
-    img = torch.from_numpy(numpy_img).permute(2, 0, 1).float()
-    return img[None].to(DEVICE)
 
 
 def finitemax(depth: np.ndarray):
