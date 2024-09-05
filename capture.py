@@ -2,14 +2,11 @@
 capture script using zed2i
 """
 
-import logging
 from pathlib import Path
 
-logger = logging.getLogger(Path(__file__).stem)
 
 import pyzed.sl as sl
 import argparse
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -112,8 +109,6 @@ def main(opt):
         print(err)
         exit(1)
 
-    logger.info("passed zed.open()")
-
     left_image = sl.Mat()
     right_image = sl.Mat()
     depth = sl.Mat()
@@ -140,7 +135,6 @@ def main(opt):
             assert cv_right_image.shape[2] == 4  # ZED SDK dependent.
             cv_right_image = cv_right_image[:, :, :3].copy()
             cv_right_image = np.ascontiguousarray(cv_right_image)
-            logger.info("done left_image.get_data()")
             print("done left_image.get_data()")
             cv_depth_img = depth_image.get_data()[:, :, 0]
             print(f"{cv_depth_img.shape=} {cv_depth_img.dtype=}")
@@ -157,7 +151,6 @@ def main(opt):
         assert cv_left_image.dtype == np.uint8
         zed.retrieve_measure(depth, sl.MEASURE.DEPTH)  # depthの数値データ
         zed_depth = depth.get_data()  # np.ndarray 型
-        logger.info("done depth.get_data()")
         print("done depth.get_data()")
         colored_depth_image = depth_as_colorimage(zed_depth)
         results = np.concatenate((cv_left_image, colored_depth_image), axis=1)
