@@ -46,7 +46,7 @@ def depth_as_gray(depth_raw: np.ndarray, vmin=None, vmax=None) -> np.ndarray:
         vmax = finitemax(depth_raw)
     depth_raw = (depth_raw - vmin) / (vmax - vmin) * 255.0
     gray = depth_raw.astype(np.uint8)  # depth_raw might have NaN, PosInf, NegInf.
-    return np.merge((gray, gray, gray))
+    return cv2.merge((gray, gray, gray))
 
 
 def parse_args(init):
