@@ -15,13 +15,13 @@ def main(args):
     depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
     for leftname, depth_name in zip(left_images, depth_npys):
         print(leftname, depth_name)
-        image = cv2.imread(leftname)
-        depth = np.load(depth_name)
+        image = cv2.imread(str(leftname))
+        depth = np.load(str(depth_name))
         colored_depth = depth_as_colorimage(depth)
         assert image.shape == colored_depth.shape
         assert image.dtype == colored_depth.dtype
         results = np.concatenate((image, colored_depth), axis=1)
-        cv2.imsow(results)
+        cv2.imshow("left depth", results)
         cv2.waitKey(10)
 
 
