@@ -1,5 +1,10 @@
 from pathlib import Path
 
+import cv2
+import numpy as np
+
+from capture import depth_as_colorimage
+
 def main(args):
     captured_dir = Path(args.captured_dir)
     leftdir = captured_dir / "left"
@@ -7,8 +12,17 @@ def main(args):
     zeddepthdir = captured_dir / "zed-depth"
 
     left_images = sorted(leftdir.glob("*.png"))
-    for p in sorted(zeddepthdir.glob("*.npy")):
-        print(p)
+    depth_npys = sorted(zeddepthdir.glob("*.npy"))
+    for leftname, depth_name in zip(left_images, depth_npys):
+        print(leftname, depth_name)
+        image = cv2.imread(leftname)
+        depth = np.load(depth_name)
+        colored_depth = depth_as_colorimage(depth)
+        assert image.shape == colored_depth.shape
+        assert image.dtype == colored_depth.dtype
+        results = np.concatenate((image, colored_depth), axis=1)
+        cv2.imsow(results)
+        cv2.waitKey(10)
 
 
 if __name__ == "__main__":
