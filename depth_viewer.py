@@ -1,6 +1,5 @@
 from pathlib import Path
 import time
-import inspect
 
 import cv2
 import numpy as np
