@@ -58,16 +58,6 @@ def parse_args(init):
         print("[Sample] Using default resolution")
 
 
-def resize_image(image: np.ndarray, rate: float) -> np.ndarray:
-    H, W = image.shape[:2]
-    return cv2.resize(image, (int(W * rate), int(H * rate)))
-
-
-def as_matrix(chw_array: np.ndarray) -> np.ndarray:
-    H_, W_ = chw_array.shape[-2:]
-    return np.reshape(chw_array, (H_, W_))
-
-
 def main(opt):
     outdir = Path(opt.outdir)
     leftdir = outdir / "left"
