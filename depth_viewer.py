@@ -12,7 +12,7 @@ def main(args):
     leftdir = captured_dir / "left"
     rightdir = captured_dir / "right"
     zeddepthdir = captured_dir / "zed-depth"
-    sec = int(args.sec)
+    sec = args.sec
     vmax = args.vmax
     vmin = args.vmin
 
@@ -45,9 +45,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="depth npy file viewer")
     parser.add_argument("captured_dir", help="captured directory by capture.py")
-    parser.add_argument("--sec", default=3, help="wait sec")
-    parser.add_argument("--vmax", default=5000, help="max depth [mm]")
-    parser.add_argument("--vmin", default=0, help="min depth [mm]")
+    parser.add_argument("--sec", type=int, default=3, help="wait sec")
+    parser.add_argument("--vmax", type=float, default=5000, help="max depth [mm]")
+    parser.add_argument("--vmin", type=float, default=0, help="min depth [mm]")
     group = parser.add_argument_group("colormap")
     group.add_argument("--gray", action="store_true", help="gray colormap")
     group.add_argument("--jet", action="store_true", help="jet colormap")
