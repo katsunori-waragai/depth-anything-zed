@@ -102,11 +102,7 @@ def view3d(args):
         depth = np.load(str(depth_name))
 
         rgb = o3d.io.read_image(str(leftname))
-        # print(f"{rgb.shape=}")
-        print(f"{depth.shape=}")
         open3d_depth = o3d.geometry.Image(depth)
-        print(f"{type(rgb)=}")
-        print(f"{type(open3d_depth)=}")
         rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(rgb, open3d_depth)
         # [LEFT_CAM_HD]
         height, width = image.shape[:2]
@@ -118,11 +114,6 @@ def view3d(args):
 
         pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, left_cam_intrinsic)
         pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-        # o3d.visualization.draw_geometries([pcd], zoom=0.3412,
-        #                                   front=[0.427, -0.2125, -0.9795],
-        #                                   lookat=[2.6172, 2.0475, 1.532],
-        #                                   up=[-0.0694, -0.9767, 0.2024])
-
         vis.add_geometry(pcd)
         vis.update_geometry(pcd)
         vis.poll_events()
