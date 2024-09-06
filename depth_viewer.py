@@ -42,6 +42,7 @@ def view_by_colormap(args):
         cv2.waitKey(10)
         time.sleep(sec)
 
+
 def view3d(args):
     captured_dir = Path(args.captured_dir)
     leftdir = captured_dir / "left"
@@ -75,10 +76,7 @@ def view3d(args):
         left_cam_intrinsic = o3d.camera.PinholeCameraIntrinsic(width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
 
         pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, left_cam_intrinsic)
-        pcd.transform([[1, 0, 0, 0],
-                       [0, -1, 0, 0],
-                       [0, 0, -1, 0],
-                       [0, 0, 0, 1]])
+        pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
         # o3d.visualization.draw_geometries([pcd], zoom=0.3412,
         #                                   front=[0.427, -0.2125, -0.9795],
         #                                   lookat=[2.6172, 2.0475, 1.532],
@@ -90,8 +88,8 @@ def view3d(args):
         vis.update_renderer()
         time.sleep(sec)
 
-
     vis.destory_window()
+
 
 if __name__ == "__main__":
     import argparse
