@@ -18,7 +18,7 @@ def view_by_colormap(args):
     vmax = args.vmax
     vmin = args.vmin
 
-    left_images = sorted(leftdir.glob("*.png"))
+    left_images = sorted(leftdir.glob("**/*.png"))
     depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
 
     for leftname, depth_name in zip(left_images, depth_npys):
@@ -48,10 +48,8 @@ def view3d(args):
     rightdir = captured_dir / "right"
     zeddepthdir = captured_dir / "zed-depth"
     sec = args.sec
-    vmax = args.vmax
-    vmin = args.vmin
 
-    left_images = sorted(leftdir.glob("*.png"))
+    left_images = sorted(leftdir.glob("**/*.png"))
     depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
 
     vis = o3d.visualization.Visualizer()
@@ -62,8 +60,6 @@ def view3d(args):
         depth = np.load(str(depth_name))
 
         rgb = o3d.io.read_image(str(leftname))
-        for k, v in inspect.getmembers(rgb):
-            print(k, v)
         # print(f"{rgb.shape=}")
         print(f"{depth.shape=}")
         open3d_depth = o3d.geometry.Image(depth)
@@ -92,7 +88,7 @@ def view3d(args):
         vis.update_geometry(pcd)
         vis.poll_events()
         vis.update_renderer()
-        time.sleep(5)
+        time.sleep(sec)
 
 
     vis.destory_window()
@@ -102,7 +98,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="depth npy file viewer")
     parser.add_argument("captured_dir", help="captured directory by capture.py")
-    parser.add_argument("--sec", type=int, default=3, help="wait sec")
+    parser.add_argument("--sec", type=int, default=1, help="wait sec")
     parser.add_argument("--vmax", type=float, default=5000, help="max depth [mm]")
     parser.add_argument("--vmin", type=float, default=0, help="min depth [mm]")
     parser.add_argument("--disp3d", action="store_true", help="display 3D")
