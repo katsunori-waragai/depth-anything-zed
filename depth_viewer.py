@@ -1,3 +1,7 @@
+"""
+A tool to view depth(as npy file) and left image.
+In --disp3d case, use open3d to show 3D point cloud.
+"""
 from util_depth_view import view_by_colormap, view3d
 
 if __name__ == "__main__":
@@ -14,7 +18,6 @@ if __name__ == "__main__":
     group.add_argument("--jet", action="store_true", help="jet colormap")
     group.add_argument("--inferno", action="store_true", help="inferno colormap")
     args = parser.parse_args()
-    print(args)
     if args.disp3d:
         view3d(args)
     else:
