@@ -12,7 +12,9 @@ def main(args):
     leftdir = captured_dir / "left"
     rightdir = captured_dir / "right"
     zeddepthdir = captured_dir / "zed-depth"
-    sec = args.sec
+    sec = int(args.sec)
+    vmax = args.vmax
+    vmin = args.vmin
 
     left_images = sorted(leftdir.glob("*.png"))
     depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
@@ -24,11 +26,11 @@ def main(args):
         if args.gray:
             colored_depth = depth_as_gray(depth)
         elif args.jet:
-            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_JET)
+            colored_depth = depth_as_colorimage(depth, vmax=vmax, vmin=vmin, colormap=cv2.COLORMAP_JET)
         elif args.inferno:
-            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_INFERNO)
+            colored_depth = depth_as_colorimage(depth, vmax=vmax, vmin=vmin, colormap=cv2.COLORMAP_INFERNO)
         else:
-            colored_depth = depth_as_colorimage(depth, colormap=cv2.COLORMAP_JET)
+            colored_depth = depth_as_colorimage(depth, vmax=vmax, vmin=vmin, colormap=cv2.COLORMAP_JET)
 
         assert image.shape == colored_depth.shape
         assert image.dtype == colored_depth.dtype
@@ -44,6 +46,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="depth npy file viewer")
     parser.add_argument("captured_dir", help="captured directory by capture.py")
     parser.add_argument("--sec", default=3, help="wait sec")
+    parser.add_argument("--vmax", default=5000, help="max depth [mm]")
+    parser.add_argument("--vmin", default=0, help="min depth [mm]")
     group = parser.add_argument_group("colormap")
     group.add_argument("--gray", action="store_true", help="gray colormap")
     group.add_argument("--jet", action="store_true", help="jet colormap")
