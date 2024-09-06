@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 
-from capture import depth_as_colorimage, depth_as_gray
+from util import depth_as_colorimage, depth_as_gray
 
 
 def main(args):
