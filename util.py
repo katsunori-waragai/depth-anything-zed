@@ -120,4 +120,4 @@ def view3d(args):
         vis.update_renderer()
         time.sleep(sec)
 
-    vis.destory_window()
+    vis.destroy_window()
