@@ -1,5 +1,9 @@
 """
 capture script using zed2i
+
+requirement:
+    ZED2i camera
+    ZED SDK
 """
 
 from pathlib import Path
