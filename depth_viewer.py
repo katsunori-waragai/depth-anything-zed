@@ -21,7 +21,7 @@ def main(args):
     left_images = sorted(leftdir.glob("*.png"))
     depth_npys = sorted(zeddepthdir.glob("**/*.npy"))
 
-    vis = o3d.visualization.ExternalVisualizer()
+    vis = o3d.visualization.Visualizer()
     vis.create_window()
     for leftname, depth_name in zip(left_images, depth_npys):
         print(leftname, depth_name)
@@ -47,6 +47,10 @@ def main(args):
             left_cam_intrinsic = o3d.camera.PinholeCameraIntrinsic(width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
 
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, left_cam_intrinsic)
+            pcd.transform([[1, 0, 0, 0],
+                           [0, -1, 0, 0],
+                           [0, 0, -1, 0],
+                           [0, 0, 0, 1]])
             # o3d.visualization.draw_geometries([pcd], zoom=0.3412,
             #                                   front=[0.427, -0.2125, -0.9795],
             #                                   lookat=[2.6172, 2.0475, 1.532],
