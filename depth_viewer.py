@@ -1,5 +1,6 @@
 from pathlib import Path
 import time
+import inspect
 
 import cv2
 import numpy as np
@@ -26,16 +27,23 @@ def main(args):
 
         if args.disp3d:
             rgb = o3d.io.read_image(str(leftname))
-            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(rgb, depth)
+            for k, v in inspect.getmembers(rgb):
+                print(k, v)
+            # print(f"{rgb.shape=}")
+            print(f"{depth.shape=}")
+            open3d_depth = o3d.geometry.Image(depth)
+            print(f"{type(rgb)=}")
+            print(f"{type(open3d_depth)=}")
+            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(rgb, open3d_depth)
             # [LEFT_CAM_HD]
             height, width = image.shape[:2]
             fx = 532.41
             fy = 532.535
             cx = 636.025  # [pixel]
             cy = 362.4065  # [pixel]
-            left_cam_intrinsic = o3d.camera.PinholeCamereIntrinsic(width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
+            left_cam_intrinsic = o3d.camera.PinholeCameraIntrinsic(width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
 
-            pcd = o3d.geometry.create_point_cloud_from_rgbd_image(rgbd_image, left_cam_intrinsic)
+            pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, left_cam_intrinsic)
             o3d.visualization.draw_geometries([pcd], zoom=0.3412,
                                               front=[0.427, -0.2125, -0.9795],
                                               lookat=[2.6172, 2.0475, 1.532],
