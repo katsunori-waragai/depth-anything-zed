@@ -1,4 +1,4 @@
-from util import view_by_colormap, view3d
+from util_depth_view import view_by_colormap, view3d
 
 if __name__ == "__main__":
     import argparse
