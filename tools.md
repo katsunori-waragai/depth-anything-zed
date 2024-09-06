@@ -1,6 +1,6 @@
 ```
-python3 depth_viewer.py -h              
-usage: depth_viewer.py [-h] [--sec SEC] [--gray] [--jet] [--inferno] captured_dir
+python3 depth_viewer.py -h             
+usage: depth_viewer.py [-h] [--sec SEC] [--vmax VMAX] [--vmin VMIN] [--disp3d] [--gray] [--jet] [--inferno] captured_dir
 
 depth npy file viewer
 
@@ -10,6 +10,9 @@ positional arguments:
 optional arguments:
   -h, --help    show this help message and exit
   --sec SEC     wait sec
+  --vmax VMAX   max depth [mm]
+  --vmin VMIN   min depth [mm]
+  --disp3d      display 3D
 
 colormap:
   --gray        gray colormap
