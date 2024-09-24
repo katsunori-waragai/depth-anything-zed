@@ -241,6 +241,7 @@ def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False
     )
+    save_ply = False
     cap = cv2.VideoCapture(0)
     while True:
         _, orig_frame = cap.read()
@@ -258,11 +259,11 @@ def depth_run(args):
         depth_raw_orignal_size = cv2.resize(
             depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
         )
-        points = to_point_cloud_np(depth_raw_orignal_size)
-
-        plyname = Path("tmp.ply")
-        simpleply.write_point_cloud(plyname, points, orig_frame)
-        print(f"saved {plyname}")
+        if save_ply:
+            points = to_point_cloud_np(depth_raw_orignal_size)
+            plyname = Path("tmp.ply")
+            simpleply.write_point_cloud(plyname, points, orig_frame)
+            print(f"saved {plyname}")
 
         if depth_engine.record:
             depth_engine.video.write(results)
