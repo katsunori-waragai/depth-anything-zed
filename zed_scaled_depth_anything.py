@@ -157,7 +157,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                     cv2.imshow("complemented", depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
-            input("hit any key to continue")
+            # input("hit any key to continue")
             i += 1
 
     zed.close()
@@ -166,7 +166,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser("depth sensing")
+    parser = argparse.ArgumentParser(description="scaled depth-anything")
     parser.add_argument("--quick", action="store_true", help="simple output without matplotlib")
     parser.add_argument("--save_depth", action="store_true", help="save depth and left image")
     parser.add_argument("--save_ply", action="store_true", help="save ply")
