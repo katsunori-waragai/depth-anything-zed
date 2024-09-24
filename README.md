@@ -82,6 +82,12 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 以下のdepth.py ではtensorRTに変換済みのモデルがあることを前提としている。
 以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
 
+
+usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
+zed_capture.py:         capturing left right images using zed sdk.
+zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
+zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
+
 ```commandline
 python3 depth_main.py 
 

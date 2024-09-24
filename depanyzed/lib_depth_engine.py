@@ -266,7 +266,7 @@ def depth_run(args):
         plyname = Path("tmp.ply")
         simpleply.write_point_cloud(plyname, points, orig_frame)
         print(f"saved {plyname}")
-        input("hit return key")
+        # input("hit return key")
 
         if depth_engine.record:
             depth_engine.video.write(results)
