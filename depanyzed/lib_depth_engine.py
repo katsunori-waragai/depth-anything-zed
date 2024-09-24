@@ -255,9 +255,6 @@ def depth_run(args):
         depth = depth_as_colorimage(depth_raw)
         results = np.concatenate((frame, depth), axis=1)
 
-        assert isinstance(depth_raw, np.ndarray)
-        assert isinstance(original_width, int)
-        assert isinstance(original_height, int)
         depth_raw_orignal_size = cv2.resize(
             depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
         )
@@ -266,7 +263,6 @@ def depth_run(args):
         plyname = Path("tmp.ply")
         simpleply.write_point_cloud(plyname, points, orig_frame)
         print(f"saved {plyname}")
-        # input("hit return key")
 
         if depth_engine.record:
             depth_engine.video.write(results)
@@ -277,7 +273,7 @@ def depth_run(args):
         if depth_engine.stream:
             cv2.imshow("Depth", results)  # This causes bad performance
 
-            key = cv2.waitKey(100)
+            key = cv2.waitKey(1)
             if key == ord("q"):
                 break
             elif key == ord("s"):
