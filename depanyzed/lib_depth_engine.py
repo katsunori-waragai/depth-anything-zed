@@ -247,7 +247,7 @@ def depth_run(args):
         # stereo camera left part
         H_, w_ = orig_frame.shape[:2]
         orig_frame = orig_frame[:, : w_ // 2, :]
-        original_height, original_width = orig_frame[:2]
+        original_height, original_width = orig_frame.shape[:2]
         frame = cv2.resize(orig_frame, (960, 540))
         print(f"{frame.shape=} {frame.dtype=}")
         depth_raw = depth_engine.infer(frame)
