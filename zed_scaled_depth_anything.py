@@ -10,11 +10,10 @@ Output:
 """
 
 import pyzed.sl as sl
-import numpy as np
-import time
 from pathlib import Path
 
 import cv2
+import numpy as np
 
 from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
 from depanyzed.depthcomplementor import isfinite_near_pixels, DepthComplementor, plot_complemented
@@ -135,12 +134,10 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 full_plyname2 = "data/full_pointcloud2.ply"
                 simpleply.write_point_cloud(full_plyname2, centered_points, selected_img)
                 print(f"saved {full_plyname2}")
-                # time.sleep(5)
 
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
                 plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
-                # time.sleep(5)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
                 assert log_zed_depth.shape == predicted_depth.shape
