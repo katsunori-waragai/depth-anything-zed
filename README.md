@@ -89,6 +89,13 @@ zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
 zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
 
 
+## USB カメラインタフェースでのdepth-anything
+ZED SDK を使いません。
+ZED2i はUSBカメラとして使います。
+左画像、右画像は連結した１枚の画像としてcv2.VideoCapture() のインタフェースから取得します。
+得られるものは、左画像だけから算出した視差(disparity)です。
+視差の値は相対的なものです。
+このままでは、単位のある深度に変換することができません。
 ```commandline
  python3 usb_depth_anything.py -h
 usage: usb_depth_anything.py [-h] [--frame_rate FRAME_RATE] [--raw] [--stream] [--record] [--save] [--grayscale]
@@ -106,20 +113,7 @@ optional arguments:
   --grayscale           Convert the depth map to grayscale
 
 
- python3 usb_depth_anything.py -h
-usage: usb_depth_anything.py [-h] [--frame_rate FRAME_RATE] [--raw] [--stream] [--record] [--save] [--grayscale]
-
-depth-anything using zed2i as usb camera
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --frame_rate FRAME_RATE
-                        Frame rate of the camera
-  --raw                 Use only the raw depth map
-  --stream              Stream the results
-  --record              Record the results
-  --save                Save the results
-  --grayscale           Convert the depth map to grayscale
+ZED2iのカメラ入力を左画像・右画像として記録するためのものです。
 root@waragai-orin:~/Depth-Anything-for-Jetson-Orin# python3 zed_capture.py -h       
 usage: zed_capture.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
                       [--confidence_threshold CONFIDENCE_THRESHOLD] [--outdir OUTDIR]
@@ -139,6 +133,7 @@ optional arguments:
   --outdir OUTDIR       image pair output
 
 
+ZED2i カメラをzed　sdkを使ってデータ取得して、depth-anything で視差を計算するスクリプト
 python3 zed_depth_anything.py -h
 usage: zed_depth_anything.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
                              [--confidence_threshold CONFIDENCE_THRESHOLD]
@@ -156,6 +151,8 @@ optional arguments:
   --confidence_threshold CONFIDENCE_THRESHOLD
                         depth confidence_threshold(0 ~ 100)
 
+ZED2i カメラをzed　sdkを使ってデータ取得して、スケーリングをそろえたdepth-anything で視差を計算するスクリプト
+zed sdkでのステレオ計算の深度から変換した視差とdepth-anything の視差が同一の直線上になるようにロバストなフィッティングを実施している。
  python3 zed_scaled_depth_anything.py -h
 usage: zed_scaled_depth_anything.py [-h] [--quick] [--save_depth] [--save_ply] [--save_fullply]
 
