@@ -48,11 +48,7 @@ CVPR 2024
 - ZED SDK のdepthのうち、近すぎてdepthが出ない領域を表示すること
 - その領域に対してdepth-anything のdepthを表示させること。
 
-## docker_build.sh
-Dockerfileの中でモジュールのインストールをするように改変しました。
-pythonが必要とするモジュールの記載はpyproject.toml に一元化してあります。
-
-#### インストール
+## Install with Docker
 - `python3 -m pip install .`
 - 開発用のモジュールを含めるときには[dev]を追加することで[project.optional-dependencies]のdev =の内容がインストールされます。
 - `python3 -m pip install .[dev]`
@@ -61,7 +57,12 @@ pythonが必要とするモジュールの記載はpyproject.toml に一元化�
 python3 -m pip list | grep depanyzed
 ```
 
-## docker_run.sh
+#### docker_build.sh
+Dockerfileの中でモジュールのインストールをするように改変しました。
+pythonが必要とするモジュールの記載はpyproject.toml に一元化してあります。
+
+
+#### docker_run.sh
 - host 環境のweights/ をguest環境の weights/ としてマウントするようにした。(./data/ も同様)
 - そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 
@@ -191,6 +192,12 @@ python3 depth_sensing.py --quick
 - そのため、log-log　plotでのフィッティングは削除した。
 
 
+## helper tool
+- use disparity-view to capture and view npy files.
+  - https://github.com/katsunori-waragai/disparity-view
+  - zed_capture: capture tool 
+  - disparity_viewer: disparity npy file viewer
+
 ### 表示の改善のするべきこと
 - zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
 - 期待すること：　１次式の関係にあること。
@@ -266,12 +273,9 @@ https://github.com/katsunori-waragai/depth-anything-zed/pull/16
 fittingの定義域の外
 透明物体
 
-
-
 # Depth-anything とステレオ計測との相容れない部分
 - ステレオ計測:
   - ポスターがあったら、ポスターの貼られている平面あるいは曲面を返すのを期待する。
 - Depth-anything:
   - ポスターがあったら、ポスターに写っている内容を奥行きがあると解釈して結果を返す。
   - そのため、絵に対しても奥行きを解釈することがある。
-
