@@ -1,9 +1,8 @@
 """
-Depth-anything 由来のファイル
-pthファイルをTRTファイルに変換するツール
+Tool to convert pth files to TRT files
+Modified export.py in Depth-anything
 """
 
-import argparse
 
 import time
 
@@ -77,6 +76,8 @@ def export(
 
 
 if __name__ == "__main__":
+    import argparse
+
     # args = argparse.ArgumentParser()
     # args.add_argument("--weights_path", type=str, default="LiheYoung/depth_anything_vits14")
     # args.add_argument("--save_path", type=str, default="weights")

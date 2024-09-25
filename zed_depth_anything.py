@@ -1,5 +1,5 @@
 """
-depth画像を見るサンプルスクリプト
+Sample script to view depth images
 - ZED-SDK depth
 - Depth-Anything depth(native)
 This is developing code for depth-anything with zed sdk.
