@@ -6,7 +6,7 @@ import argparse
 from depanyzed import lib_depth_engine
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser()
+    args = argparse.ArgumentParser(description="depth-anything using zed2i as usb camera")
     args.add_argument("--frame_rate", type=int, default=15, help="Frame rate of the camera")
     args.add_argument("--raw", action="store_true", help="Use only the raw depth map")
     args.add_argument("--stream", action="store_true", help="Stream the results")

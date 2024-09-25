@@ -241,58 +241,49 @@ def depth_run(args):
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False
     )
+    save_ply = False
     cap = cv2.VideoCapture(0)
-    try:
-        while True:
-            _, orig_frame = cap.read()
-            # stereo camera left part
-            H_, w_ = orig_frame.shape[:2]
-            orig_frame = orig_frame[:, : w_ // 2, :]
-            original_height, original_width = orig_frame[:2]
-            frame = cv2.resize(orig_frame, (960, 540))
-            print(f"{frame.shape=} {frame.dtype=}")
-            depth_raw = depth_engine.infer(frame)
+    while True:
+        _, orig_frame = cap.read()
+        # stereo camera left part
+        H_, w_ = orig_frame.shape[:2]
+        orig_frame = orig_frame[:, : w_ // 2, :]
+        original_height, original_width = orig_frame.shape[:2]
+        frame = cv2.resize(orig_frame, (960, 540))
+        print(f"{frame.shape=} {frame.dtype=}")
+        depth_raw = depth_engine.infer(frame)
 
-            depth = depth_as_colorimage(depth_raw)
-            results = np.concatenate((frame, depth), axis=1)
+        depth = depth_as_colorimage(depth_raw)
+        results = np.concatenate((frame, depth), axis=1)
 
-            depth_raw_orignal_size = cv2.resize(
-                depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
-            )
+        depth_raw_orignal_size = cv2.resize(
+            depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
+        )
+        if save_ply:
             points = to_point_cloud_np(depth_raw_orignal_size)
-
             plyname = Path("tmp.ply")
             simpleply.write_point_cloud(plyname, points, orig_frame)
             print(f"saved {plyname}")
-            input("hit return key")
 
-            if depth_engine.record:
-                depth_engine.video.write(results)
-
-            if depth_engine.save:
-                cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
-
-            if depth_engine.stream:
-                cv2.imshow("Depth", results)  # This causes bad performance
-
-                key = cv2.waitKey(100)
-                if key == ord("q"):
-                    break
-                elif key == ord("s"):
-                    depth_raw_orignal_size = cv2.resize(
-                        depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
-                    )
-                    points = to_point_cloud_np(depth_raw_orignal_size)
-
-                    plyname = Path("tmp.ply")
-                    simpleply.write_point_cloud(plyname, points, orig_frame)
-                    print(f"saved {plyname}")
-
-    except Exception as e:
-        print(e)
-    finally:
         if depth_engine.record:
-            depth_engine.video.release()
+            depth_engine.video.write(results)
+
+        if depth_engine.save:
+            cv2.imwrite(str(depth.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
 
         if depth_engine.stream:
-            cv2.destroyAllWindows()
+            cv2.imshow("Depth", results)  # This causes bad performance
+
+            key = cv2.waitKey(1)
+            if key == ord("q"):
+                break
+            elif key == ord("s"):
+                depth_raw_orignal_size = cv2.resize(
+                    depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
+                )
+                points = to_point_cloud_np(depth_raw_orignal_size)
+
+                plyname = Path("tmp.ply")
+                simpleply.write_point_cloud(plyname, points, orig_frame)
+                print(f"saved {plyname}")
+

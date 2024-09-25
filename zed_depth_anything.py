@@ -1,6 +1,7 @@
 """
 depth画像を見るサンプルスクリプト
-
+- ZED-SDK depth
+- Depth-Anything depth(native)
 This is developing code for depth-anything with zed sdk.
 """
 
@@ -122,7 +123,7 @@ def main(opt):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="depth-anything(native) with zed camera")
     parser.add_argument(
         "--input_svo_file",
         type=str,
