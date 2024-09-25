@@ -227,6 +227,10 @@ https://github.com/DepthAnything/Depth-Anything-V2
 [pdf](https://arxiv.org/abs/2406.09414)
 [深度推定モデル Deep Anything v2を試してみる](https://qiita.com/d_sato_/items/2f6c553e771f1d05192e)
 
+## ZED-SDK でのデータの取得と視差データの可視化には
+- 以下のツールが作成してあります。
+https://github.com/katsunori-waragai/disparity-view
+- ２重でのメンテナンスを避けるため、このリポジトリで不要になったスクリプトは削除予定です。
 
 ## depth_anythingでの推論が実行できなかったときのエラー
 エラーを表示しても、スクリプトは継続する。
