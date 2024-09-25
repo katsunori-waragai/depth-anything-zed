@@ -69,9 +69,9 @@ class DepthComplementor:
         の入出力とする。
     """
 
-    use_fixed_model = True
-    EPS = 1e-6
-    predictable = False  # 最初のフィッティングがされないうちは、predict()できない。
+    use_fixed_model: bool = True
+    EPS: float = 1e-6
+    predictable: bool = False  # 最初のフィッティングがされないうちは、predict()できない。
 
     def __post_init__(self):
         if self.use_fixed_model:

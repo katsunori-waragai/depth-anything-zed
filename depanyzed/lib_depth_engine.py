@@ -25,11 +25,11 @@ from depth_anything import transform
 from depanyzed import simpleply
 
 
-def finitemax(depth):
+def finitemax(depth: np.ndarray):
     return np.nanmax(depth[np.isfinite(depth)])
 
 
-def finitemin(depth):
+def finitemin(depth: np.ndarray):
     return np.nanmin(depth[np.isfinite(depth)])
 
 
@@ -286,4 +286,3 @@ def depth_run(args):
                 plyname = Path("tmp.ply")
                 simpleply.write_point_cloud(plyname, points, orig_frame)
                 print(f"saved {plyname}")
-
