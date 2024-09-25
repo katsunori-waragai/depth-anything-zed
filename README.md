@@ -66,23 +66,23 @@ pythonが必要とするモジュールの記載はpyproject.toml に一元化�
 - host 環境のweights/ をguest環境の weights/ としてマウントするようにした。(./data/ も同様)
 - そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
 
-#### whl ファイルを作りたいときは
-[pyproject.toml をベースにwhl ファイルを作る手順](https://qiita.com/nonbiri15/items/5b517cf1b52e5ed6e1f9) を参照してください。
-
-
-### モデルの変換(Docker環境内)
-- ls weights
-- モデルの変換を自動化する（onnx -> trt）
-- export_all_size.py を追加した。
-- 実行時間がかかる。
-python3 export_all_size.py 
-
+#### model conversion from onnx model to TRT model
+For the first time you have no TRT model files in ./weights/ directory.
+Execute following command to convert onnx models to trt models.
+```
+python3 export_all_size.py
+```
+Be patient! 
+This command takes 10 minutes or more.
+And too many ignorable warnings.
+After conversion
 ```commandline
  ls weights/
 depth_anything_vits14_308.onnx  depth_anything_vits14_364.trt   depth_anything_vits14_518.onnx
 depth_anything_vits14_308.trt   depth_anything_vits14_406.onnx  depth_anything_vits14_518.trt
 depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 ```
+
 
 以下のdepth.py ではtensorRTに変換済みのモデルがあることを前提としている。
 以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
