@@ -88,6 +88,88 @@ zed_capture.py:         capturing left right images using zed sdk.
 zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
 zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
 
+
+```commandline
+ python3 usb_depth_anything.py -h
+usage: usb_depth_anything.py [-h] [--frame_rate FRAME_RATE] [--raw] [--stream] [--record] [--save] [--grayscale]
+
+depth-anything using zed2i as usb camera
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --frame_rate FRAME_RATE
+                        Frame rate of the camera
+  --raw                 Use only the raw depth map
+  --stream              Stream the results
+  --record              Record the results
+  --save                Save the results
+  --grayscale           Convert the depth map to grayscale
+
+
+ python3 usb_depth_anything.py -h
+usage: usb_depth_anything.py [-h] [--frame_rate FRAME_RATE] [--raw] [--stream] [--record] [--save] [--grayscale]
+
+depth-anything using zed2i as usb camera
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --frame_rate FRAME_RATE
+                        Frame rate of the camera
+  --raw                 Use only the raw depth map
+  --stream              Stream the results
+  --record              Record the results
+  --save                Save the results
+  --grayscale           Convert the depth map to grayscale
+root@waragai-orin:~/Depth-Anything-for-Jetson-Orin# python3 zed_capture.py -h       
+usage: zed_capture.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
+                      [--confidence_threshold CONFIDENCE_THRESHOLD] [--outdir OUTDIR]
+
+capture stereo pairs
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_svo_file INPUT_SVO_FILE
+                        Path to an .svo file, if you want to replay it
+  --ip_address IP_ADDRESS
+                        IP Adress, in format a.b.c.d:port or a.b.c.d, if you have a streaming setup
+  --resolution RESOLUTION
+                        Resolution, can be either HD2K, HD1200, HD1080, HD720, SVGA or VGA
+  --confidence_threshold CONFIDENCE_THRESHOLD
+                        depth confidence_threshold(0 ~ 100)
+  --outdir OUTDIR       image pair output
+
+
+python3 zed_depth_anything.py -h
+usage: zed_depth_anything.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
+                             [--confidence_threshold CONFIDENCE_THRESHOLD]
+
+depth-anything(native) with zed camera
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_svo_file INPUT_SVO_FILE
+                        Path to an .svo file, if you want to replay it
+  --ip_address IP_ADDRESS
+                        IP Adress, in format a.b.c.d:port or a.b.c.d, if you have a streaming setup
+  --resolution RESOLUTION
+                        Resolution, can be either HD2K, HD1200, HD1080, HD720, SVGA or VGA
+  --confidence_threshold CONFIDENCE_THRESHOLD
+                        depth confidence_threshold(0 ~ 100)
+
+ python3 zed_scaled_depth_anything.py -h
+usage: zed_scaled_depth_anything.py [-h] [--quick] [--save_depth] [--save_ply] [--save_fullply]
+
+scaled depth-anything
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --quick         simple output without matplotlib
+  --save_depth    save depth and left image
+  --save_ply      save ply
+  --save_fullply  save full ply
+
+```
+
 ```commandline
 python3 depth_main.py 
 
