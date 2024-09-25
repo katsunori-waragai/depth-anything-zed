@@ -3,7 +3,6 @@ Tool to convert pth files to TRT files
 Modified export.py in Depth-anything
 """
 
-
 import time
 
 import os
