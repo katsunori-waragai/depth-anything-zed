@@ -118,10 +118,12 @@ optional arguments:
   --grayscale           Convert the depth map to grayscale
 
 
-ZED2iのカメラ入力を左画像・右画像として記録するためのものです。
-root@waragai-orin:~/Depth-Anything-for-Jetson-Orin# python3 zed_capture.py -h       
-usage: zed_capture.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
-                      [--confidence_threshold CONFIDENCE_THRESHOLD] [--outdir OUTDIR]
+ZED2i capture script is now in [disparity-view](https://github.com/katsunori-waragai/disparity-view).
+After pip install for disparity-view,
+You can use `zed_capture` as command.
+
+$ zed_capture -h
+usage: zed_capture [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION] [--confidence_threshold CONFIDENCE_THRESHOLD] [--outdir OUTDIR]
 
 capture stereo pairs
 
@@ -132,7 +134,7 @@ optional arguments:
   --ip_address IP_ADDRESS
                         IP Adress, in format a.b.c.d:port or a.b.c.d, if you have a streaming setup
   --resolution RESOLUTION
-                        Resolution, can be either HD2K, HD1200, HD1080, HD720, SVGA or VGA
+                        Resolution, can be either HD2K, HD1080, HD720, SVGA or VGA
   --confidence_threshold CONFIDENCE_THRESHOLD
                         depth confidence_threshold(0 ~ 100)
   --outdir OUTDIR       image pair output
