@@ -152,22 +152,14 @@ optional arguments:
 
 ```
 
-```commandline
-python3 depth_main.py 
-
-# use ZED SDK
-python3 python3 zed_cam.py
-```
-
 # ZED-SDK でのdepthとdepth-anythingとの比較
 ```commandline
-python3 depth_sensing.py
-
-python3 depth_sensing.py --quick
+python3 zed_scaled_depth_anything.py
+python3 zed_scaled_depth_anything.py --quick
 ```
 
 
-## helper tool
+## helper tools
 - use disparity-view to capture and view npy files.
   - https://github.com/katsunori-waragai/disparity-view
   - zed_capture: capture tool 
