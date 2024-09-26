@@ -83,11 +83,6 @@ depth_anything_vits14_308.trt   depth_anything_vits14_406.onnx  depth_anything_v
 depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 ```
 
-
-以下のdepth.py ではtensorRTに変換済みのモデルがあることを前提としている。
-以下のコードでは、USBカメラを入力、元結果とdepth画像とを画面に表示する。
-
-
 usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
 zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
 zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
@@ -167,6 +162,5 @@ python3 zed_scaled_depth_anything.py --quick
 ### depth-anything v2
 https://github.com/DepthAnything/Depth-Anything-V2
 [pdf](https://arxiv.org/abs/2406.09414)
-[深度推定モデル Deep Anything v2を試してみる](https://qiita.com/d_sato_/items/2f6c553e771f1d05192e)
 
 
