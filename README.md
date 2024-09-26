@@ -58,23 +58,12 @@ CVPR 2024
 ```commandline
 sh docker_build.sh
 sh docker_run.sh
+```
+# model conversion from onnx model to TRT model
+for the first time execute as follows 
+```commandline
 make model
 ```
-
-#### 
-
-- `python3 -m pip install .`
-- 開発用のモジュールを含めるときには[dev]を追加することで[project.optional-dependencies]のdev =の内容がインストールされます。
-- `python3 -m pip install .[dev]`
-- インストール後の確認
-```
-python3 -m pip list | grep depanyzed
-```
-
-#### model conversion from onnx model to TRT model
-
-```
-make model
 
 Be patient! 
 This command takes 10 minutes or more.
