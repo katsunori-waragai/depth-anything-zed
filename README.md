@@ -96,7 +96,7 @@ zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by ze
 ## depth-anything with USB camera interface
 The left and right images are retrieved from the cv2.VideoCapture() interface as one concatenated image.
 ZED2i is used as a USB camera.
-What you get is the disparity (disparity) calculated from the left image only.
+What you get is the disparity calculated from the left image only.
 The disparity values are relative.
 
 ```commandline
@@ -116,7 +116,7 @@ optional arguments:
   --grayscale           Convert the depth map to grayscale
 
 
-ZED2i カメラをzed　sdkを使ってデータ取得して、depth-anything で視差を計算するスクリプト
+Script to calculate disparity with depth-anything from images acquired with a ZED2i camera using zed sdk
 python3 zed_depth_anything.py -h
 usage: zed_depth_anything.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
                              [--confidence_threshold CONFIDENCE_THRESHOLD]
