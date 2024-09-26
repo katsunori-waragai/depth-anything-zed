@@ -1,9 +1,15 @@
 # depth-anything-zed
 docker environment for depth-anything　with ZED SDK
 
-ZED SDK との連動を前提としたリポジトリです。
+This repository provide scripts using ZED SDK (StereoLabs)
+This scripts assume cameras by StereoLabs.
 
-ZED SDK との連動を想定しない場合には、depth-anything-docker のリポジトリを用いてください。
+## Checked Environment
+- NVIDIA Jetson AGX orin
+- Ubuntu 20
+- python3.8
+- ZED SDK (StereoLabs)
+- ZED2i (StereoLabs)
 
 ## 参照元
 Jetson 用のDepth-Anything のリポジトリ
