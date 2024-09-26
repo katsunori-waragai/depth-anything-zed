@@ -180,9 +180,3 @@ https://github.com/DepthAnything/Depth-Anything-V2
 [深度推定モデル Deep Anything v2を試してみる](https://qiita.com/d_sato_/items/2f6c553e771f1d05192e)
 
 
-# Depth-anything とステレオ計測との相容れない部分
-- ステレオ計測:
-  - ポスターがあったら、ポスターの貼られている平面あるいは曲面を返すのを期待する。
-- Depth-anything:
-  - ポスターがあったら、ポスターに写っている内容を奥行きがあると解釈して結果を返す。
-  - そのため、絵に対しても奥行きを解釈することがある。

@@ -28,3 +28,35 @@ INVALID RESOLUTION
 [2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
 ```
 
+## open3dの利用
+- open3dで十分なことに対して、自前ライブラリを使わなくする。
+- 
+
+## ほしいもの
+- [x] depth2anythingとzed-sdk とでのフィッティングの残差
+- [x] マジックナンバーを減らすこと
+- フィッティングを行うサンプリングを１フレームよりも増やすこと
+  - そうすることで、対応点のとれる距離の範囲を広範囲にすること
+
+## fitting　後の残差が大きくなりやすい領域は
+- 推測
+物体の輪郭に生じるartifact
+細いことで、ブロックマッチングで対応がとれにくい領域
+fittingの定義域の外
+透明物体
+
+## depth_anythingでの推論が実行できなかったときのエラー
+エラーを表示しても、スクリプトは継続する。
+```commandline
+[07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
+```
+TRT を利用しているコード側の以下の改変で解決した。
+https://github.com/katsunori-waragai/depth-anything-zed/pull/16
+
+
+# Depth-anything とステレオ計測との相容れない部分
+- ステレオ計測:
+  - ポスターがあったら、ポスターの貼られている平面あるいは曲面を返すのを期待する。
+- Depth-anything:
+  - ポスターがあったら、ポスターに写っている内容を奥行きがあると解釈して結果を返す。
+  - そのため、絵に対しても奥行きを解釈することがある。
