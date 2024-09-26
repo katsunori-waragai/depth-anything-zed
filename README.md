@@ -134,9 +134,10 @@ optional arguments:
   --confidence_threshold CONFIDENCE_THRESHOLD
                         depth confidence_threshold(0 ~ 100)
 
-ZED2i カメラをzed　sdkを使ってデータ取得して、スケーリングをそろえたdepth-anything で視差を計算するスクリプト
-zed sdkでのステレオ計算の深度から変換した視差とdepth-anything の視差が同一の直線上になるようにロバストなフィッティングを実施している。
- python3 zed_scaled_depth_anything.py -h
+Script to acquire images from a ZED2i camera using zed sdk and calculate disparity with depth-anything with aligned scaling.
+Robust fitting is performed so that the disparity converted from the depth of the stereo calculation in the zed sdk and the disparity in depth-anything are on the same straight line.
+ 
+$ python3 zed_scaled_depth_anything.py -h
 usage: zed_scaled_depth_anything.py [-h] [--quick] [--save_depth] [--save_ply] [--save_fullply]
 
 scaled depth-anything
@@ -150,9 +151,8 @@ optional arguments:
 
 ```
 
-# ZED-SDK でのdepthとdepth-anythingとの比較
+- You can compare ZED SDK depth with scaled depth-anything as follows
 ```commandline
-python3 zed_scaled_depth_anything.py
 python3 zed_scaled_depth_anything.py --quick
 ```
 
