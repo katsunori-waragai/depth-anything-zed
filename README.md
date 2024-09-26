@@ -55,6 +55,14 @@ CVPR 2024
 - その領域に対してdepth-anything のdepthを表示させること。
 
 ## Install with Docker
+```commandline
+sh docker_build.sh
+sh docker_run.sh
+make model
+```
+
+#### 
+
 - `python3 -m pip install .`
 - 開発用のモジュールを含めるときには[dev]を追加することで[project.optional-dependencies]のdev =の内容がインストールされます。
 - `python3 -m pip install .[dev]`
@@ -63,21 +71,11 @@ CVPR 2024
 python3 -m pip list | grep depanyzed
 ```
 
-#### docker_build.sh
-Dockerfileの中でモジュールのインストールをするように改変しました。
-pythonが必要とするモジュールの記載はpyproject.toml に一元化してあります。
-
-
-#### docker_run.sh
-- host 環境のweights/ をguest環境の weights/ としてマウントするようにした。(./data/ も同様)
-- そのため、guest環境でweight ファイルのダウンロードとTRTへの変換を一度行えば、2回目以降は利用できる。
-
 #### model conversion from onnx model to TRT model
-For the first time you have no TRT model files in ./weights/ directory.
-Execute following command to convert onnx models to trt models.
+
 ```
-python3 export_all_size.py
-```
+make model
+
 Be patient! 
 This command takes 10 minutes or more.
 And too many ignorable warnings.
@@ -89,10 +87,10 @@ depth_anything_vits14_308.trt   depth_anything_vits14_406.onnx  depth_anything_v
 depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 ```
 
+## scripts
 usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
 zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
 zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
-
 
 ## depth-anything with USB camera interface
 The left and right images are retrieved from the cv2.VideoCapture() interface as one concatenated image.
@@ -157,7 +155,6 @@ optional arguments:
 python3 zed_scaled_depth_anything.py --quick
 ```
 
-
 ## helper tools
 - use disparity-view to capture and view npy files.
   - https://github.com/katsunori-waragai/disparity-view
@@ -168,5 +165,3 @@ python3 zed_scaled_depth_anything.py --quick
 ### depth-anything v2
 https://github.com/DepthAnything/Depth-Anything-V2
 [pdf](https://arxiv.org/abs/2406.09414)
-
-

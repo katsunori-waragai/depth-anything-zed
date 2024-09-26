@@ -1,6 +1,11 @@
 """
 Tool to convert pth files to TRT files
-Modified export.py in Depth-anything
+Modified export.py in Depth-
+
+#### model conversion from onnx model to TRT model
+For the first time you have no TRT model files in ./weights/ directory.
+Execute following command to convert onnx models to trt models.
+
 """
 
 import time

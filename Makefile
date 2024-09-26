@@ -18,4 +18,5 @@ install_zed_sdk:
 
 .PHONY: model
 model:
+	echo "Be patient!\n This command takes 10 minutes or more.\n And too many ignorable warnings."
 	python3 export_all_size.py
