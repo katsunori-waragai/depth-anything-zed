@@ -11,18 +11,6 @@ This scripts assume cameras by StereoLabs.
 - ZED SDK (StereoLabs)
 - ZED2i (StereoLabs)
 
-## 参照元
-Jetson 用のDepth-Anything のリポジトリ
-https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
-
-#### original
-https://github.com/LiheYoung/Depth-Anything
-
-Project page
-https://www.freemake.com/jp/free_video_downloader/
-
-[Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data](https://arxiv.org/pdf/2401.10891)
-CVPR 2024
 
 ## もくろみ
 ### ZED2iで深度が得られるのにdepth-anythingと組み合わせる理由
@@ -154,3 +142,9 @@ python3 zed_scaled_depth_anything.py --quick
 ### depth-anything v2
 https://github.com/DepthAnything/Depth-Anything-V2
 [pdf](https://arxiv.org/abs/2406.09414)
+
+# Acknowlegements
+This project is based on following works.
+[Depth-Anything](https://github.com/LiheYoung/Depth-Anything)
+
+[Depth-Anything-for-Jetson-Orin](https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin)
