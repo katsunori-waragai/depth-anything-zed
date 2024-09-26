@@ -89,18 +89,16 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 
 
 usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
-zed_capture.py:         capturing left right images using zed sdk.
 zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
 zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
 
 
-## USB カメラインタフェースでのdepth-anything
-ZED SDK を使いません。
-ZED2i はUSBカメラとして使います。
-左画像、右画像は連結した１枚の画像としてcv2.VideoCapture() のインタフェースから取得します。
-得られるものは、左画像だけから算出した視差(disparity)です。
-視差の値は相対的なものです。
-このままでは、単位のある深度に変換することができません。
+## depth-anything with USB camera interface
+The left and right images are retrieved from the cv2.VideoCapture() interface as one concatenated image.
+ZED2i is used as a USB camera.
+What you get is the disparity (disparity) calculated from the left image only.
+The disparity values are relative.
+
 ```commandline
  python3 usb_depth_anything.py -h
 usage: usb_depth_anything.py [-h] [--frame_rate FRAME_RATE] [--raw] [--stream] [--record] [--save] [--grayscale]
