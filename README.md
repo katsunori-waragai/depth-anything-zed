@@ -11,8 +11,6 @@ This scripts assume cameras by StereoLabs.
 - ZED SDK (StereoLabs)
 - ZED2i (StereoLabs)
 
-
-
 ## Install with Docker
 ```commandline
 sh docker_build.sh
