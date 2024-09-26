@@ -80,23 +80,16 @@ def export(
 
 
 if __name__ == "__main__":
-    import argparse
-
-    # args = argparse.ArgumentParser()
-    # args.add_argument("--weights_path", type=str, default="LiheYoung/depth_anything_vits14")
-    # args.add_argument("--save_path", type=str, default="weights")
-    # args.add_argument("--input_size", type=int, default=406)
-
-    # export(
-    #     weights_path=args.weights_path,
-    #     save_path=args.save_path,
-    #     input_size=args.input_size,
-    #     onnx=True,
-    # )
+    """
+    convert model to trt files.
+    files are located in ./weights
+    this scripts are modified from
+        https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin/blob/master/export.py
+    """
     for s in (364, 308, 406, 518):
         export(
             weights_path="LiheYoung/depth_anything_vits14",  # local hub or online
             save_path="weights",  # folder name
-            input_size=s,  # 308 | 364 | 406 | 518
+            input_size=s,
             onnx=True,
         )
