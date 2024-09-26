@@ -118,28 +118,6 @@ optional arguments:
   --grayscale           Convert the depth map to grayscale
 
 
-ZED2i capture script is now in [disparity-view](https://github.com/katsunori-waragai/disparity-view).
-After pip install for disparity-view,
-You can use `zed_capture` as command.
-
-$ zed_capture -h
-usage: zed_capture [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION] [--confidence_threshold CONFIDENCE_THRESHOLD] [--outdir OUTDIR]
-
-capture stereo pairs
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --input_svo_file INPUT_SVO_FILE
-                        Path to an .svo file, if you want to replay it
-  --ip_address IP_ADDRESS
-                        IP Adress, in format a.b.c.d:port or a.b.c.d, if you have a streaming setup
-  --resolution RESOLUTION
-                        Resolution, can be either HD2K, HD1080, HD720, SVGA or VGA
-  --confidence_threshold CONFIDENCE_THRESHOLD
-                        depth confidence_threshold(0 ~ 100)
-  --outdir OUTDIR       image pair output
-
-
 ZED2i カメラをzed　sdkを使ってデータ取得して、depth-anything で視差を計算するスクリプト
 python3 zed_depth_anything.py -h
 usage: zed_depth_anything.py [-h] [--input_svo_file INPUT_SVO_FILE] [--ip_address IP_ADDRESS] [--resolution RESOLUTION]
@@ -189,50 +167,11 @@ python3 depth_sensing.py --quick
 ```
 
 
-### わかったこと
-- log-log plotでのフィッティングよりも disparityベースでのフィッティングの方がよい。
-- そのため、log-log　plotでのフィッティングは削除した。
-
-
 ## helper tool
 - use disparity-view to capture and view npy files.
   - https://github.com/katsunori-waragai/disparity-view
   - zed_capture: capture tool 
   - disparity_viewer: disparity npy file viewer
-
-### 表示の改善のするべきこと
-- zed-sdkで値が求まっているpixel について、両者の相関関係を確認すること。
-- 期待すること：　１次式の関係にあること。
-## fitting残差の表示をすること
-- それが何％の誤差になるのか
-## depthを対数軸ではなく、linearの軸で算出すること。
-
-## host環境にtensorRTに変換後の重みファイルを保存しておくには
-weights ファイルがhost環境のディスク領域のmount にした。
-そのため、なにもしなくても、次回のguest環境に引き継がれる。
-
-# todo
-- pointCloud への変換の確認方法
-  - 球が球として計測できるか。
-- スケーリングの妥当性を確認できているか？
-- カメラ解像度と推論のための解像度の違いの扱いが妥当になっているか？
-  - focal_length_x, focal_length_y の値との関連はどうか
-- depth_anything を使ってdepthの値の絶対値を気にしている例はどれくらいあるのか？
-- depth_anything での平面の平面性はどんなであるか
-- 数値としてのdepthを点群データに変換して妥当性を確認しやすくすること
-- 以下のissue を読むと点群データへの変換と可視化の例が記されている。
-https://github.com/LiheYoung/Depth-Anything/issues/36
-
-
-# troubleshooting
-## そのzedデバイスで対応していないresolutionを指定してしまったときのエラー
-```commandline
-[2024-07-03 07:30:13 UTC][ZED][INFO] Logging level INFO
-INVALID RESOLUTION
-[2024-07-03 07:30:14 UTC][ZED][WARNING] INVALID RESOLUTION in sl::ERROR_CODE sl::Camera::open(sl::InitParameters)
-[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
-[2024-07-03 07:30:14 UTC][ZED][ERROR] [ZED] sl::Camera::Open has not been called, no Camera instance running.
-```
 
 ## SEE ALSO
 ### depth-anything v2
@@ -240,40 +179,6 @@ https://github.com/DepthAnything/Depth-Anything-V2
 [pdf](https://arxiv.org/abs/2406.09414)
 [深度推定モデル Deep Anything v2を試してみる](https://qiita.com/d_sato_/items/2f6c553e771f1d05192e)
 
-## ZED-SDK でのデータの取得と視差データの可視化には
-- 以下のツールが作成してあります。
-https://github.com/katsunori-waragai/disparity-view
-- ２重でのメンテナンスを避けるため、このリポジトリで不要になったスクリプトは削除予定です。
-
-## depth_anythingでの推論が実行できなかったときのエラー
-エラーを表示しても、スクリプトは継続する。
-```commandline
-[07/03/2024-07:37:30] [TRT] [E] 1: [resizeRunner.cpp::execute::89] Error Code 1: Cuda Runtime (invalid resource handle)
-```
-TRT を利用しているコード側の以下の改変で解決した。
-https://github.com/katsunori-waragai/depth-anything-zed/pull/16
-
-
-## 将来的な入れ替えの可能性
-- 単眼depthの分野の進展は継続中であり、それを考慮した実装にしたい。
-- ステレオカメラでのdepth推定について軽量なライブラリがありうるので、単眼depthを使わないこともありうる。
-
-## open3dの利用
-- open3dで十分なことに対して、自前ライブラリを使わなくする。
-- 
-
-## ほしいもの
-- [x] depth2anythingとzed-sdk とでのフィッティングの残差
-- [x] マジックナンバーを減らすこと
-- フィッティングを行うサンプリングを１フレームよりも増やすこと
-  - そうすることで、対応点のとれる距離の範囲を広範囲にすること
-
-## fitting　後の残差が大きくなりやすい領域は
-- 推測
-物体の輪郭に生じるartifact
-細いことで、ブロックマッチングで対応がとれにくい領域
-fittingの定義域の外
-透明物体
 
 # Depth-anything とステレオ計測との相容れない部分
 - ステレオ計測:
