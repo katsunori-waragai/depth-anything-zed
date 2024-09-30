@@ -15,7 +15,7 @@ from pathlib import Path
 
 import torch
 import tensorrt as trt
-from depth_anything import DepthAnything
+from depanyzed import DepthAnything
 
 
 def export(
