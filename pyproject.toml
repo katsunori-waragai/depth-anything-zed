@@ -23,6 +23,7 @@ dependencies = [
     "onnxruntime",
     "onnx",
     "torch",
+    "torchvision",
     "scikit-image",
     "scikit-learn",
 ]
