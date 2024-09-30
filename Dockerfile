@@ -20,9 +20,11 @@ RUN chmod +x ${ZED_SDK_INSTALLER} && ./${ZED_SDK_INSTALLER} -- silent
 
 
 # for depth anything
-RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
-RUN cd /root/Depth-Anything-for-Jetson-Orin
-WORKDIR /root/Depth-Anything-for-Jetson-Orin
+# RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
+# RUN cd /root/Depth-Anything-for-Jetson-Orin
+# WORKDIR /root/Depth-Anything-for-Jetson-Orin
+RUN cd /root && mkdir depth-anything-zed
+WORKDIR /root/depth-anything-zed
 COPY *.py ./
 RUN mkdir ./depanyzed/
 COPY ./depanyzed/* ./depanyzed/
