@@ -22,6 +22,7 @@ dependencies = [
     "open3d",
     "onnxruntime",
     "onnx",
+    "torch",
     "scikit-image",
     "scikit-learn",
 ]
