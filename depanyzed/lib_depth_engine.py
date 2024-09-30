@@ -20,7 +20,7 @@ import pycuda.autoinit  # Don't remove this line
 import pycuda.driver as cuda
 from torchvision.transforms import Compose
 
-from depth_anything import transform
+from depanyzed import transform
 
 from depanyzed import simpleply
 
