@@ -18,11 +18,6 @@ ENV ZED_SDK_INSTALLER=ZED_SDK_Tegra_L4T35.3_v4.1.0.zstd.run
 RUN wget --quiet -O ${ZED_SDK_INSTALLER} https://download.stereolabs.com/zedsdk/4.1/l4t35.2/jetsons
 RUN chmod +x ${ZED_SDK_INSTALLER} && ./${ZED_SDK_INSTALLER} -- silent
 
-
-# for depth anything
-# RUN cd /root && git clone https://github.com/IRCVLab/Depth-Anything-for-Jetson-Orin
-# RUN cd /root/Depth-Anything-for-Jetson-Orin
-# WORKDIR /root/Depth-Anything-for-Jetson-Orin
 RUN cd /root && mkdir depth-anything-zed
 WORKDIR /root/depth-anything-zed
 COPY *.py ./
