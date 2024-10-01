@@ -8,6 +8,7 @@ from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage
 test_module_path = Path(__file__).resolve().parent
 weights_dir = test_module_path.parent / "weights"
 
+
 def test_depth_run():
     import argparse
 
