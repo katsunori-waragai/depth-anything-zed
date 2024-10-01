@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 
 from depanyzed import lib_depth_engine
+import depanyzed
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 
@@ -69,7 +70,7 @@ def as_matrix(chw_array):
 
 
 def main(opt):
-    depth_engine = lib_depth_engine.DepthEngine(
+    depth_engine = depanyzed.DepthEngine(
         frame_rate=15, raw=True, stream=True, record=False, save=False, grayscale=False
     )
 
