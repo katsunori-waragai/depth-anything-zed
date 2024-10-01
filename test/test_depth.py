@@ -1,15 +1,12 @@
+from pathlib import Path
+
 import cv2
 import numpy as np
-
-from pathlib import Path
-import datetime
 
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage
 
 test_module_path = Path(__file__).resolve().parent
 weights_dir = test_module_path.parent / "weights"
-
-print(f"{weights_dir=}")
 
 
 def test_depth_run():
@@ -26,11 +23,8 @@ def test_depth_run():
         grayscale=False,
         trt_engine_path=weights_dir / "depth_anything_vits14_308.trt",
     )
-    save_ply = False
-    cap = cv2.VideoCapture(0)
     imgname = Path("./data/left.png")
     orig_frame = cv2.imread(str(imgname))
-    _, orig_frame = cap.read()
     # stereo camera left part
     H_, w_ = orig_frame.shape[:2]
     orig_frame = orig_frame[:, : w_ // 2, :]
