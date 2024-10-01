@@ -11,13 +11,20 @@ weights_dir = test_module_path.parent / "weights"
 
 print(f"{weights_dir=}")
 
+
 def test_depth_run():
     import argparse
+
     args = argparse.Namespace(frame_rate=15, grayscale=False, raw=False, record=False, save=False, stream=False)
     print(f"{args=}")
     depth_engine = DepthEngine(
-        frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=True, grayscale=False,
-        trt_engine_path=weights_dir / "depth_anything_vits14_308.trt"
+        frame_rate=args.frame_rate,
+        raw=True,
+        stream=True,
+        record=False,
+        save=True,
+        grayscale=False,
+        trt_engine_path=weights_dir / "depth_anything_vits14_308.trt",
     )
     save_ply = False
     cap = cv2.VideoCapture(0)
@@ -35,13 +42,10 @@ def test_depth_run():
     depth_img = depth_as_colorimage(depth_raw)
     result_image = np.concatenate((frame, depth_img), axis=1)
 
-    depth_raw_orignal_size = cv2.resize(
-        depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
-    )
+    depth_raw_orignal_size = cv2.resize(depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
 
     assert depth_raw_orignal_size.shape[:2] == orig_frame.shape[:2]
     assert len(depth_raw_orignal_size.shape) == 2
     assert depth_raw_orignal_size.dtype in (np.float32, np.float64)
 
     cv2.imwrite("test_result.png", result_image)
-
