@@ -11,7 +11,9 @@ weights_dir = test_module_path.parent / "weights"
 
 print(f"{weights_dir=}")
 
-def depth_run(args):
+def test_depth_run():
+    import argparse
+    args = argparse.Namespace(frame_rate=15, grayscale=False, raw=False, record=False, save=False, stream=False)
     print(f"{args=}")
     depth_engine = DepthEngine(
         frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=True, grayscale=False,
@@ -43,7 +45,3 @@ def depth_run(args):
 
     cv2.imwrite("test_result.png", result_image)
 
-if __name__ == "__main__":
-    import argparse
-    args = argparse.Namespace(frame_rate=15, grayscale=False, raw=False, record=False, save=False, stream=False)
-    depth_run(args)
