@@ -13,13 +13,16 @@ import numpy as np
 from depanyzed import lib_depth_engine, simpleply
 from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, to_point_cloud_np
 
+PROJECT_PATH = Path(__file__).resolve().parent
+WEIGHT_DIR = PROJECT_PATH / "weights"
 
 def depth_for_usb(args):
     """
     depth-anything for ZED2i as USB camera
     """
     depth_engine = DepthEngine(
-        frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False
+        frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False,
+        trt_engine_path=WEIGHT_DIR / "depth_anything_vits14_308.trt",
     )
     save_ply = False
     cap = cv2.VideoCapture(0)
