@@ -31,7 +31,7 @@ def depth_run(args):
     depth_raw = depth_engine.infer(frame)
 
     depth_img = depth_as_colorimage(depth_raw)
-    results = np.concatenate((frame, depth_img), axis=1)
+    result_image = np.concatenate((frame, depth_img), axis=1)
 
     depth_raw_orignal_size = cv2.resize(
         depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
@@ -41,9 +41,7 @@ def depth_run(args):
     assert len(depth_raw_orignal_size.shape) == 2
     assert depth_raw_orignal_size.dtype in (np.float32, np.float64)
 
-    if depth_engine.save:
-        cv2.imwrite(str(depth_engine.save_path / f'{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.png'), results)
-        print(f"{depth_engine.save_path=}")
+    cv2.imwrite("test_result.png", result_image)
 
 if __name__ == "__main__":
     import argparse
