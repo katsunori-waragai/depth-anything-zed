@@ -34,9 +34,9 @@ depth_anything_vits14_364.onnx  depth_anything_vits14_406.trt
 ```
 
 ## scripts
-usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
-zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
-zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
+- usb_depth_anything.py:  depth-anything using ZED2i as USB camera.
+- zed_depth_anything.py:   depth-anything using ZED2i with zed sdk.
+- zed_scaled_depth_anything.py: scaled depth-anything with help of disparity by zed sdk. 
 
 ## depth-anything with USB camera interface
 The left and right images are retrieved from the cv2.VideoCapture() interface as one concatenated image.
