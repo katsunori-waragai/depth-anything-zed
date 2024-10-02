@@ -11,7 +11,6 @@ import argparse
 import cv2
 import numpy as np
 
-from depanyzed import lib_depth_engine
 import depanyzed
 
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
@@ -108,7 +107,7 @@ def main(opt):
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
-            depth_any = lib_depth_engine.depth_as_colorimage(depth_any_raw)
+            depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
             results = np.concatenate((frame, depth_any), axis=1)

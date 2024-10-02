@@ -23,9 +23,12 @@ from depanyzed import camerainfo
 from depanyzed import simpleply
 import depanyzed
 
+
 def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     # depth_anything の準備をする。
-    depth_engine = depanyzed.DepthEngine(frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False)
+    depth_engine = depanyzed.DepthEngine(
+        frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False
+    )
 
     zed = sl.Camera()
 
