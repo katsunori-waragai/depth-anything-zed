@@ -21,11 +21,14 @@ from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitem
 from depanyzed.depth2pointcloud import Depth2Points
 from depanyzed import camerainfo
 from depanyzed import simpleply
+import depanyzed
 
 
 def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     # depth_anything の準備をする。
-    depth_engine = DepthEngine(frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False)
+    depth_engine = depanyzed.DepthEngine(
+        frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False
+    )
 
     zed = sl.Camera()
 
@@ -49,7 +52,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     depthimg = sl.Mat()
     point_cloud = sl.Mat()
 
-    complementor = DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
+    complementor = depanyzed.DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
 
     stable_max = None
     stable_min = None
