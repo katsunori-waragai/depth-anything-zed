@@ -1,7 +1,7 @@
 import inspect
 import pyzed.sl as sl
 
-from depanyzed.camerainfo import get_fx_fy_cx_cy, get_baseline
+from depanyzed.zed_camerainfo import get_fx_fy_cx_cy, get_baseline
 
 
 def test_get_baseline():

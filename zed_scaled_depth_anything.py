@@ -15,7 +15,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from depanyzed import camerainfo
+from depanyzed import zed_camerainfo
 from depanyzed import simpleply
 import depanyzed
 
