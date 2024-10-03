@@ -55,9 +55,9 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     EPS = 1.0e-6
 
     cam_info = zed.get_camera_information()
-    baseline = camerainfo.get_baseline(cam_info)
+    baseline = zed_camerainfo.get_baseline(cam_info)
     left_cam_params = cam_info.camera_configuration.calibration_parameters.left_cam
-    fx, fy, cx, cy = camerainfo.get_fx_fy_cx_cy(left_cam_params)
+    fx, fy, cx, cy = zed_camerainfo.get_fx_fy_cx_cy(left_cam_params)
     print(f"{baseline=}")
     print(f"{fx=} {fy=} {cx=} {cy=}")
     input("hit any key to continue")
