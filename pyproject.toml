@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "depanyzed"
 description = "depth anything with ZED SDK"
 readme = "README.md"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
     {name = "katsunori-waragai", email="waragai.katsunori@borgroid.co.jp"},
     {name = "zhang chao", email = "zhang.chao@borgroid.co.jp"},
