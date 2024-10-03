@@ -1,6 +1,7 @@
 """
 This is main script using lib_depth_engine.py without zed-sdk
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,12 +22,18 @@ WEIGHT_DIR = PROJECT_PATH / "weights"
 
 assert (WEIGHT_DIR / "depth_anything_vits14_308.trt").is_file()
 
+
 def depth_for_usb(args):
     """
     depth-anything for ZED2i as USB camera
     """
     depth_engine = depanyzed.DepthEngine(
-        frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False,
+        frame_rate=args.frame_rate,
+        raw=True,
+        stream=True,
+        record=False,
+        save=False,
+        grayscale=False,
         trt_engine_path=WEIGHT_DIR / "depth_anything_vits14_308.trt",
     )
     save_ply = False
