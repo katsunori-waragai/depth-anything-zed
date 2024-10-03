@@ -10,17 +10,22 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from depanyzed import lib_depth_engine, simpleply
-from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, to_point_cloud_np
+import pycuda.autoinit  # don't remove. Otherwise import pycuda.autoinit
+
+from depanyzed import simpleply
+from depanyzed.lib_depth_engine import depth_as_colorimage, to_point_cloud_np
+import depanyzed
 
 PROJECT_PATH = Path(__file__).resolve().parent
 WEIGHT_DIR = PROJECT_PATH / "weights"
+
+assert (WEIGHT_DIR / "depth_anything_vits14_308.trt").is_file()
 
 def depth_for_usb(args):
     """
     depth-anything for ZED2i as USB camera
     """
-    depth_engine = DepthEngine(
+    depth_engine = depanyzed.DepthEngine(
         frame_rate=args.frame_rate, raw=True, stream=True, record=False, save=False, grayscale=False,
         trt_engine_path=WEIGHT_DIR / "depth_anything_vits14_308.trt",
     )
