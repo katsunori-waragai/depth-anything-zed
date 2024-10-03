@@ -15,10 +15,6 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from depanyzed.depth2pointcloud import disparity_to_depth, depth_to_disparity
-from depanyzed.depthcomplementor import isfinite_near_pixels, DepthComplementor, plot_complemented
-from depanyzed.lib_depth_engine import DepthEngine, depth_as_colorimage, finitemin, finitemax
-from depanyzed.depth2pointcloud import Depth2Points
 from depanyzed import camerainfo
 from depanyzed import simpleply
 import depanyzed
@@ -81,9 +77,9 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
             da_disparity = depth_engine.infer_anysize(cv_image)
             assert da_disparity.shape[:2] == cv_image.shape[:2]
 
-            isfinite_near = isfinite_near_pixels(zed_depth, da_disparity)
+            isfinite_near = depanyzed.isfinite_near_pixels(zed_depth, da_disparity)
             if not complementor.predictable:
-                real_disparity = depth_to_disparity(zed_depth)
+                real_disparity = depanyzed.depth_to_disparity(zed_depth)
                 complementor.fit(da_disparity, real_disparity, isfinite_near)
 
             # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
@@ -92,7 +88,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
 
             use_direct_conversion = False
             if use_direct_conversion:
-                depth_by_da = disparity_to_depth(disparity=da_disparity)
+                depth_by_da = depanyzed.disparity_to_depth(disparity=da_disparity)
                 assert depth_by_da.shape[:2] == da_disparity.shape[:2]
                 predicted_depth = depth_by_da
             if save_depth:
@@ -117,7 +113,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 print(f"saved {zed_ply_name}")
 
             if save_fullply:
-                depth2point = Depth2Points(fx, fy, cx, cy)
+                depth2point = depanyzed.Depth2Points(fx, fy, cx, cy)
                 points = depth2point.cloud_points(predicted_depth)
                 H, W = predicted_depth.shape[:2]
                 point_img = np.reshape(cv_image, (H * W, 3))
@@ -140,20 +136,20 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
 
             if not quick:
                 full_depth_pngname = Path("data/full_depth.png")
-                plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
+                depanyzed.plot_complemented(zed_depth, predicted_depth, mixed_depth, cv_image, full_depth_pngname)
             else:
                 log_zed_depth = np.log(zed_depth + EPS)
-                assert log_zed_depth.shape == predicted_depth.shape
+                assert log_zed_depth.shape == predicted_depth.shafiniteminpe
                 assert log_zed_depth.dtype == predicted_depth.dtype
                 concat_img = np.hstack((log_zed_depth, np.log(predicted_depth)))
-                minval = finitemin(concat_img)
-                maxval = finitemax(concat_img)
+                minval = depanyzed.finitemin(concat_img)
+                maxval = depanyzed.finitemax(concat_img)
                 stable_max = max((maxval, stable_max)) if stable_max else maxval
                 stable_min = max((minval, stable_min)) if stable_min else minval
 
                 print(f"{minval=} {maxval=} {stable_min=} {stable_max=}")
                 if maxval > minval:
-                    cv2.imshow("complemented", depth_as_colorimage(-concat_img))
+                    cv2.imshow("complemented", depanyzed.depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
             # input("hit any key to continue")
