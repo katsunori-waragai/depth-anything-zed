@@ -14,7 +14,6 @@ import numpy as np
 import pycuda.autoinit  # don't remove. Otherwise import pycuda.autoinit
 
 from depanyzed import simpleply
-from depanyzed.lib_depth_engine import depth_as_colorimage, to_point_cloud_np
 import depanyzed
 
 PROJECT_PATH = Path(__file__).resolve().parent
@@ -48,14 +47,14 @@ def depth_for_usb(args):
         print(f"{frame.shape=} {frame.dtype=}")
         depth_raw = depth_engine.infer(frame)
 
-        depth = depth_as_colorimage(depth_raw)
+        depth = depanyzed.depth_as_colorimage(depth_raw)
         results = np.concatenate((frame, depth), axis=1)
 
         depth_raw_orignal_size = cv2.resize(
             depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
         )
         if save_ply:
-            points = to_point_cloud_np(depth_raw_orignal_size)
+            points = depanyzed.to_point_cloud_np(depth_raw_orignal_size)
             plyname = Path("tmp.ply")
             simpleply.write_point_cloud(plyname, points, orig_frame)
             print(f"saved {plyname}")
@@ -76,7 +75,7 @@ def depth_for_usb(args):
                 depth_raw_orignal_size = cv2.resize(
                     depth_raw, (original_width, original_height), interpolation=cv2.INTER_NEAREST
                 )
-                points = to_point_cloud_np(depth_raw_orignal_size)
+                points = depanyzed.to_point_cloud_np(depth_raw_orignal_size)
 
                 plyname = Path("tmp.ply")
                 simpleply.write_point_cloud(plyname, points, orig_frame)
