@@ -4,6 +4,24 @@ docker environment for depth-anything　with ZED SDK
 This repository provide scripts using ZED SDK (StereoLabs)
 This scripts assume cameras by StereoLabs.
 
+## Aim
+### Why depth-anything as-is is not sufficient.
+- The result of depth-anything cannot be converted to point cloud data with scale.
+- Focal length information such as fx, fy, etc., and baseline values that are assumed to be the calculated parallax equivalent.
+- Due to the lack of these values, depth-anything cannot be turned into 3D data in real space.
+### What this library aims to do
+- To provide a method to convert the 3D coordinates of a real space by depth-anything by using a camera with known characteristics.
+- To convert the disparity returned by depth-anything to that of a real stereo camera by robustly fitting the disparity calculated by a camera with known characteristics and the disparity returned by depth-anything.
+
+### なぜ、depth-anything そのままでは不十分なのか
+- depth-anythingの結果をスケールの持つ点群データに変換できないこと。
+- fx, fy などの焦点距離情報、視差相当の算出値が想定しているbaselineの値
+- これらの値がないため、depth-anyting では、実空間の3Dデータにすることができない。
+### このライブラリが目指すこと
+- 特性のわかっているカメラを使うことで、depth-anything による実空間の3D座標に変換できる方法を提供すること。
+- 特性のわかっているカメラで算出した視差と、depth-anythingが返す視差とをロバストにフィッティングすることで、depth-anything が返す視差を、実在のステレオカメラの視差相当に変換すること。
+
+
 ## Checked Environment
 - NVIDIA Jetson AGX orin
 - Ubuntu 20
