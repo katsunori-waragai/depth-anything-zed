@@ -101,6 +101,10 @@ optional arguments:
 python3 zed_scaled_depth_anything.py --quick
 ```
 
+## Note
+- Even if the objects are extremely close, Depth-Anything can return a depth.
+![](figures/depth_anything_example.png)
+
 ## helper tools
 - use disparity-view to capture and view npy files.
   - https://github.com/katsunori-waragai/disparity-view
