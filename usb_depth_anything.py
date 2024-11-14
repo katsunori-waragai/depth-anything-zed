@@ -38,10 +38,10 @@ def depth_for_usb(args):
     save_ply = False
     cap = cv2.VideoCapture(0)
     while True:
-        _, orig_frame = cap.read()
+        _, orig_frame_wide = cap.read()
         # stereo camera left part
-        H_, w_ = orig_frame.shape[:2]
-        orig_frame = orig_frame[:, : w_ // 2, :]
+        H_, w_ = orig_frame_wide.shape[:2]
+        orig_frame = orig_frame_wide[:, : w_ // 2, :]
         original_height, original_width = orig_frame.shape[:2]
         frame = cv2.resize(orig_frame, (960, 540))
         print(f"{frame.shape=} {frame.dtype=}")
@@ -80,6 +80,9 @@ def depth_for_usb(args):
                 plyname = Path("tmp.ply")
                 simpleply.write_point_cloud(plyname, points, orig_frame)
                 print(f"saved {plyname}")
+
+                cv2.imwrite("original.png", orig_frame_wide)
+                cv2.imwrite("depth.png", depth)
 
 
 if __name__ == "__main__":
