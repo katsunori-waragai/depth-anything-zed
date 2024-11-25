@@ -16,8 +16,8 @@ import depanyzed
 MAX_ABS_DEPTH, MIN_ABS_DEPTH = 0.0, 2.0  # [m]
 
 
-def parse_args(init):
-    if len(opt.input_svo_file) > 0 and opt.input_svo_file.endswith(".svo"):
+def parse_args(opt, init):
+    if len(opt.input_svo_file) > 0 and opt.input_svo_file.endswith(".svo2"):
         init.set_from_svo_file(opt.input_svo_file)
         print("[Sample] Using SVO File input: {0}".format(opt.input_svo_file))
     elif len(opt.ip_address) > 0:
@@ -75,7 +75,7 @@ def main(opt):
 
     zed = sl.Camera()
     init_params = sl.InitParameters()
-    parse_args(init_params)
+    parse_args(opt, init_params)
     init_params.depth_mode = sl.DEPTH_MODE.ULTRA
     init_params.camera_resolution = sl.RESOLUTION.HD2K
 
