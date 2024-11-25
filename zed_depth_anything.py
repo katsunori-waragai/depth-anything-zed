@@ -85,17 +85,21 @@ def main(opt):
         exit(1)
 
     image = sl.Mat()
+    right_image = sl.Mat()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
     runtime_parameters.confidence_threshold = opt.confidence_threshold
     print(f"### {runtime_parameters.confidence_threshold=}")
 
+    cv2.namedWindow("Depth", cv2.WINDOW_NORMAL)
     try:
         while True:
             if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
                 zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
                 cv_image = image.get_data()
+                zed.retrieve_image(right_image, sl.VIEW.RIGHT, sl.MEM.CPU)
+                cv_right_image = right_image.get_data()
                 assert cv_image.shape[2] == 4  # ZED SDK dependent.
                 cv_image = cv_image[:, :, :3].copy()
                 cv_image = np.ascontiguousarray(cv_image)
@@ -110,7 +114,7 @@ def main(opt):
             depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            results = np.concatenate((frame, depth_any), axis=1)
+            results = np.concatenate((frame, cv_right_image, depth_any), axis=1)
             cv2.imshow("Depth", results)
             cv2.waitKey(1)
 
