@@ -68,6 +68,10 @@ def as_matrix(chw_array):
     return np.reshape(chw_array, (H_, W_))
 
 
+def as_3channel(cv_image: np.ndarray) -> np.ndarray:
+    return np.ascontiguousarray(cv_image[:, :, :3])
+
+
 def main(opt):
     depth_engine = depanyzed.DepthEngine(
         frame_rate=15, raw=True, stream=True, record=False, save=False, grayscale=False
@@ -100,11 +104,10 @@ def main(opt):
                 cv_image = image.get_data()
                 zed.retrieve_image(right_image, sl.VIEW.RIGHT, sl.MEM.CPU)
                 cv_right_image = right_image.get_data()
-                cv_right_image = cv_right_image[:, :, :3].copy()
-                cv_right_image = np.ascontiguousarray(cv_right_image)
                 assert cv_image.shape[2] == 4  # ZED SDK dependent.
-                cv_image = cv_image[:, :, :3].copy()
-                cv_image = np.ascontiguousarray(cv_image)
+
+                cv_image = as_3channel(cv_image)
+                cv_right_image = as_3channel(cv_right_image)
             else:
                 continue
             assert cv_image.shape[2] == 3
