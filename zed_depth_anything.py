@@ -122,11 +122,7 @@ def main(opt):
         depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
         assert frame.dtype == depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
-        if 1:
-            depth_colored = depanyzed.depth_as_colorimage(np.reciprocal(cv_depth_data))
-        else:
-            depth_colored = np.full(frame.shape, 0, dtype=np.uint8)
-
+        depth_colored = depanyzed.depth_as_colorimage(np.reciprocal(cv_depth_data))
         depth_colored = cv2.resize(depth_colored, (960, 540))
         print(f"{depth_colored.shape=} {frame.shape[:2]=}")
         assert depth_colored.shape[:2] == frame.shape[:2]
@@ -162,7 +158,7 @@ if __name__ == "__main__":
         "--confidence_threshold",
         type=float,
         help="depth confidence_threshold(0 ~ 100)",
-        default=100,
+        default=90,
     )
     opt = parser.parse_args()
     if len(opt.input_svo_file) > 0 and len(opt.ip_address) > 0:
