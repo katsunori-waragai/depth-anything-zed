@@ -90,6 +90,7 @@ def main(opt):
 
     image = sl.Mat()
     right_image = sl.Mat()
+    depth = sl.Mat()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
@@ -108,6 +109,8 @@ def main(opt):
 
                 cv_image = as_3channel(cv_image)
                 cv_right_image = as_3channel(cv_right_image)
+                zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+                cv_depth_img = depth.get_data()
             else:
                 continue
             assert cv_image.shape[2] == 3
@@ -119,9 +122,11 @@ def main(opt):
             depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            resized_right_image = cv2.resize(cv_right_image, (960, 540))
-            assert resized_right_image.shape == frame.shape
-            results = np.concatenate((frame, resized_right_image, depth_any), axis=1)
+            depth_colored = depanyzed.depth_as_colorimage(depth)
+            assert depth.shape[:2] == frame.shape[:2]
+            upper =np.concatenate((frame, cv_right_image), axis=1)
+            lower = np.concatenate((depth_colored, depth_any), axis=1)
+            results = np.concatenate((upper, lower), axis=0)
             cv2.imshow("Depth", results)
             cv2.waitKey(1)
 
