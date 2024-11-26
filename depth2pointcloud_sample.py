@@ -1,5 +1,5 @@
 """
-depthのnpyファイルとleft画像を元に点群データのファイル(*.ply)を作るスクリプト
+Script to create point cloud data file (*.ply) based on npy file and left image of depth
 """
 
 import numpy as np
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     print(f"{points.shape=}")
     plyname = "data/test.ply"
 
-    # 点群の座標の原点を移動して、meshlab での表示を楽にする。
+    # Move the origin of the point cloud coordinates to ease display in meshlab.
     mean_point = np.mean(selected_points, axis=0)
 
     centered_points = selected_points.copy()
