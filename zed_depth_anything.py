@@ -122,7 +122,10 @@ def main(opt):
             depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            depth_colored = depanyzed.depth_as_colorimage(depth)
+            if 0:
+                depth_colored = depanyzed.depth_as_colorimage(depth)
+            else:
+                depth_colored = np.full(frame.shape, 0, dtype=np.uint8)
             assert depth.shape[:2] == frame.shape[:2]
             upper =np.concatenate((frame, cv_right_image), axis=1)
             lower = np.concatenate((depth_colored, depth_any), axis=1)
