@@ -80,7 +80,8 @@ def main(opt):
     zed = sl.Camera()
     init_params = sl.InitParameters()
     parse_args(opt, init_params)
-    init_params.depth_mode = sl.DEPTH_MODE.NEURAL
+    # init_params.depth_mode = sl.DEPTH_MODE.NEURAL
+    init_params.depth_mode = sl.DEPTH_MODE.NEURAL_PLUS
     init_params.camera_resolution = sl.RESOLUTION.HD2K
 
     err = zed.open(init_params)
