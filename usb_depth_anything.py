@@ -36,6 +36,7 @@ def depth_for_usb(args):
         trt_engine_path=WEIGHT_DIR / "depth_anything_vits14_308.trt",
     )
     save_ply = False
+    DEPTH_ANYTHING_SIZE = (960, 540)
     cap = cv2.VideoCapture(0)
     while True:
         _, orig_frame = cap.read()
@@ -43,7 +44,7 @@ def depth_for_usb(args):
         H_, w_ = orig_frame.shape[:2]
         orig_frame = orig_frame[:, : w_ // 2, :]
         original_height, original_width = orig_frame.shape[:2]
-        frame = cv2.resize(orig_frame, (960, 540))
+        frame = cv2.resize(orig_frame, DEPTH_ANYTHING_SIZE)
         print(f"{frame.shape=} {frame.dtype=}")
         depth_raw = depth_engine.infer(frame)
 
