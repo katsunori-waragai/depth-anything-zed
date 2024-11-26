@@ -80,7 +80,7 @@ def main(opt):
     zed = sl.Camera()
     init_params = sl.InitParameters()
     parse_args(opt, init_params)
-    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+    init_params.depth_mode = sl.DEPTH_MODE.NEURAL
     init_params.camera_resolution = sl.RESOLUTION.HD2K
 
     err = zed.open(init_params)
@@ -124,7 +124,6 @@ def main(opt):
         assert frame.shape[0] == depth_any.shape[0]
         depth_colored = depanyzed.depth_as_colorimage(np.reciprocal(cv_depth_data))
         depth_colored = cv2.resize(depth_colored, (960, 540))
-        print(f"{depth_colored.shape=} {frame.shape[:2]=}")
         assert depth_colored.shape[:2] == frame.shape[:2]
         upper = np.concatenate((frame, cv_right_image), axis=1)
         lower = np.concatenate((depth_colored, depth_any), axis=1)
