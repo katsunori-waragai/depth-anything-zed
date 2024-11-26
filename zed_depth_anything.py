@@ -68,6 +68,10 @@ def as_matrix(chw_array):
     return np.reshape(chw_array, (H_, W_))
 
 
+def as_3channel(cv_image: np.ndarray) -> np.ndarray:
+    return np.ascontiguousarray(cv_image[:, :, :3])
+
+
 def main(opt):
     depth_engine = depanyzed.DepthEngine(
         frame_rate=15, raw=True, stream=True, record=False, save=False, grayscale=False
@@ -85,32 +89,39 @@ def main(opt):
         exit(1)
 
     image = sl.Mat()
+    right_image = sl.Mat()
 
     runtime_parameters = sl.RuntimeParameters()
     runtime_parameters.measure3D_reference_frame = sl.REFERENCE_FRAME.WORLD
     runtime_parameters.confidence_threshold = opt.confidence_threshold
     print(f"### {runtime_parameters.confidence_threshold=}")
 
+    cv2.namedWindow("Depth", cv2.WINDOW_NORMAL)
     try:
         while True:
             if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
                 zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU)
                 cv_image = image.get_data()
+                zed.retrieve_image(right_image, sl.VIEW.RIGHT, sl.MEM.CPU)
+                cv_right_image = right_image.get_data()
                 assert cv_image.shape[2] == 4  # ZED SDK dependent.
-                cv_image = cv_image[:, :, :3].copy()
-                cv_image = np.ascontiguousarray(cv_image)
+
+                cv_image = as_3channel(cv_image)
+                cv_right_image = as_3channel(cv_right_image)
             else:
                 continue
             assert cv_image.shape[2] == 3
             assert cv_image.dtype == np.uint8
-            frame = cv2.resize(cv_image, (960, 540)).copy()
+            frame = cv2.resize(cv_image, (960, 540))
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
             depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            results = np.concatenate((frame, depth_any), axis=1)
+            resized_right_image = cv2.resize(cv_right_image, (960, 540))
+            assert resized_right_image.shape == frame.shape
+            results = np.concatenate((frame, resized_right_image, depth_any), axis=1)
             cv2.imshow("Depth", results)
             cv2.waitKey(1)
 
