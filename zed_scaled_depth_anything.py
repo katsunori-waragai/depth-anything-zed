@@ -21,7 +21,6 @@ import depanyzed
 
 
 def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
-    # depth_anything の準備をする。
     depth_engine = depanyzed.DepthEngine(
         frame_rate=30, raw=True, stream=True, record=False, save=False, grayscale=False
     )
@@ -48,7 +47,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
     depthimg = sl.Mat()
     point_cloud = sl.Mat()
 
-    complementor = depanyzed.DepthComplementor()  # depth-anythingを使ってzed-sdk でのdepthを補完するモデル
+    complementor = depanyzed.DepthComplementor()  # Model to complement depth in zed-sdk using depth-anything
 
     stable_max = None
     stable_min = None
@@ -73,7 +72,6 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
             print(f"{zed_depth.shape=} {zed_depth.dtype=}")
             print(f"{np.nanpercentile(zed_depth, [5, 95])=}")
 
-            # depth-anything からもdepthの推測値を得る
             da_disparity = depth_engine.infer_anysize(cv_image)
             assert da_disparity.shape[:2] == cv_image.shape[:2]
 
@@ -82,7 +80,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 real_disparity = depanyzed.depth_to_disparity(zed_depth)
                 complementor.fit(da_disparity, real_disparity, isfinite_near)
 
-            # 対数表示のdepth（補完処理）、対数表示のdepth(depth_anything版）
+            # logarithmic display of depth (completion process), logarithmic display of depth (depth_anything version)
             predicted_depth, mixed_depth = complementor.complement(zed_depth, da_disparity)
             assert predicted_depth.shape[:2] == da_disparity.shape[:2]
 
@@ -122,8 +120,7 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                 full_plyname = "data/full_pointcloud.ply"
                 simpleply.write_point_cloud(full_plyname, selected_points, selected_img)
 
-                # print(f"saved {full_plyname}")
-                # 点群の座標の原点を移動して、meshlab での表示を楽にする。
+                # Move the origin of the point cloud coordinates to ease display in meshlab.
                 mean_point = np.mean(selected_points, axis=0)
 
                 centered_points = selected_points.copy()
@@ -152,7 +149,6 @@ def main(quick: bool, save_depth: bool, save_ply: bool, save_fullply: bool):
                     cv2.imshow("complemented", depanyzed.depth_as_colorimage(-concat_img))
                 key = cv2.waitKey(1)
 
-            # input("hit any key to continue")
             i += 1
 
     zed.close()
