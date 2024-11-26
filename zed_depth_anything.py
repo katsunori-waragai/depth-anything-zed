@@ -109,12 +109,13 @@ def main(opt):
             cv_image = as_3channel(cv_image)
             cv_right_image = as_3channel(cv_right_image)
             zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
-            cv_depth_img = depth.get_data()
+            cv_depth_data = depth.get_data()
         else:
             continue
         assert cv_image.shape[2] == 3
         assert cv_image.dtype == np.uint8
         frame = cv2.resize(cv_image, (960, 540))
+        cv_right_image = cv2.resize(cv_right_image, (960, 540))
         assert frame.shape[0] == 540
         assert frame.shape[1] == 960
         depth_any_raw = depth_engine.infer(frame)
@@ -122,10 +123,13 @@ def main(opt):
         assert frame.dtype == depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
         if 0:
-            depth_colored = depanyzed.depth_as_colorimage(depth)
+            depth_colored = depanyzed.depth_as_colorimage(cv_depth_data)
         else:
             depth_colored = np.full(frame.shape, 0, dtype=np.uint8)
-        assert depth.shape[:2] == frame.shape[:2]
+
+        depth_colored = cv2.resize(depth_colored, (960, 540))
+        print(f"{depth_colored.shape=} {frame.shape[:2]=}")
+        assert depth_colored.shape[:2] == frame.shape[:2]
         upper =np.concatenate((frame, cv_right_image), axis=1)
         lower = np.concatenate((depth_colored, depth_any), axis=1)
         results = np.concatenate((upper, lower), axis=0)
