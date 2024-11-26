@@ -126,12 +126,11 @@ def main(opt):
         depth_colored = cv2.resize(depth_colored, (960, 540))
         print(f"{depth_colored.shape=} {frame.shape[:2]=}")
         assert depth_colored.shape[:2] == frame.shape[:2]
-        upper =np.concatenate((frame, cv_right_image), axis=1)
+        upper = np.concatenate((frame, cv_right_image), axis=1)
         lower = np.concatenate((depth_colored, depth_any), axis=1)
         results = np.concatenate((upper, lower), axis=0)
         cv2.imshow("Depth", results)
         cv2.waitKey(1)
-
 
 
 if __name__ == "__main__":
