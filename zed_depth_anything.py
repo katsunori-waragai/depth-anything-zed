@@ -98,6 +98,8 @@ def main(opt):
     runtime_parameters.confidence_threshold = opt.confidence_threshold
     print(f"### {runtime_parameters.confidence_threshold=}")
 
+    DEPTH_ANYTHING_SIZE = (960, 540)
+
     cv2.namedWindow("Depth", cv2.WINDOW_NORMAL)
     while True:
         if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -113,19 +115,12 @@ def main(opt):
             cv_depth_data = depth.get_data()
         else:
             continue
-        assert cv_image.shape[2] == 3
-        assert cv_image.dtype == np.uint8
-        frame = cv2.resize(cv_image, (960, 540))
-        cv_right_image = cv2.resize(cv_right_image, (960, 540))
-        assert frame.shape[0] == 540
-        assert frame.shape[1] == 960
+        frame = cv2.resize(cv_image, DEPTH_ANYTHING_SIZE)
+        cv_right_image = cv2.resize(cv_right_image, DEPTH_ANYTHING_SIZE)
         depth_any_raw = depth_engine.infer(frame)
         depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
-        assert frame.dtype == depth_any.dtype
-        assert frame.shape[0] == depth_any.shape[0]
         depth_colored = depanyzed.depth_as_colorimage(np.reciprocal(cv_depth_data))
-        depth_colored = cv2.resize(depth_colored, (960, 540))
-        assert depth_colored.shape[:2] == frame.shape[:2]
+        depth_colored = cv2.resize(depth_colored, DEPTH_ANYTHING_SIZE)
         upper = np.concatenate((frame, cv_right_image), axis=1)
         lower = np.concatenate((depth_colored, depth_any), axis=1)
         results = np.concatenate((upper, lower), axis=0)
