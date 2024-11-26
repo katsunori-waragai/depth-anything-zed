@@ -100,6 +100,8 @@ def main(opt):
                 cv_image = image.get_data()
                 zed.retrieve_image(right_image, sl.VIEW.RIGHT, sl.MEM.CPU)
                 cv_right_image = right_image.get_data()
+                cv_right_image = cv_right_image[:, :, :3].copy()
+                cv_right_image = np.ascontiguousarray(cv_right_image)
                 assert cv_image.shape[2] == 4  # ZED SDK dependent.
                 cv_image = cv_image[:, :, :3].copy()
                 cv_image = np.ascontiguousarray(cv_image)
@@ -107,14 +109,16 @@ def main(opt):
                 continue
             assert cv_image.shape[2] == 3
             assert cv_image.dtype == np.uint8
-            frame = cv2.resize(cv_image, (960, 540)).copy()
+            frame = cv2.resize(cv_image, (960, 540))
             assert frame.shape[0] == 540
             assert frame.shape[1] == 960
             depth_any_raw = depth_engine.infer(frame)
             depth_any = depanyzed.depth_as_colorimage(depth_any_raw)
             assert frame.dtype == depth_any.dtype
             assert frame.shape[0] == depth_any.shape[0]
-            results = np.concatenate((frame, cv_right_image, depth_any), axis=1)
+            resized_right_image = cv2.resize(cv_right_image, (960, 540))
+            assert resized_right_image.shape == frame.shape
+            results = np.concatenate((frame, resized_right_image, depth_any), axis=1)
             cv2.imshow("Depth", results)
             cv2.waitKey(1)
 
