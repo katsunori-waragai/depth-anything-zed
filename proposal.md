@@ -1,36 +1,36 @@
-# 提案： C1カメラからdepth推定をする。
-## 前提
-- C1 カメラ Tier IV 製
+# Proposal: Depth estimation from C1 camera.
+## Assumption
+- C1 camera from Tier IV
 - Depth Anything
 
-## 提案内容
-- 単眼のC1カメラで、スケーリングについてある程度根拠のある深度推定をできるカメラライブラリを作る。
+## Proposal
+- Create a camera library that can provide depth estimation with some basis for scaling with a monocular C1 camera.
 
-## 提案する理由
-- 基線長を必要とするステレオカメラ（アクティブステレオを含む）は、その分だけ大きくなってしまう。
-  - ロボットの手首近くなどの場合には、カメラを小さく軽くしたい。
-- 一方のカメラにしか写らないほど近距離になってしまうと、深度がほとんどのステレオカメラでは算出できない。
-  - ロボットのハンドに利用することを考えると、近距離すぎる場合に物体に気づけないのはシステム設計上つらい。
+## Reason for proposal.
+- Stereo cameras (including active stereo) that require a baseline length are larger than they should be.
+  - In cases such as near the robot's wrist, the camera should be small and light.
+- If the camera is so close that only one of the cameras can capture the image, depth cannot be calculated with most stereo cameras.
+  - When considering the use of a stereo camera for a robot hand, it is difficult to design a system that cannot detect an object when it is too close.
 
-## 提案の実現方法
-#### C1カメラステレオカメラを作る
-- カメラの視野角を選択する。
-- 測定する深度範囲を明確にする。
-- その範囲をカバーするように、基線長を決める。
-- C1カメラ２台を、その基線長で安定して取り付ける。（取り付けたときの向きの精度・安定性も大事）
-- C1カメラ２台によるステレオカメラのキャリブレーションを実施する。
-#### C1カメラステレオカメラで視差を算出する。
-- C1カメラステレオカメラで、ステレオカメラとしての視差を算出する。
-- C1カメラの左カメラ画像からdepth-anythingでの視差を算出する。
-- 対応関係を付ける。
-- C１カメラの左カメラ画像から視差を算出して、ステレオカメラとしての３Dの点群しての処理フローを作る。
-#### C1カメラ単眼での処理フローを作る。
-- 上記の作業で、左カメラとdepth-anythingだけで、３Dの点群座標を得る処理フローができている。
-- それを単眼カメラに対して実行する。
+## How to realize the proposal
+#### Make a C1 camera stereo camera
+- Select the viewing angle of the camera.
+- Define the depth range to be measured.
+- Determine the baseline length to cover that range.
+- Mount the two C1 cameras stably at the baseline length. (The accuracy and stability of the orientation of the cameras when mounted is also important.)
+- Calibrate the stereo cameras with the two C1 cameras.
+#### Calculate the parallax with the C1 camera stereo cameras.
+- Calculate parallax as a stereo camera with the C1 camera stereo camera.
+- Calculate the disparity in depth-anything from the left camera image of the C1 camera.
+- Correspondence.
+- Calculate disparity from the C1 camera left camera image and create a processing flow as a 3D point cloud as a stereo camera.
+#### Create a processing flow for the C1 camera monocular.
+- With the above work, a processing flow to obtain 3D point cloud coordinates has been created using only the left camera and depth-anything.
+- Execute it for the monocular camera.
 
-## めざす範囲
-- 物体の前後関係を保たれていること
-- おおきな欠損値がないこと
-## めざさないこと
-- 計測値としての精度
-- １回の計測によって目標座標を固定し、その間はフィードバックを必要としない方式
+## Aiming range
+- Front-back relation of the objects must be maintained
+- No large missing values
+## Do not aim for
+- Accuracy of measurements
+- Fix target coordinates with a single measurement and no feedback during the measurement
