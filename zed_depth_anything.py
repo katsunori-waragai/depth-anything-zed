@@ -123,7 +123,7 @@ def main(opt):
         assert frame.dtype == depth_any.dtype
         assert frame.shape[0] == depth_any.shape[0]
         if 1:
-            depth_colored = depanyzed.depth_as_colorimage(cv_depth_data)
+            depth_colored = depanyzed.depth_as_colorimage(np.reciprocal(cv_depth_data))
         else:
             depth_colored = np.full(frame.shape, 0, dtype=np.uint8)
 
