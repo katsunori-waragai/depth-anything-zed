@@ -96,7 +96,16 @@ optional arguments:
                         Resolution, can be either HD2K, HD1200, HD1080, HD720, SVGA or VGA
   --confidence_threshold CONFIDENCE_THRESHOLD
                         depth confidence_threshold(0 ~ 100)
+```
 
+![neural_plus.png](figures/neural_plus.png)
+![neural_plus_near.png](figures/neural_plus_near.png)
+Examples for  zed_depth_anything.py
+Using DEPTH_MODE.NEURAL_PLUS.
+
+
+
+```
 Script to acquire images from a ZED2i camera using zed sdk and calculate disparity with depth-anything with aligned scaling.
 Robust fitting is performed so that the disparity converted from the depth of the stereo calculation in the zed sdk and the disparity in depth-anything are on the same straight line.
  
