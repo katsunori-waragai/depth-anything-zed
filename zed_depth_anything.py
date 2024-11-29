@@ -73,7 +73,9 @@ def as_3channel(cv_image: np.ndarray) -> np.ndarray:
 
 
 def main(opt):
+    # input_size (364, 308, 406, 518)
     depth_engine = depanyzed.DepthEngine(
+        input_size=308,
         frame_rate=15, raw=True, stream=True, record=False, save=False, grayscale=False
     )
 
